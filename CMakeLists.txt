@@ -3,5 +3,11 @@ project(irc)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES src/main.cpp)
-add_executable(irc ${SOURCE_FILES})
+add_library( libirc SHARED
+                    )
+set_target_properties(libirc PROPERTIES OUTPUT_NAME "irc")
+set_target_properties(libirc PROPERTIES LINKER_LANGUAGE CXX)
+
+
+add_executable(irc src/main.cpp)
+target_link_libraries( irc libirc )
