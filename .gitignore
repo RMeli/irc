@@ -1,3 +1,7 @@
+# Build
+build-debug/
+build-release/
+
 # Vim
 *~
 
