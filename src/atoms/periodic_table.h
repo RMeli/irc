@@ -228,8 +228,6 @@ constexpr std::array<double, pt_size> pt_covalent_radii = {
 
 size_t atomic_number(const std::string& symbol);
 
-void print_atom_info(const std::string& symbol, std::ostream& out = std::cout);
-
 }
 
 #endif //IRC_PERIODIC_TABLE_H
