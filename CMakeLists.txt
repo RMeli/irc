@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_library( libirc SHARED
                     src/atoms/periodic_table.h
-                    src/atoms/periodic_table.cpp)
+                    src/atoms/periodic_table.cpp
+                    src/connectivity/connectivity.h
+                    src/connectivity/connectivity.cpp)
 set_target_properties(libirc PROPERTIES OUTPUT_NAME "irc")
 set_target_properties(libirc PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -27,3 +29,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_executable( test_periodic_table src/atoms/periodic_table_test.cpp )
 target_link_libraries( test_periodic_table libirc )
 add_test( UNITTEST_periodic_table bin/test_periodic_table )
+
+add_executable( test_connectivity src/connectivity/connectivity_test.cpp )
+target_link_libraries( test_connectivity libirc )
+add_test( UNITTEST_connectivity bin/test_connectivity )

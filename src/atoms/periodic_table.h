@@ -122,6 +122,7 @@ constexpr std::array<double, pt_size> pt_masses = {
     243.         ,  //   Americium       Am      95
 };
 
+// TODO Move it elsewhere
 constexpr double angstrom_to_bohr{1.889725989};
 
 /// J. C. Slater, "Atomic Radii in Crystals",
