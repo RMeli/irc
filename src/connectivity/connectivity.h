@@ -8,8 +8,9 @@
 
 namespace connectivity{
 
-  arma::vec get_bonds(std::vector<std::string> atoms_symbols,
-                      const arma::mat& atoms_positions);
+// TODO: Connectivity matrix
+//arma::mat connectivity_matrix(const Molecule& molecule);
+
 }
 
 

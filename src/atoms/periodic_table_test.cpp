@@ -3,19 +3,31 @@
 #include "periodic_table.h"
 
 #include <cassert>
+#include <iomanip>
 #include <iostream>
-#include <string>
 
 int main(){
   using namespace std;
-  using namespace atoms;
+  using namespace periodic_table;
   
-  std::string symbol{""};
-  for(size_t i{0}; i < pt_size; i++){
-    symbol = pt_symbols[i];
-    assert( i == atomic_number(symbol) );
+  bool valid{false};
+  for(size_t i{0}; i < pt_size + 1; i++){
+    valid = valid_atomic_number(i);
+    
+    if(valid){
+      cout << std::setw(3) << i;
+      cout << " is a valid atomic number corresponding to element ";
+      cout << pt_symbols[i] << ".\n";
+      
+      assert( i < pt_size );
+    }
+    else{
+      cout << std::setw(3) << i;
+      cout << " is not a valid atomic number.\n";
+      
+      assert( i == 0 or i == pt_size );
+    }
   }
-  cout << endl;
   
   return 0;
 }

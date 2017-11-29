@@ -8,42 +8,28 @@
 
 #include <armadillo>
 
-namespace atoms{
+namespace atom{
 
-class Atom {
+struct AtomicNumber{
  public:
-  Atom(const std::string& s, const arma::vec& pos);
-  Atom(size_t idx, const arma::vec& pos);
+  AtomicNumber(size_t an);
   
-  const std::string& get_symbol() const;
-  
-  size_t get_atomic_number() const;
-  
-  double get_mass() const;
-  
-  double get_covalent_radius() const;
-  
-  const arma::vec& get_position() const;
- 
- private:
-  /// Atomic symbol
-  std::string symbol;
-  
-  /// Atomic number
-  size_t number;
-  
-  /// Atomic mass
-  double mass;
-  
-  /// Covalent radius
-  double covalent_radius;
-  
-  /// Position
-  arma::vec position;
-  
-  /// Listo of atoms bonded with this
-  std::vector<std::shared_ptr<Atom>> neighbours;
+  size_t atomic_number;
 };
+
+struct Atom {
+  Atom(const AtomicNumber& an, const arma::vec& pos);
+  
+  AtomicNumber atomic_number;
+  
+  arma::vec position;
+};
+
+std::string symbol(const AtomicNumber& an);
+
+double mass(const AtomicNumber& an);
+
+double covalent_radius(const AtomicNumber& an);
 
 std::ostream& operator<<(std::ostream& out, const Atom& a);
 

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-namespace atoms{
+namespace periodic_table{
 
 constexpr size_t pt_size{96};
 
@@ -226,7 +226,7 @@ constexpr std::array<double, pt_size> pt_covalent_radii = {
     1.75 * angstrom_to_bohr,  //   Americium       Am      95
 };
 
-size_t atomic_number(const std::string& symbol);
+bool valid_atomic_number(size_t an);
 
 }
 

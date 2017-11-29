@@ -1,70 +1,68 @@
 #include "atom.h"
 
 #include <iomanip>
+#include <ostream>
+#include <stdexcept>
 
-namespace atoms {
+namespace atom {
 
-Atom::Atom(const std::string &s, const arma::vec &pos)
-    : symbol(s),
-      position(pos) ,
-      number(atomic_number(symbol)),
-      mass(pt_masses[number]),
-      covalent_radius(pt_covalent_radii[number])
+AtomicNumber::AtomicNumber(size_t an) {
+  if( !periodic_table::valid_atomic_number(an) ){
+    throw std::logic_error("");
+  }
+  
+  atomic_number = an;
+}
+
+std::string symbol(const AtomicNumber& an){
+  return periodic_table::pt_symbols[an.atomic_number];
+}
+
+double mass(const AtomicNumber& an){
+  return periodic_table::pt_masses[an.atomic_number];
+}
+
+double covalent_radius(const AtomicNumber& an){
+  return periodic_table::pt_covalent_radii[an.atomic_number];
+}
+
+Atom::Atom(const AtomicNumber& an, const arma::vec& pos)
+: atomic_number(an), position(pos)
 {}
 
-Atom::Atom(size_t idx, const arma::vec &pos)
-    : symbol(pt_symbols[idx]),
-      number(idx),
-      mass(pt_masses[idx]),
-      covalent_radius(pt_covalent_radii[idx])
-{}
-
-const std::string& Atom::get_symbol() const{
-  return symbol;
-}
-
-size_t Atom::get_atomic_number() const{
-  return number;
-}
-
-double Atom::get_mass() const{
-  return mass;
-}
-
-double Atom::get_covalent_radius() const{
-  return covalent_radius;
-}
-
-const arma::vec& Atom::get_position() const{
-  return position;
+std::ostream& operator<<(std::ostream& out, const AtomicNumber& an){
+  out << an.atomic_number;
+  
+  return out;
 }
 
 std::ostream& operator<<(std::ostream& out, const Atom& a){
   // Print top line
   out << std::left << std::setw(15) << std::setfill('-') << '+';
   out  << ' ';
-  out << std::left<< std::setw(2) << std::setfill(' ') << a.get_symbol();
-  out << ' ' ;
+  out << std::left<< std::setw(2) << std::setfill(' ');
+  out << symbol(a.atomic_number) << ' ';
   out << std::right << std::setw(15) << std::setfill('-') << '+' << std::endl;
   
   // Print atomic number
   out << std::setfill(' ');
   out << std::left << std::setw(20) << "| atomic number:";
-  out << std::right << std::setw(12) << a.get_atomic_number();
+  out << std::right << std::setw(12) << a.atomic_number;
   out << " |" << std::endl;
   
   // Print atomic mass
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "| atomic mass:";
-  out << std::right << std::setw(12) << a.get_mass() << " |" << std::endl;
+  out << std::right << std::setw(12);
+  out << mass(a.atomic_number) << " |" << std::endl;
   
   // Print covalent radius
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "| covalent radius:";
-  out << std::right << std::setw(12) << a.get_covalent_radius();
-  out << " |" << std::endl;
+  out << std::right << std::setw(12);
+  out << covalent_radius(a.atomic_number) << " |" << std::endl;
   
   // Print position
   out << std::setfill(' ');
@@ -77,21 +75,21 @@ std::ostream& operator<<(std::ostream& out, const Atom& a){
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "|    x =";
-  out << std::right << std::setw(12) << a.get_position()[0];
+  out << std::right << std::setw(12) << a.position(0);
   out << " |" << std::endl;
   
   // y coordinate
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "|    y =";
-  out << std::right << std::setw(12) << a.get_position()[1];
+  out << std::right << std::setw(12) << a.position(1);
   out << " |" << std::endl;
   
   // z coordinate
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "|    x =";
-  out << std::right << std::setw(12) << a.get_position()[2];
+  out << std::right << std::setw(12) << a.position(2);
   out << " |" << std::endl;
   
   // Print bottom line

@@ -2,18 +2,10 @@
 
 #include <iomanip>
 
-namespace atoms{
+namespace periodic_table{
 
-size_t atomic_number(const std::string& symbol){
-  size_t idx{0};
-  for(size_t i{0}; i < pt_size; i++){
-    if(symbol == pt_symbols[i]){
-      idx = i;
-      break;
-    }
-  }
-  
-  return idx;
+bool valid_atomic_number(size_t an){
+  return an > 0 && an < pt_size;
 }
 
 }
