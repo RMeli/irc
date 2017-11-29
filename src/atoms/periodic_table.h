@@ -2,6 +2,8 @@
 #define IRC_PERIODIC_TABLE_H
 
 #include <array>
+#include <iostream>
+#include <string>
 
 namespace atoms{
 
@@ -22,7 +24,7 @@ constexpr std::array<char[3], pt_size> pt_symbols = {
 };
 
 constexpr std::array<double, pt_size> pt_masses = {
-    0.0000       ,  //   Ghost Atom      Bq      0
+    0.0000       ,  //   Ghost Atom      X       0
     1.0079       ,  //   Hydrogen        H       1
     4.0026       ,  //   Helium          He      2
     6.941        ,  //   Lithium         Li      3
@@ -125,7 +127,7 @@ constexpr double angstrom_to_bohr{1.889725989};
 /// J. C. Slater, "Atomic Radii in Crystals",
 /// J. Phys. Chem. 41, 3199-3204 (1964)
 constexpr std::array<double, pt_size> pt_covalent_radii = {
-    0.00 * angstrom_to_bohr,  //   Ghost Atom      Bq      0
+    0.00 * angstrom_to_bohr,  //   Ghost Atom      X       0
     0.25 * angstrom_to_bohr,  //   Hydrogen        H       1
     0.00 * angstrom_to_bohr,  //   Helium          He      2
     1.45 * angstrom_to_bohr,  //   Lithium         Li      3
@@ -223,6 +225,9 @@ constexpr std::array<double, pt_size> pt_covalent_radii = {
     1.75 * angstrom_to_bohr,  //   Americium       Am      95
 };
 
+size_t atomic_number(const std::string& symbol);
+
+void print_atom_info(const std::string& symbol, std::ostream& out = std::cout);
 
 }
 
