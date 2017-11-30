@@ -2,18 +2,34 @@
 
 #include "molecule.h"
 
-#include <string>
-#include <vector>
+#include "../tools/comparison.h"
+
+#include <cassert>
+#include <iostream>
 
 int main(){
   using namespace std;
   using namespace molecule;
+  using namespace tools::comparison;
   
-  Molecule molecule = {
-      // TODO Define Molecule
+  Molecule molecule{
+      {1, {0.0, 1.1, 2.2}},
+      {2, {0.0, 1.1, 2.2}},
+      {3, {0.0, 1.1, 2.2}},
+      {4, {0.0, 1.1, 2.2}}
   };
   
-  // TODO Test mass function
+  cout << molecule << endl;
+  
+  double m{mass(molecule)};
+  
+  assert( nearly_equal(m, 1.0079 + 4.0026 + 6.941 + 9.0122) );
+  
+  multiply_positions(molecule, 2);
+  
+  for(const auto& atom : molecule){
+    assert( nearly_equal(atom.position, arma::vec{0.0, 2.2, 4.4}) );
+  }
   
   return 0;
 }
