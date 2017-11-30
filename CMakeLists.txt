@@ -12,8 +12,8 @@ add_library( libirc SHARED
                     src/atoms/periodic_table.cpp
                     src/connectivity/connectivity.h
                     src/connectivity/connectivity.cpp
-                    src/tools/compare.h
-                    src/tools/compare.cpp)
+        src/tools/comparison.h
+        src/tools/comparison.cpp)
 set_target_properties(libirc PROPERTIES OUTPUT_NAME "irc")
 set_target_properties(libirc PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -32,9 +32,9 @@ enable_testing()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_executable( test_compare src/tools/compare_test.cpp )
-target_link_libraries( test_compare libirc )
-add_test( UNITTEST_compare bin/test_compare )
+add_executable( test_comparison src/tools/comparison_test.cpp)
+target_link_libraries( test_comparison libirc )
+add_test( UNITTEST_comparison bin/test_comparison )
 
 add_executable( test_periodic_table src/atoms/periodic_table_test.cpp )
 target_link_libraries( test_periodic_table libirc )

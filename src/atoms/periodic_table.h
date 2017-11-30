@@ -1,6 +1,8 @@
 #ifndef IRC_PERIODIC_TABLE_H
 #define IRC_PERIODIC_TABLE_H
 
+#include "../tools/conversion.h"
+
 #include <array>
 #include <iostream>
 #include <string>
@@ -122,11 +124,9 @@ constexpr std::array<double, pt_size> pt_masses = {
     243.         ,  //   Americium       Am      95
 };
 
-// TODO Move it elsewhere
-constexpr double angstrom_to_bohr{1.889725989};
-
 /// J. C. Slater, "Atomic Radii in Crystals",
 /// J. Phys. Chem. 41, 3199-3204 (1964)
+using tools::conversion::angstrom_to_bohr;
 constexpr std::array<double, pt_size> pt_covalent_radii = {
     0.00 * angstrom_to_bohr,  //   Ghost Atom      X       0
     0.25 * angstrom_to_bohr,  //   Hydrogen        H       1

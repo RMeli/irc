@@ -1,10 +1,10 @@
-#include "compare.h"
+#include "comparison.h"
 
 #include <cmath>
 
 namespace tools {
 
-namespace compare {
+namespace comparison {
 
 bool nearly_zero(double a, double epsilon) {
   return std::abs(a) < epsilon;

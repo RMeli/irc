@@ -5,7 +5,7 @@
 
 namespace tools{
 
-namespace compare {
+namespace comparison {
 
 bool nearly_zero(double a, double epsilon = 1e-12);
 

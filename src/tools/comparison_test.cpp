@@ -7,7 +7,7 @@
 #include <armadillo>
 
 int main(){
-  using namespace tools;
+  using namespace tools::comparison;
   
   assert( nearly_zero(1.2e-14) );
   

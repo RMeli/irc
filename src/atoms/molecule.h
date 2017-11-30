@@ -3,6 +3,7 @@
 
 #include "atom.h"
 
+#include <ostream>
 #include <vector>
 
 namespace molecule{
@@ -10,6 +11,10 @@ namespace molecule{
 using Molecule = std::vector<atom::Atom>;
 
 double mass(const Molecule& molecule);
+
+void multiply_positions(Molecule& molecule, double multiplier);
+
+std::ostream& operator<<(std::ostream& out, const Molecule& molecule);
 
 }
 
