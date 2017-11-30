@@ -28,6 +28,13 @@ find_package(Boost
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(libirc ${Boost_LIBRARIES})
 
+find_package(Armadillo
+        8.200.0
+        REQUIRED
+        )
+include_directories(${ARMADILLO_INCLUDE_DIRS})
+target_link_libraries(libirc ${ARMADILLO_LIBRARIES})
+
 enable_testing()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
