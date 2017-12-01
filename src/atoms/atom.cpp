@@ -30,6 +30,10 @@ Atom::Atom(const AtomicNumber& an, const arma::vec3& pos)
 : atomic_number(an), position(pos)
 {}
 
+Atom::Atom(const std::string& symbol, const arma::vec3& pos)
+: atomic_number( periodic_table::atomic_number(symbol) ), position(pos)
+{}
+
 std::ostream& operator<<(std::ostream& out, const AtomicNumber& an){
   out << an.atomic_number;
   
