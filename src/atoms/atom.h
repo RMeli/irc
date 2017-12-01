@@ -17,12 +17,20 @@ struct AtomicNumber{
   size_t atomic_number;
 };
 
+// No ARMADILLO as dependency
+//#ifdef ARMADILLO
+//class Matrix : arma::mat {};
+//#else EIGEN
+//class Matrix : eigen::mat {};
+//#endif
+
 struct Atom {
-  Atom(const AtomicNumber& an, const arma::vec& pos);
+  Atom(const AtomicNumber& an, const arma::vec3& pos = {0., 0. , 0.});
+  Atom(const std::string& symbol, const arma::vec3& pos = {0., 0. , 0.});
   
   AtomicNumber atomic_number;
   
-  arma::vec position;
+  arma::vec3 position;
 };
 
 std::string symbol(const AtomicNumber& an);

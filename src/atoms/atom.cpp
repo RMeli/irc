@@ -26,7 +26,7 @@ double covalent_radius(const AtomicNumber& an){
   return periodic_table::pt_covalent_radii[an.atomic_number];
 }
 
-Atom::Atom(const AtomicNumber& an, const arma::vec& pos)
+Atom::Atom(const AtomicNumber& an, const arma::vec3& pos)
 : atomic_number(an), position(pos)
 {}
 

@@ -29,5 +29,9 @@ int main(){
     }
   }
   
+  for(size_t i{0}; i < pt_size; i++){
+    assert( atomic_number(pt_symbols[i]) == i );
+  }
+  
   return 0;
 }
