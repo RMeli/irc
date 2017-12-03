@@ -4,7 +4,6 @@
 #include "atom.h"
 
 #include "periodic_table.h"
-#include "../tools/comparison.h"
 
 #include <cassert>
 #include <iostream>

@@ -1,10 +1,10 @@
-#undef NDEBUG
+#define CATCH_CONFIG_MAIN
+#include "../catch/catch.hpp"
 
 #include "connectivity.h"
 
 #include "../atoms/atom.h"
 #include "../atoms/molecule.h"
-#include "../tools/comparison.h"
 #include "../tools/conversion.h"
 
 
@@ -20,11 +20,7 @@ using mat = arma::mat;
 #error
 #endif
 
-int main(){
-  using namespace std;
-  using namespace tools::comparison;
-  using namespace tools::conversion;
-  using namespace molecule;
+TEST_CASE("Distance, angle and dihedral"){
   using namespace connectivity;
   
   // Define three points in 3D space
@@ -32,11 +28,30 @@ int main(){
   vec3 p2{ 0.00,  0.00,  1.50};
   vec3 p3{ 0.00,  1.00,  1.50};
   
-  // Test distance function
-  assert( nearly_equal(distance(p1, p2), 1.75) );
+  SECTION("Distance"){
+    Approx target{1.75};
+    
+    target.margin(1e-12);
+    
+    REQUIRE( distance(p1, p2) == target);
+  }
   
-  // Test angle function
-  assert( nearly_equal(connectivity::angle(p1, p2, p3), 90) );
+  SECTION("Angle"){
+    Approx target{90};
+    
+    target.margin(1e-12);
+    
+    REQUIRE( angle(p1, p2, p3) == target);
+  }
+  
+}
+
+TEST_CASE("Connectivity test"){
+  using namespace std;
+  using namespace tools::comparison;
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
 
   // Define formaldehyde molecule (CH2O)
   Molecule<vec3> molecule{
@@ -50,10 +65,8 @@ int main(){
   multiply_positions(molecule, angstrom_to_bohr);
   
   // Compute connectivity matrix for formaldehyde molecule (in angstrom)
-  mat connectivity{ connectivity_matrix<vec3, mat>(molecule) * bohr_to_angstrom };
-  
-  // Print formaldehyde molecule
-  cout << molecule << endl;
+  mat connectivity{ connectivity_matrix<vec3, mat>(molecule)
+                    * bohr_to_angstrom };
   
   // Print connectivity matrix for formaldehyde molecule
   cout << "Connectivity matrix:" << endl;
@@ -70,23 +83,11 @@ int main(){
   // Check connectivity matrix
   for(size_t j{0}; j < molecule.size(); j++) {
     for (size_t i{0}; i < molecule.size(); i++) {
-      assert( nearly_equal(connectivity(i,j), C(i,j), 1e-6) );
+      Approx target{C(i,j)};
+      
+      target.margin(1e-6);
+      
+      REQUIRE( connectivity(i,j) == target );
     }
   }
-  
-  
-  // Print bonds
-  vector<double> b{ bonds(connectivity) };
-  cout << "Bonds:" << endl;
-  for(const auto& bond : b){
-    cout << bond << endl;
-  }
-  
-  // Print angles
-  vector<double> ang{ angles(molecule, connectivity) };
-  for(const auto& angle : ang){
-    cout << angle << endl;
-  }
-  
-  return 0;
 }

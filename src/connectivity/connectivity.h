@@ -4,7 +4,6 @@
 #include "../atoms/atom.h"
 #include "../atoms/molecule.h"
 #include "../linear_algebra/linalg.h"
-#include "../tools/comparison.h"
 #include "../tools/constants.h"
 
 #include <cmath>
@@ -66,7 +65,7 @@ Matrix connectivity_matrix(const molecule::Molecule<Vector3>& molecule){
 }
 
 template <typename Matrix>
-std::vector<double> bonds(const Matrix& connectivity){
+std::vector<double> bonds(const Matrix& connectivity, double epsilon = 1e-12){
   size_t n_atoms{ linalg::n_rows(connectivity) };
   
   std::vector<double> b;
@@ -76,7 +75,7 @@ std::vector<double> bonds(const Matrix& connectivity){
     for(size_t i{j+1}; i < n_atoms; i++){
       d = connectivity(j,i);
       
-      if( !tools::comparison::nearly_zero(d) ){
+      if( std::abs(d) > epsilon ){
         b.push_back(d);
       }
     }
