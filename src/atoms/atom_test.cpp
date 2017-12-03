@@ -1,4 +1,5 @@
-#undef NDEBUG
+#define CATCH_CONFIG_MAIN
+#include "../catch/catch.hpp"
 
 #include "atom.h"
 
@@ -15,43 +16,56 @@ using vec3 = arma::vec3;
 #error
 #endif
 
-int main(){
-  using namespace std;
+TEST_CASE("Test atom and periodic table lookup functions","[atom]"){
+  
   using namespace atom;
   
-  for(size_t i{1}; i < periodic_table::pt_size; i++){
-    assert( periodic_table::valid_atomic_number(i) );
-    
-    Atom<vec3> a{i,{0.,1.,2.}};
-    
-    assert( symbol(a.atomic_number) ==
-            periodic_table::pt_symbols[i] );
-    
-    assert( mass(a.atomic_number) ==
-            periodic_table::pt_masses[i] );
-    
-    assert( covalent_radius(a.atomic_number) ==
-            periodic_table::pt_covalent_radii[i]);
-    
-    cout << a << endl;
+  SECTION("Atom from atomic number"){
+    for(size_t i{1}; i < periodic_table::pt_size; i++) {
+      REQUIRE( periodic_table::valid_atomic_number(i) );
+  
+      // Define atom from atomic number
+      Atom<vec3> a{i};
+      
+      SECTION("symbol from atomic number"){
+        REQUIRE( symbol(a.atomic_number)
+                 == periodic_table::pt_symbols[i] );
+      }
+      
+      SECTION("mass from atomic number"){
+        REQUIRE( mass(a.atomic_number)
+                 == periodic_table::pt_masses[i] );
+      }
+      
+      SECTION("covalent radius from atomic number"){
+        REQUIRE( covalent_radius(a.atomic_number)
+                 == periodic_table::pt_covalent_radii[i] );
+      }
+    }
   }
   
-  for(size_t i{1}; i < periodic_table::pt_size; i++){
-    assert( periodic_table::valid_atomic_number(i) );
+  SECTION("Atom from atomic symbol"){
+    for(size_t i{1}; i < periodic_table::pt_size; i++) {
+      REQUIRE( periodic_table::valid_atomic_number(i) );
     
-    Atom<vec3> a{periodic_table::pt_symbols[i],{0.,1.,2.}};
+      // Define atom from atomic number
+      Atom<vec3> a{periodic_table::pt_symbols[i]};
     
-    assert( symbol(a.atomic_number) ==
-            periodic_table::pt_symbols[i] );
+      SECTION("symbol from atomic number"){
+        REQUIRE( symbol(a.atomic_number)
+                 == periodic_table::pt_symbols[i] );
+      }
     
-    assert( mass(a.atomic_number) ==
-            periodic_table::pt_masses[i] );
+      SECTION("mass from atomic number"){
+        REQUIRE( mass(a.atomic_number)
+                 == periodic_table::pt_masses[i] );
+      }
     
-    assert( covalent_radius(a.atomic_number) ==
-            periodic_table::pt_covalent_radii[i]);
-    
-    cout << a << endl;
+      SECTION("covalent radius from atomic number"){
+        REQUIRE( covalent_radius(a.atomic_number)
+                 == periodic_table::pt_covalent_radii[i] );
+      }
+    }
   }
-
-  return 0;
+  
 }

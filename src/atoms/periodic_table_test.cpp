@@ -3,6 +3,7 @@
 
 #include "periodic_table.h"
 
+#include <iomanip>
 #include <iostream>
 
 using namespace periodic_table;
