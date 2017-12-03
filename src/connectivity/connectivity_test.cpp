@@ -48,7 +48,6 @@ TEST_CASE("Distance, angle and dihedral"){
 
 TEST_CASE("Connectivity test"){
   using namespace std;
-  using namespace tools::comparison;
   using namespace tools::conversion;
   using namespace molecule;
   using namespace connectivity;

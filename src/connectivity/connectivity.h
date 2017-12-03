@@ -86,7 +86,8 @@ std::vector<double> bonds(const Matrix& connectivity, double epsilon = 1e-12){
 
 template <typename Vector3, typename Matrix>
 std::vector<double> angles(const molecule::Molecule<Vector3>& molecule,
-                           const Matrix& connectivity){
+                           const Matrix& connectivity,
+                           double epsilon = 1e-12){
   size_t n_atoms{ linalg::n_rows(connectivity) };
   
   std::vector<double> ang;
@@ -100,13 +101,13 @@ std::vector<double> angles(const molecule::Molecule<Vector3>& molecule,
     for(size_t i{j+1}; i < n_atoms; i++){
       d1 = connectivity(i,j);
       
-      if( !tools::comparison::nearly_zero(d1) ){
+      if( std::abs(d1) > epsilon ){
         p1 = molecule[i].position;
         p2 = molecule[j].position;
         
         for(size_t k{i+1}; k < n_atoms; k++){
           d2 = connectivity(j,k);
-          if( !tools::comparison::nearly_zero(d2) ){
+          if( std::abs(d2) > epsilon ){
             p3 = molecule[k].position;
             
             ang.push_back( angle(p1,p2,p3) );
