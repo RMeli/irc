@@ -11,7 +11,14 @@
 #include <iostream>
 #include <cassert>
 
+#ifdef HAVE_ARMA
 #include <armadillo>
+using vec3 = arma::vec3;
+using vec = arma::vec;
+using mat = arma::mat;
+#else
+#error
+#endif
 
 int main(){
   using namespace std;
@@ -21,18 +28,18 @@ int main(){
   using namespace connectivity;
   
   // Define three points in 3D space
-  arma::vec p1{ 0.00,  0.00, -0.25};
-  arma::vec p2{ 0.00,  0.00,  1.50};
-  arma::vec p3{ 0.00,  1.00,  1.50};
+  vec3 p1{ 0.00,  0.00, -0.25};
+  vec3 p2{ 0.00,  0.00,  1.50};
+  vec3 p3{ 0.00,  1.00,  1.50};
   
   // Test distance function
   assert( nearly_equal(distance(p1, p2), 1.75) );
   
   // Test angle function
-  assert( nearly_equal(angle(p1, p2, p3), 90) );
+  assert( nearly_equal(connectivity::angle(p1, p2, p3), 90) );
 
   // Define formaldehyde molecule (CH2O)
-  Molecule molecule{
+  Molecule<vec3> molecule{
       {"C", {0.000000,  0.000000,  -0.537500}},
       {"O", {0.000000,  0.000000,   0.662500}},
       {"H", {0.000000,  0.866025,  -1.037500}},
@@ -43,7 +50,7 @@ int main(){
   multiply_positions(molecule, angstrom_to_bohr);
   
   // Compute connectivity matrix for formaldehyde molecule (in angstrom)
-  arma::mat connectivity{ connectivity_matrix(molecule) * bohr_to_angstrom };
+  mat connectivity{ connectivity_matrix<vec3, mat>(molecule) * bohr_to_angstrom };
   
   // Print formaldehyde molecule
   cout << molecule << endl;
@@ -53,7 +60,7 @@ int main(){
   cout << connectivity << endl;
   
   // Define correct connectivity matrix for comparison
-  arma::mat C{
+  mat C{
       {0.0, 1.2, 1.0, 1.0},
       {1.2, 0.0, 0.0, 0.0},
       {1.0, 0.0, 0.0, 0.0},
@@ -61,7 +68,12 @@ int main(){
   };
   
   // Check connectivity matrix
-  assert( nearly_equal(connectivity, C, 1e-6) );
+  for(size_t j{0}; j < molecule.size(); j++) {
+    for (size_t i{0}; i < molecule.size(); i++) {
+      assert( nearly_equal(connectivity(i,j), C(i,j), 1e-6) );
+    }
+  }
+  
   
   // Print bonds
   vector<double> b{ bonds(connectivity) };
@@ -72,8 +84,9 @@ int main(){
   
   // Print angles
   vector<double> ang{ angles(molecule, connectivity) };
-  cout << "Angles:" << endl;
   for(const auto& angle : ang){
     cout << angle << endl;
   }
+  
+  return 0;
 }

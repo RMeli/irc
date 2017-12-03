@@ -8,6 +8,13 @@
 #include <cassert>
 #include <iostream>
 
+#ifdef HAVE_ARMA
+#include <armadillo>
+using vec3 = arma::vec3;
+#else
+#error
+#endif
+
 int main(){
   using namespace std;
   using namespace atom;
@@ -15,7 +22,7 @@ int main(){
   for(size_t i{1}; i < periodic_table::pt_size; i++){
     assert( periodic_table::valid_atomic_number(i) );
     
-    Atom a{i,{0.,1.,2.}};
+    Atom<vec3> a{i,{0.,1.,2.}};
     
     assert( symbol(a.atomic_number) ==
             periodic_table::pt_symbols[i] );
@@ -32,7 +39,7 @@ int main(){
   for(size_t i{1}; i < periodic_table::pt_size; i++){
     assert( periodic_table::valid_atomic_number(i) );
     
-    Atom a{periodic_table::pt_symbols[i],{0.,1.,2.}};
+    Atom<vec3> a{periodic_table::pt_symbols[i],{0.,1.,2.}};
     
     assert( symbol(a.atomic_number) ==
             periodic_table::pt_symbols[i] );
