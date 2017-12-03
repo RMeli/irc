@@ -11,7 +11,7 @@
 
 #ifdef HAVE_ARMA
 #include <armadillo>
-using vec3 = arma::vec3;
+using arma::vec3;
 #else
 #error
 #endif
@@ -28,18 +28,23 @@ TEST_CASE("Test atom and periodic table lookup functions","[atom]"){
       Atom<vec3> a{i};
       
       SECTION("symbol from atomic number"){
-        REQUIRE( symbol(a.atomic_number)
-                 == periodic_table::pt_symbols[i] );
+        REQUIRE( symbol(a.atomic_number) == periodic_table::pt_symbols[i] );
       }
       
       SECTION("mass from atomic number"){
-        REQUIRE( mass(a.atomic_number)
-                 == periodic_table::pt_masses[i] );
+        Approx target{periodic_table::pt_masses[i]};
+        
+        target.margin(1e-12);
+        
+        REQUIRE( mass(a.atomic_number) == target );
       }
       
       SECTION("covalent radius from atomic number"){
-        REQUIRE( covalent_radius(a.atomic_number)
-                 == periodic_table::pt_covalent_radii[i] );
+        Approx target{periodic_table::pt_covalent_radii[i]};
+  
+        target.margin(1e-12);
+        
+        REQUIRE( covalent_radius(a.atomic_number) == target );
       }
     }
   }
@@ -52,18 +57,23 @@ TEST_CASE("Test atom and periodic table lookup functions","[atom]"){
       Atom<vec3> a{periodic_table::pt_symbols[i]};
     
       SECTION("symbol from atomic number"){
-        REQUIRE( symbol(a.atomic_number)
-                 == periodic_table::pt_symbols[i] );
+        REQUIRE( symbol(a.atomic_number) == periodic_table::pt_symbols[i] );
       }
     
       SECTION("mass from atomic number"){
-        REQUIRE( mass(a.atomic_number)
-                 == periodic_table::pt_masses[i] );
+        Approx target{periodic_table::pt_masses[i]};
+  
+        target.margin(1e-12);
+        
+        REQUIRE( mass(a.atomic_number) == target );
       }
     
       SECTION("covalent radius from atomic number"){
-        REQUIRE( covalent_radius(a.atomic_number)
-                 == periodic_table::pt_covalent_radii[i] );
+        Approx target{periodic_table::pt_covalent_radii[i]};
+  
+        target.margin(1e-12);
+        
+        REQUIRE( covalent_radius(a.atomic_number) == target );
       }
     }
   }
