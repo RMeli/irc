@@ -5,6 +5,9 @@ build-release/
 # Vim
 *~
 
+# Doxygen
+doc/
+
 # CLion
 .idea/
 cmake-build-debug/
