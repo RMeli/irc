@@ -7,7 +7,7 @@
 #include "../atoms/molecule.h"
 #include "connectivity.h"
 
-
+#include <cmath>
 #include <iostream>
 
 #ifdef HAVE_ARMA
@@ -19,7 +19,7 @@ using mat = arma::mat;
 #error
 #endif
 
-TEST_CASE("Wildon B matrix","[wilson]"){
+TEST_CASE("Wilson B matrix","[wilson]"){
   
   using namespace std;
   using namespace wilson;
@@ -35,7 +35,7 @@ TEST_CASE("Wildon B matrix","[wilson]"){
   
     mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
   
-    std::vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(molecule, C)};
+    vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(molecule, C)};
   
     mat Bwilson = wilson_matrix<vec3, mat>(molecule.size(), bonds);
   
@@ -47,6 +47,52 @@ TEST_CASE("Wildon B matrix","[wilson]"){
   }
   
   SECTION("H2O bending"){
+    double angle( 1 / 180. * tools::constants::pi );
+    
+    std::vector<mat> R{
+        {
+            {1, 0, 0},
+            {0, 1, 0},
+            {0, 0, 1}
+        },
+        {
+            {cos(angle), -sin(angle), 0},
+            {sin(angle),  cos(angle), 0},
+            {         0,           0, 1}
+        },
+        {
+            {cos(-angle), -sin(-angle), 0},
+            {sin(-angle),  cos(-angle), 0},
+            {          0,            0, 1}
+        },
+    };
   
+    molecule::Molecule<vec3> molecule{
+        {"O", { 0.00,   0.00,  0.00}},
+        {"H", { 1.43,  -1.10,  0.00}},
+        {"H", {-1.43,  -1.10,  0.00}}
+    };
+    
+    vec dx{ linalg::zeros<vec>(3 * molecule.size()) };
+    for(size_t i{0}; i < 3; i++){
+      vec3 v{ R[i] * molecule[i].position - molecule[i].position};
+      
+      dx(3*i + 0) = v(0);
+      dx(3*i + 1) = v(1);
+      dx(3*i + 2) = v(2);
+    }
+  
+    mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
+  
+    vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(molecule, C)};
+    vector<connectivity::Angle<vec3>> angles{ connectivity::angles(molecule, C)};
+  
+    mat Bwilson = wilson_matrix<vec3, mat>(molecule.size(), bonds, angles);
+  
+    cout << "Wilson B matrix:" << endl;
+    cout << Bwilson << endl;
+  
+    cout << "\nTransformation" << endl;
+    cout << Bwilson * dx << endl;
   }
 }

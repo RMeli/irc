@@ -34,6 +34,11 @@ double dot(const T& a, const T& b){
   return arma::dot(a, b);
 }
 
+template <typename Vector>
+Vector zeros(size_t nelements){
+  return std::move(arma::zeros<Vector>(nelements));
+}
+
 template <typename Matrix>
 Matrix zeros(size_t nrows, size_t ncols){
   return std::move(arma::zeros<Matrix>(nrows, ncols));

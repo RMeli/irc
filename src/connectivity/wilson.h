@@ -6,6 +6,7 @@
 #include "../tools/constants.h"
 
 #include <cmath>
+#include <iostream>
 #include <tuple>
 #include <utility>
 
@@ -58,7 +59,7 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const connectivity::Angle<V
 /// \f$\delta\mathbf{x}\f$ to redundant internal displacements
 /// \f$\delta\mathbf{q}\f$:
 /// \f[
-///   \delta\mathbf{q} = B \delta\mathbf{x}
+///   \delta\mathbf{q} = \mathbf{B} \delta\mathbf{x}
 /// \f]
 ///
 /// More details can be found in Peng et al., J. Comp. Chem. 17, 49-56, 1996.
@@ -72,8 +73,10 @@ Matrix wilson_matrix(size_t n_atoms,
   // Allocate Wilson's B matrix
   Matrix B{ linalg::zeros<Matrix>(n_irc, 3 * n_atoms) };
   
+  // Utility vector for gradients storage
   Vector3 g1, g2, g3;
   
+  // Populate B matrix's rows corresponding to bonds
   connectivity::Bond<Vector3> bond;
   for(size_t i{0}; i < bonds.size(); i++){
     bond = bonds[i];
@@ -86,6 +89,7 @@ Matrix wilson_matrix(size_t n_atoms,
     }
   }
   
+  // Populate B matrix's rows corresponding to angles
   connectivity::Angle<Vector3> angle;
   for(size_t i{0}; i < angles.size(); i++){
     angle = angles[i];
@@ -93,12 +97,11 @@ Matrix wilson_matrix(size_t n_atoms,
     std::tie(g1, g2, g3) = angle_gradient(angle);
   
     for(size_t idx{0}; idx < 3; idx++){
-      B(i, 3 * angle.i + idx) = g1(idx);
-      B(i, 3 * angle.j + idx) = g2(idx);
-      B(i, 3 * angle.k + idx) = g3(idx);
+      B(i + bonds.size(), 3 * angle.i + idx) = g1(idx);
+      B(i + bonds.size(), 3 * angle.j + idx) = g2(idx);
+      B(i + bonds.size(), 3 * angle.k + idx) = g3(idx);
     }
   }
-  
   
   return B;
 }

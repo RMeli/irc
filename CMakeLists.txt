@@ -37,11 +37,6 @@ if( ${ARMADILLO_FOUND})
         add_definitions(-DHAVE_ARMA)
 endif()
 
-find_package( Doxygen )
-if( ${DOXYGEN_FOUND} )
-        add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/Doxyfile)
-endif()
-
 enable_testing()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

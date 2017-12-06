@@ -21,6 +21,9 @@ double norm(const T&);
 template<typename T>
 double dot(const T& a, const T& b);
 
+template <typename Vector>
+Vector zeros(size_t nelements);
+
 template <typename Matrix>
 Matrix zeros(size_t nrows, size_t ncols);
 
