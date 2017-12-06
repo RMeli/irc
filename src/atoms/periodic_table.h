@@ -226,8 +226,14 @@ constexpr std::array<double, pt_size> pt_covalent_radii = {
     1.75 * angstrom_to_bohr,  //   Americium       Am      95
 };
 
+/// Check if atomic number \param an is valid
+/// \param an Atomic number
 bool valid_atomic_number(size_t an);
 
+/// Return atomic number corresponding to symbol
+///
+/// \param symbol Atomic symbol
+/// \return Atomic number
 size_t atomic_number(const std::string& symbol);
 
 }

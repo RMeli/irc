@@ -1,6 +1,7 @@
 #include "periodic_table.h"
 
 #include <iomanip>
+#include <stdexcept>
 
 namespace periodic_table{
 
@@ -16,6 +17,10 @@ size_t atomic_number(const std::string &symbol) {
       an = i;
       break;
     }
+  }
+  
+  if( an == 0){
+    throw std::logic_error("Invalid atomic symbol.");
   }
   
   return an;

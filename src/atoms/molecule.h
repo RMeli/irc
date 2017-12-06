@@ -8,9 +8,15 @@
 
 namespace molecule{
 
+/// Molecule as collection of atoms
 template<typename T>
 using Molecule = std::vector<atom::Atom<T>>;
 
+/// Compute the total mass of a molecule
+///
+/// \tparam T 3D vector
+/// \param molecule Molecule (collection of atoms)
+/// \return Mass of the molecule
 template<typename T>
 double mass(const Molecule<T>& molecule){
   double m{0};
@@ -21,6 +27,11 @@ double mass(const Molecule<T>& molecule){
   return m;
 }
 
+/// Multiply all atomic positions within a molecule by a given \param multiplier
+///
+/// \tparam T 3D vector
+/// \param molecule Molecule
+/// \param multiplier Multiplier for atomic positions
 template<typename T>
 void multiply_positions(Molecule<T>& molecule, double multiplier){
   for(auto& atom : molecule){
@@ -28,6 +39,12 @@ void multiply_positions(Molecule<T>& molecule, double multiplier){
   }
 }
 
+/// Print a molecule
+///
+/// \tparam T 3D vector
+/// \param out Output stream
+/// \param molecule Molecule
+/// \return Output stream
 template<typename T>
 std::ostream& operator<<(std::ostream& out, const Molecule<T>& molecule){
   for(const auto& atom : molecule){

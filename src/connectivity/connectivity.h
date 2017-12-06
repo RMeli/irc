@@ -83,7 +83,7 @@ std::vector<Bond<Vector3>> bonds(const molecule::Molecule<Vector3>& molecule,
                                  const Matrix& connectivity,
                                  double epsilon = 1e-12){
   
-  size_t n_atoms{ linalg::n_rows(connectivity) };
+  size_t n_atoms{ molecule.size() };
   
   std::vector<Bond<Vector3>> b;
   
@@ -107,7 +107,8 @@ template <typename Vector3, typename Matrix>
 std::vector<Angle<Vector3>> angles(const molecule::Molecule<Vector3>& molecule,
                                    const Matrix& connectivity,
                                    double epsilon = 1e-12){
-  size_t n_atoms{ linalg::n_rows(connectivity) };
+  
+  size_t n_atoms{ molecule.size() };
   
   std::vector<Angle<Vector3>> ang;
   

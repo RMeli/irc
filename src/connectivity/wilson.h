@@ -23,6 +23,8 @@ template <typename Vector3>
 std::tuple<Vector3, Vector3, Vector3> angle_gradient(const connectivity::Angle<Vector3>& a){
   double angle_rad{ a.angle / 180. * tools::constants::pi};
   
+  // TODO: Check pyberny for more robust implementations
+  
   double sin_angle{ std::sin(angle_rad) };
   double cos_angle{ std::cos(angle_rad) };
   
@@ -102,6 +104,8 @@ Matrix wilson_matrix(size_t n_atoms,
       B(i + bonds.size(), 3 * angle.k + idx) = g3(idx);
     }
   }
+  
+  // TODO: Populate B matrix's rows corresponding to dihedrals
   
   return B;
 }
