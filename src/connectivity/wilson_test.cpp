@@ -47,19 +47,19 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   }
   
   SECTION("H2O bending"){
-    /*
-    double angle( 1 / 180. * tools::constants::pi );
+    
+    double angle( 0.5 / 180. * tools::constants::pi );
     
     std::vector<mat> R{
-        {
-            {1, 0, 0},
-            {0, 1, 0},
-            {0, 0, 1}
-        },
         {
             {cos(angle), -sin(angle), 0},
             {sin(angle),  cos(angle), 0},
             {         0,           0, 1}
+        },
+        {
+            {1, 0, 0},
+            {0, 1, 0},
+            {0, 0, 1}
         },
         {
             {cos(-angle), -sin(-angle), 0},
@@ -70,8 +70,8 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   
     
     molecule::Molecule<vec3> molecule{
-        {"O", { 0.00,   0.00,  0.00}},
         {"H", { 1.43,  -1.10,  0.00}},
+        {"O", { 0.00,   0.00,  0.00}},
         {"H", {-1.43,  -1.10,  0.00}}
     };
     
@@ -83,13 +83,14 @@ TEST_CASE("Wilson B matrix","[wilson]"){
       dx(3*i + 1) = v(1);
       dx(3*i + 2) = v(2);
     }
-     */
-  
+    
+    /*
     molecule::Molecule<vec3> molecule{
         {"H", {0.00,   0.00, -0.96}},
         {"O", {0.00,   0.00,  0.00}},
         {"H", {0.00,   0.93,  0.24}},
     };
+     */
     
     mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
     
@@ -113,7 +114,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     cout << "\nWilson B matrix:" << endl;
     cout << Bwilson << endl;
   
-    //cout << "\nTransformation" << endl;
-    //cout << Bwilson * dx << endl;
+    cout << "\nTransformation" << endl;
+    cout << Bwilson * dx << endl;
   }
 }
