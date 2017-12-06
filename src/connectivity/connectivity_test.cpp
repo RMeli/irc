@@ -9,7 +9,6 @@
 
 
 #include <iostream>
-#include <cassert>
 
 #ifdef HAVE_ARMA
 #include <armadillo>
@@ -90,13 +89,13 @@ TEST_CASE("Connectivity test"){
     }
   }
   
-  std::vector<Bond> B{bonds(molecule, connectivity)};
+  std::vector<Bond<vec3>> B{bonds(molecule, connectivity)};
   cout << "\nBonds:" << endl;
   for(const auto& b : B){
     cout << b.bond << endl;
   }
   
-  std::vector<Angle> A{angles(molecule, connectivity)};
+  std::vector<Angle<vec3>> A{angles(molecule, connectivity)};
   cout << "\nAngles:" << endl;
   for(const auto& a : A){
     cout << a.angle << endl;

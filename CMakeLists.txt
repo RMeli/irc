@@ -10,6 +10,7 @@ add_library( libirc SHARED
                     src/atoms/periodic_table.h
                     src/atoms/periodic_table.cpp
                     src/connectivity/connectivity.h
+                    src/connectivity/wilson.h
         )
 set_target_properties(libirc PROPERTIES OUTPUT_NAME "irc")
 set_target_properties(libirc PROPERTIES LINKER_LANGUAGE CXX)
@@ -55,3 +56,7 @@ add_test( UNITTEST_molecule bin/test_molecule )
 add_executable( test_connectivity src/connectivity/connectivity_test.cpp )
 target_link_libraries( test_connectivity libirc )
 add_test( UNITTEST_connectivity bin/test_connectivity )
+
+add_executable( test_wilson src/connectivity/wilson_test.cpp )
+target_link_libraries( test_wilson libirc )
+add_test( UNITTEST_wilson bin/test_wilson )

@@ -15,16 +15,23 @@ namespace connectivity {
 
 constexpr double covalent_bond_multiplier{1.3};
 
+template <typename Vector3>
 struct Bond{
   size_t i;
   size_t j;
+  Vector3 p1;
+  Vector3 p2;
   double bond;
 };
 
+template <typename Vector3>
 struct Angle{
   size_t i;
   size_t j;
   size_t k;
+  Vector3 p1;
+  Vector3 p2;
+  Vector3 p3;
   double angle;
 };
 
@@ -72,13 +79,13 @@ Matrix connectivity_matrix(const molecule::Molecule<Vector3>& molecule){
 }
 
 template <typename Vector3, typename Matrix>
-std::vector<Bond> bonds(const molecule::Molecule<Vector3>& molecule,
+std::vector<Bond<Vector3>> bonds(const molecule::Molecule<Vector3>& molecule,
                                  const Matrix& connectivity,
                                  double epsilon = 1e-12){
   
   size_t n_atoms{ linalg::n_rows(connectivity) };
   
-  std::vector<Bond> b;
+  std::vector<Bond<Vector3>> b;
   
   double d{0};
   for(size_t j{0}; j < n_atoms; j++){
@@ -86,7 +93,9 @@ std::vector<Bond> bonds(const molecule::Molecule<Vector3>& molecule,
       d = connectivity(i,j);
       
       if( std::abs(d) > epsilon ){
-        b.push_back(Bond{i, j, d});
+        b.push_back(Bond<Vector3>{i, j,
+                                  molecule[i].position,
+                                  molecule[j].position, d});
       }
     }
   }
@@ -95,12 +104,12 @@ std::vector<Bond> bonds(const molecule::Molecule<Vector3>& molecule,
 }
 
 template <typename Vector3, typename Matrix>
-std::vector<Angle> angles(const molecule::Molecule<Vector3>& molecule,
-                           const Matrix& connectivity,
-                           double epsilon = 1e-12){
+std::vector<Angle<Vector3>> angles(const molecule::Molecule<Vector3>& molecule,
+                                   const Matrix& connectivity,
+                                   double epsilon = 1e-12){
   size_t n_atoms{ linalg::n_rows(connectivity) };
   
-  std::vector<Angle> ang;
+  std::vector<Angle<Vector3>> ang;
   
   Vector3 p1{0., 0., 0.};
   Vector3 p2{0., 0., 0.};
@@ -120,7 +129,11 @@ std::vector<Angle> angles(const molecule::Molecule<Vector3>& molecule,
           if( std::abs(d2) > epsilon ){
             p3 = molecule[k].position;
             
-            ang.push_back(Angle{i, j, k, angle(p1,p2,p3)});
+            ang.push_back(Angle<Vector3>{i, j, k,
+                                molecule[i].position,
+                                molecule[j].position,
+                                molecule[k].position,
+                                angle(p1,p2,p3)});
           }
         }
       }
@@ -131,6 +144,5 @@ std::vector<Angle> angles(const molecule::Molecule<Vector3>& molecule,
 }
 
 }
-
 
 #endif //IRC_CONNECTIVITY_H
