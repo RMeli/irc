@@ -31,7 +31,9 @@ TEST_CASE("Wilson B matrix","[wilson]"){
         {"H", {1.00,  0.00,  0.0}}
     };
   
-    vec dx{0.01, 0.00, 0.00, -0.01, 0.00, 0.00};
+    
+    double d{0.01};
+    vec dx{d, 0.00, 0.00, -d, 0.00, 0.00};
   
     mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
   
@@ -42,19 +44,29 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     cout << "Wilson B matrix:" << endl;
     cout << Bwilson << endl;
   
+    vec transformation{Bwilson * dx};
     cout << "\nTransformation" << endl;
     cout << Bwilson * dx << endl;
+    
+    SECTION("Bond change"){
+      Approx target{2 * d};
+      
+      target.margin(1e-5);
+      
+      REQUIRE( transformation(0) == target );
+    }
   }
   
   SECTION("H2O bending"){
     
-    double angle( 0.5 / 180. * tools::constants::pi );
+    double angle( 0.5 );
+    double angle_rad( angle / 180. * tools::constants::pi );
     
     std::vector<mat> R{
         {
-            {cos(angle), -sin(angle), 0},
-            {sin(angle),  cos(angle), 0},
-            {         0,           0, 1}
+            {cos(angle_rad), -sin(angle_rad), 0},
+            {sin(angle_rad),  cos(angle_rad), 0},
+            {             0,               0, 1}
         },
         {
             {1, 0, 0},
@@ -62,9 +74,9 @@ TEST_CASE("Wilson B matrix","[wilson]"){
             {0, 0, 1}
         },
         {
-            {cos(-angle), -sin(-angle), 0},
-            {sin(-angle),  cos(-angle), 0},
-            {          0,            0, 1}
+            {cos(-angle_rad), -sin(-angle_rad), 0},
+            {sin(-angle_rad),  cos(-angle_rad), 0},
+            {              0,                0, 1}
         },
     };
   
@@ -114,7 +126,24 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     cout << "\nWilson B matrix:" << endl;
     cout << Bwilson << endl;
   
-    cout << "\nTransformation" << endl;
-    cout << Bwilson * dx << endl;
+    vec displacement{Bwilson * dx};
+    cout << "\nDisplacement:" << endl;
+    cout << displacement << endl;
+    
+    SECTION("Bond change"){
+      Approx target{0};
+      
+      target.margin(1e-4);
+      
+      REQUIRE( displacement(0) == target );
+      REQUIRE( displacement(1) == target );
+    }
+    SECTION("Angle change"){
+      Approx target{2 * angle};
+    
+      target.margin(1e-3);
+    
+      REQUIRE( displacement(2) * 180 / tools::constants::pi == target );
+    }
   }
 }
