@@ -13,7 +13,20 @@
 
 namespace connectivity {
 
-constexpr double bond_multiplier{1.3};
+constexpr double covalent_bond_multiplier{1.3};
+
+struct Bond{
+  size_t i;
+  size_t j;
+  double bond;
+};
+
+struct Angle{
+  size_t i;
+  size_t j;
+  size_t k;
+  double angle;
+};
 
 template <typename Vector3>
 double distance(const Vector3& v1, const Vector3& v2){
@@ -32,51 +45,48 @@ double angle(const Vector3& v1, const Vector3& v2, const Vector3& v3){
   return angle * 180.0 /  tools::constants::pi;
 }
 
-template <typename Vector3>
-double bond(const atom::Atom<Vector3> &a1, const atom::Atom<Vector3>& a2){
-  double r{ distance(a1.position, a2.position) };
-  
-  double sum_covalent_radii{ atom::covalent_radius(a1.atomic_number) +
-                             atom::covalent_radius(a2.atomic_number) };
-  
-  double bond{0.};
-  
-  if( r < sum_covalent_radii * bond_multiplier){
-    bond = r;
-  }
-  
-  return bond;
-}
-
 template <typename Vector3, typename Matrix>
 Matrix connectivity_matrix(const molecule::Molecule<Vector3>& molecule){
   size_t n_atoms{ molecule.size() };
   
   Matrix connectivity{ linalg::zeros<Matrix>(n_atoms, n_atoms) };
   
+  double r{0.};
+  double sum_covalent_radii{0.};
   for(size_t i{0}; i < n_atoms; i++){
     for(size_t j{i+1}; j < n_atoms; j++){
-      connectivity(i,j) = bond(molecule[i], molecule[j]);
-      connectivity(j,i) = connectivity(i,j);
+      
+      r = distance(molecule[i].position, molecule[j].position);
+      
+      sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
+                           atom::covalent_radius(molecule[j].atomic_number);
+      
+      if( r < sum_covalent_radii * covalent_bond_multiplier){
+        connectivity(i,j) = r;
+        connectivity(j,i) = r;
+      }
     }
   }
   
   return std::move(connectivity);
 }
 
-template <typename Matrix>
-std::vector<double> bonds(const Matrix& connectivity, double epsilon = 1e-12){
+template <typename Vector3, typename Matrix>
+std::vector<Bond> bonds(const molecule::Molecule<Vector3>& molecule,
+                                 const Matrix& connectivity,
+                                 double epsilon = 1e-12){
+  
   size_t n_atoms{ linalg::n_rows(connectivity) };
   
-  std::vector<double> b;
+  std::vector<Bond> b;
   
   double d{0};
   for(size_t j{0}; j < n_atoms; j++){
     for(size_t i{j+1}; i < n_atoms; i++){
-      d = connectivity(j,i);
+      d = connectivity(i,j);
       
       if( std::abs(d) > epsilon ){
-        b.push_back(d);
+        b.push_back(Bond{i, j, d});
       }
     }
   }
@@ -85,12 +95,12 @@ std::vector<double> bonds(const Matrix& connectivity, double epsilon = 1e-12){
 }
 
 template <typename Vector3, typename Matrix>
-std::vector<double> angles(const molecule::Molecule<Vector3>& molecule,
+std::vector<Angle> angles(const molecule::Molecule<Vector3>& molecule,
                            const Matrix& connectivity,
                            double epsilon = 1e-12){
   size_t n_atoms{ linalg::n_rows(connectivity) };
   
-  std::vector<double> ang;
+  std::vector<Angle> ang;
   
   Vector3 p1{0., 0., 0.};
   Vector3 p2{0., 0., 0.};
@@ -110,7 +120,7 @@ std::vector<double> angles(const molecule::Molecule<Vector3>& molecule,
           if( std::abs(d2) > epsilon ){
             p3 = molecule[k].position;
             
-            ang.push_back( angle(p1,p2,p3) );
+            ang.push_back(Angle{i, j, k, angle(p1,p2,p3)});
           }
         }
       }

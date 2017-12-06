@@ -89,4 +89,16 @@ TEST_CASE("Connectivity test"){
       REQUIRE( connectivity(i,j) == target );
     }
   }
+  
+  std::vector<Bond> B{bonds(molecule, connectivity)};
+  cout << "\nBonds:" << endl;
+  for(const auto& b : B){
+    cout << b.bond << endl;
+  }
+  
+  std::vector<Angle> A{angles(molecule, connectivity)};
+  cout << "\nAngles:" << endl;
+  for(const auto& a : A){
+    cout << a.angle << endl;
+  }
 }
