@@ -16,7 +16,7 @@ template <typename Vector3>
 std::pair<Vector3,Vector3> bond_gradient(const connectivity::Bond<Vector3>& b){
   Vector3 v{ (b.p1 - b.p2) / b.bond };
   
-  return {-v, v};
+  return {v, -v};
 }
 
 template <typename Vector3>
