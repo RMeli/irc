@@ -30,12 +30,16 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const connectivity::Angle<V
   
   Vector3 b21{ a.p1 - a.p2 };
   Vector3 b23{ a.p3 - a.p2 };
+  
   double bond21{ linalg::norm(b21) };
   double bond23{ linalg::norm(b23) };
   
-  Vector3 v1{ cos_angle * (b21 - b23) / (sin_angle * bond21)};
-  Vector3 v2{ cos_angle * (b23 - b21) / (sin_angle * bond23)};
-  Vector3 v3{ -v1 -v2 };
+  b21 = b21 / bond21;
+  b23 = b23 / bond23;
+  
+  Vector3 v1{ (cos_angle * b21 - b23) / (sin_angle * bond21)};
+  Vector3 v3{ (cos_angle * b23 - b21) / (sin_angle * bond23)};
+  Vector3 v2{ -v1 -v3 };
   
   return {v1, v2, v3};
 }

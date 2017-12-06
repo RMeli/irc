@@ -95,9 +95,13 @@ TEST_CASE("Connectivity test"){
     cout << b.bond << endl;
   }
   
+  REQUIRE( B.size() == 3);
+  
   std::vector<Angle<vec3>> A{angles(molecule, connectivity)};
   cout << "\nAngles:" << endl;
   for(const auto& a : A){
     cout << a.angle << endl;
   }
+  
+  REQUIRE( A.size() == 3);
 }

@@ -103,6 +103,7 @@ std::vector<Bond<Vector3>> bonds(const molecule::Molecule<Vector3>& molecule,
   return std::move(b);
 }
 
+// TODO SOLVE BUG ON ANGLE ORDER!
 template <typename Vector3, typename Matrix>
 std::vector<Angle<Vector3>> angles(const molecule::Molecule<Vector3>& molecule,
                                    const Matrix& connectivity,
@@ -118,14 +119,14 @@ std::vector<Angle<Vector3>> angles(const molecule::Molecule<Vector3>& molecule,
   
   double d1{0}, d2{0};
   for(size_t j{0}; j < n_atoms; j++){
-    for(size_t i{j+1}; i < n_atoms; i++){
+    for(size_t i{0}; i < j; i++){
       d1 = connectivity(i,j);
       
       if( std::abs(d1) > epsilon ){
         p1 = molecule[i].position;
         p2 = molecule[j].position;
         
-        for(size_t k{i+1}; k < n_atoms; k++){
+        for(size_t k{j+1}; k < n_atoms; k++){
           d2 = connectivity(j,k);
           if( std::abs(d2) > epsilon ){
             p3 = molecule[k].position;
