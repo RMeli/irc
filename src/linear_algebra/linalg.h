@@ -27,6 +27,12 @@ Vector zeros(size_t nelements);
 template <typename Matrix>
 Matrix zeros(size_t nrows, size_t ncols);
 
+template <typename Matrix>
+Matrix transpose(const Matrix& mat);
+
+template <typename Matrix>
+Matrix pseudo_inverse(const Matrix& mat);
+
 
 }
 

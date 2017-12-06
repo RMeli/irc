@@ -44,6 +44,16 @@ Matrix zeros(size_t nrows, size_t ncols){
   return std::move(arma::zeros<Matrix>(nrows, ncols));
 }
 
+template <typename Matrix>
+Matrix transpose(const Matrix& mat){
+  return std::move(arma::trans(mat));
+}
+
+template <typename Matrix>
+Matrix pseudo_inverse(const Matrix& mat){
+  return std::move(arma::pinv(mat));
+}
+
 #endif
 
 }
