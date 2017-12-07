@@ -70,7 +70,8 @@ struct Atom {
   AtomicNumber atomic_number;
   
   /// Position (in 3D space)
-  Vector3 position;
+  Vector3 position; // TODO: Make position std::optional?
+  
 };
 
 template<typename Vector3>

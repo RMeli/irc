@@ -9,16 +9,16 @@
 namespace molecule{
 
 /// Molecule as collection of atoms
-template<typename T>
-using Molecule = std::vector<atom::Atom<T>>;
+template<typename Vector3>
+using Molecule = std::vector<atom::Atom<Vector3>>;
 
 /// Compute the total mass of a molecule
 ///
 /// \tparam T 3D vector
 /// \param molecule Molecule (collection of atoms)
 /// \return Mass of the molecule
-template<typename T>
-double mass(const Molecule<T>& molecule){
+template<typename Vector3>
+double mass(const Molecule<Vector3>& molecule){
   double m{0};
   for(const auto& atom : molecule){
     m += atom::mass(atom.atomic_number);
@@ -27,13 +27,14 @@ double mass(const Molecule<T>& molecule){
   return m;
 }
 
+// TODO: Define operator*?
 /// Multiply all atomic positions within a molecule by a given \param multiplier
 ///
 /// \tparam T 3D vector
 /// \param molecule Molecule
 /// \param multiplier Multiplier for atomic positions
-template<typename T>
-void multiply_positions(Molecule<T>& molecule, double multiplier){
+template<typename T, typename Vector3>
+void multiply_positions(Molecule<Vector3>& molecule, T multiplier){
   for(auto& atom : molecule){
     atom.position = atom.position * multiplier;
   }
@@ -45,8 +46,8 @@ void multiply_positions(Molecule<T>& molecule, double multiplier){
 /// \param out Output stream
 /// \param molecule Molecule
 /// \return Output stream
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Molecule<T>& molecule){
+template<typename Vector3>
+std::ostream& operator<<(std::ostream& out, const Molecule<Vector3>& molecule){
   for(const auto& atom : molecule){
     out << atom;
   }

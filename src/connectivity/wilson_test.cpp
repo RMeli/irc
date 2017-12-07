@@ -33,7 +33,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   
     
     double d{0.01};
-    vec dx{d, 0.00, 0.00, -d, 0.00, 0.00};
+    vec dx{-d, 0.00, 0.00, d, 0.00, 0.00};
   
     mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
   
