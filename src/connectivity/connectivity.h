@@ -12,7 +12,10 @@
 #include <vector>
 
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/exterior_property.hpp>
 #include <boost/graph/graph_traits.hpp>
+#include <boost/graph/johnson_all_pairs_shortest.hpp>
+
 
 namespace connectivity {
 
@@ -31,6 +34,10 @@ using UGraph =
 
 using Vertex = boost::graph_traits<UGraph>::vertex_descriptor;
 using Edge = boost::graph_traits<UGraph>::edge_descriptor;
+
+using DistanceProperty = boost::exterior_vertex_property<UGraph, size_t>;
+
+using DistanceMatrix = DistanceProperty::matrix_type;
 
 template <typename Vector3>
 struct Bond{
@@ -83,10 +90,10 @@ double angle(const Vector3& v1, const Vector3& v2, const Vector3& v3){
 /// where the matrix element \f$D_{ij}\f$ is the distance between atom at
 /// position \f$\mathbf{r}_i\f$ and the atom at position \f$\mathbf{r}_j\f$.
 template <typename Vector3, typename Matrix>
-Matrix distance_matrix(const molecule::Molecule<Vector3>& molecule){
-  size_t n_atoms{ molecule.size() };
+Matrix distances(const molecule::Molecule<Vector3>& molecule){
+  const size_t n_atoms{ molecule.size() };
   
-  Matrix distance_m{ linalg::zeros<Matrix>(n_atoms, n_atoms) };
+  Matrix distances_m{ linalg::zeros<Matrix>(n_atoms, n_atoms) };
   
   double r{0.};
   for(size_t i{0}; i < n_atoms; i++){
@@ -94,12 +101,12 @@ Matrix distance_matrix(const molecule::Molecule<Vector3>& molecule){
       
       r = distance(molecule[i].position, molecule[j].position);
       
-      distance_m(i,j) = r;
-      distance_m(j,i) = r;
+      distances_m(i,j) = r;
+      distances_m(j,i) = r;
     }
   }
   
-  return distance_m;
+  return distances_m;
 }
 
 /// Compute adjacency matrix for \param molecule
@@ -120,7 +127,7 @@ UGraph adjacency_matrix(const Matrix& distance_m,
                         const molecule::Molecule<Vector3>& molecule){
   
   // Extract number of atoms
-  size_t n_atoms{ molecule.size() };
+  const size_t n_atoms{ molecule.size() };
   
   // Define a undirected graph with n_atoms vertices
   UGraph ug(n_atoms);
@@ -149,31 +156,52 @@ UGraph adjacency_matrix(const Matrix& distance_m,
   return ug;
 }
 
+template<typename Matrix>
+Matrix distance_matrix(const UGraph& ug){
 
+  const size_t n_vertices{ boost::num_vertices(ug) };
+
+  // Allocate distance matrix
+  DistanceMatrix d{n_vertices};
+  
+  // Find shortest distance between every pair of vertices in the graph
+  boost::johnson_all_pairs_shortest_paths(ug, d);
+  
+  // Allocate Matrix
+  Matrix dist{ linalg::zeros<Matrix>(n_vertices, n_vertices) };
+  
+  // Compy DistanceMatrix in standard Matrix
+  for(size_t j{0}; j < n_vertices; j++){
+    for(size_t i{0}; i < n_vertices; i++){
+      dist(i,j) = d[i][j];
+    }
+  }
+  
+  // Return distance matrix
+  return dist;
+}
 
 template <typename Vector3, typename Matrix>
-std::vector<Bond<Vector3>> bonds(const UGraph& ug,
-                                 const Matrix& distance_m,
+std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
                                  const molecule::Molecule<Vector3>& molecule){
   
   // Extract number of atoms
-  size_t n_atoms{ molecule.size() };
+  const size_t n_atoms{ molecule.size() };
   
   // Declare bond list
   std::vector<Bond<Vector3>> b;
   
-  Edge e_ij;
-  bool exists{false};
-  for(size_t i{0}; i < n_atoms; i++){
-    for(size_t j{0}; j < i; j++){
+  double d{0};
+  for(size_t j{0}; j < n_atoms; j++){
+    for(size_t i{0}; i < j; i++){
       
-      std::tie(e_ij, exists) = edge(i, j, ug);
-      
-      if( exists ){
+      if( distance_m(i,j) == 1 ){
+        d = distance(molecule[i].position, molecule[j].position);
+        
         b.push_back(Bond<Vector3>{i, j,
                                   molecule[i].position,
                                   molecule[j].position,
-                                  distance_m(i,j)});
+                                  d});
       }
     }
   }
@@ -188,7 +216,7 @@ std::vector<Angle<Vector3>> angles(const molecule::Molecule<Vector3>& molecule,
                                    const Matrix& connectivity,
                                    double epsilon = 1e-12){
   
-  size_t n_atoms{ molecule.size() };
+  const size_t n_atoms{ molecule.size() };
   
   std::vector<Angle<Vector3>> ang;
   

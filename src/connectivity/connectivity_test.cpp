@@ -15,6 +15,9 @@
 using vec3 = arma::vec3;
 using vec = arma::vec;
 using mat = arma::mat;
+
+template <typename T>
+using Mat = arma::Mat<T>;
 #else
 #error
 #endif
@@ -62,23 +65,29 @@ TEST_CASE("Connectivity test"){
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
   
-  // Compute connectivity matrix for formaldehyde molecule (in angstrom)
-  mat dist{ distance_matrix<vec3, mat>(molecule) };
+  // Compute interatomic distance for formaldehyde molecule
+  mat dd{ distances<vec3, mat>(molecule) };
   
-  // Print connectivity matrix for formaldehyde molecule
+  // Print interatomic distances for formaldehyde molecule
+  cout << "Distances" << endl;
+  cout << dd * bohr_to_angstrom << endl;
+  
+  UGraph adj{ adjacency_matrix(dd, molecule) };
+  
+  mat dist{ distance_matrix<mat>(adj) };
+  
+  // Distance matrix
   cout << "Distance matrix:" << endl;
-  cout << dist * bohr_to_angstrom << endl;
-  
-  UGraph adj{ adjacency_matrix(dist, molecule) };
+  cout << dist << endl;
   
   SECTION("Bonds"){
     // Compute bonds
-    std::vector<Bond<vec3>> B{ bonds(adj, dist, molecule) };
+    std::vector<Bond<vec3>> B{ bonds(dist, molecule) };
   
     // Check number of bonds
     REQUIRE( B.size() == 3);
   
-    // Define correct bond lengths (order dependent)
+    // Define correct bond lengths
     std::vector<double> bb{ 1.2, 1., 1. };
     
     cout << "\nBonds:" << endl;
