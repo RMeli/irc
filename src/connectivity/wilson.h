@@ -23,7 +23,8 @@ template <typename Vector3>
 std::tuple<Vector3, Vector3, Vector3> angle_gradient(const connectivity::Angle<Vector3>& a){
   double angle_rad{ a.angle / 180. * tools::constants::pi};
   
-  // TODO: Check pyberny for more robust implementations
+  // TODO: Check pyberny for more robust implementation
+  // https://github.com/azag0/pyberny
   
   double sin_angle{ std::sin(angle_rad) };
   double cos_angle{ std::cos(angle_rad) };

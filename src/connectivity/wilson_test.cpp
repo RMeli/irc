@@ -24,7 +24,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   using namespace std;
   using namespace wilson;
   
-  SECTION("H2 bond stretching"){
+  //SECTION("H2 bond stretching"){
     // Define dihydrogen molecule (H2)
     molecule::Molecule<vec3> molecule{
         {"H", {0.00,  0.00,  0.0}},
@@ -35,6 +35,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     double d{0.01};
     vec dx{-d, 0.00, 0.00, d, 0.00, 0.00};
   
+    /*
     mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
   
     vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(molecule, C)};
@@ -96,13 +97,6 @@ TEST_CASE("Wilson B matrix","[wilson]"){
       dx(3*i + 2) = v(2);
     }
     
-    /*
-    molecule::Molecule<vec3> molecule{
-        {"H", {0.00,   0.00, -0.96}},
-        {"O", {0.00,   0.00,  0.00}},
-        {"H", {0.00,   0.93,  0.24}},
-    };
-     */
     
     mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
     
@@ -146,4 +140,5 @@ TEST_CASE("Wilson B matrix","[wilson]"){
       REQUIRE( displacement(2) * 180 / tools::constants::pi == target );
     }
   }
+  */
 }

@@ -63,40 +63,45 @@ TEST_CASE("Connectivity test"){
   multiply_positions(molecule, angstrom_to_bohr);
   
   // Compute connectivity matrix for formaldehyde molecule (in angstrom)
-  mat connectivity{ connectivity_matrix<vec3, mat>(molecule)
-                    * bohr_to_angstrom };
+  mat dist{ distance_matrix<vec3, mat>(molecule) };
   
   // Print connectivity matrix for formaldehyde molecule
-  cout << "Connectivity matrix:" << endl;
-  cout << connectivity << endl;
+  cout << "Distance matrix:" << endl;
+  cout << dist * bohr_to_angstrom << endl;
   
-  // Define correct connectivity matrix for comparison
-  mat C{
-      {0.0, 1.2, 1.0, 1.0},
-      {1.2, 0.0, 0.0, 0.0},
-      {1.0, 0.0, 0.0, 0.0},
-      {1.0, 0.0, 0.0, 0.0}
-  };
+  UGraph adj{ adjacency_matrix(dist, molecule) };
   
-  // Check connectivity matrix
-  for(size_t j{0}; j < molecule.size(); j++) {
-    for (size_t i{0}; i < molecule.size(); i++) {
-      Approx target{C(i,j)};
+  SECTION("Bonds"){
+    // Compute bonds
+    std::vector<Bond<vec3>> B{ bonds(adj, dist, molecule) };
+  
+    // Check number of bonds
+    REQUIRE( B.size() == 3);
+  
+    // Define correct bond lengths (order dependent)
+    std::vector<double> bb{ 1.2, 1., 1. };
+    
+    cout << "\nBonds:" << endl;
+    for(size_t i{0}; i < B.size(); i++){
+      cout << B[i].bond * bohr_to_angstrom << endl;
+      
+      Approx target{ bb[i] };
       
       target.margin(1e-6);
       
-      REQUIRE( connectivity(i,j) == target );
+      REQUIRE( B[i].bond * bohr_to_angstrom == target );
     }
   }
   
-  std::vector<Bond<vec3>> B{bonds(molecule, connectivity)};
-  cout << "\nBonds:" << endl;
-  for(const auto& b : B){
-    cout << b.bond << endl;
-  }
   
-  REQUIRE( B.size() == 3);
   
+  
+  
+  
+  
+  
+  
+  /*
   std::vector<Angle<vec3>> A{angles(molecule, connectivity)};
   cout << "\nAngles:" << endl;
   for(const auto& a : A){
@@ -104,4 +109,5 @@ TEST_CASE("Connectivity test"){
   }
   
   REQUIRE( A.size() == 3);
+  */
 }
