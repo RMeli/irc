@@ -73,7 +73,7 @@ TEST_CASE("Connectivity test"){
   
   SECTION("Bonds"){
     // Compute bonds
-    std::vector<Bond<vec3>> B{ bonds(adj, dist, molecule) };
+    std::vector<Bond<vec3>> B{ bonds(adj, molecule) };
   
     // Check number of bonds
     REQUIRE( B.size() == 3);

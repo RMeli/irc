@@ -18,8 +18,16 @@ namespace connectivity {
 
 constexpr double covalent_bond_multiplier{1.3};
 
+using EdgeProperty = boost::property<boost::edge_weight_t, double>;
+
 using UGraph =
-  boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS>;
+  boost::adjacency_list<
+      boost::vecS, //
+      boost::vecS, //
+      boost::undirectedS, // Graph type
+      boost::no_property, // Vertex property
+      EdgeProperty // Edge property
+  >;
 
 using Vertex = boost::graph_traits<UGraph>::vertex_descriptor;
 using Edge = boost::graph_traits<UGraph>::edge_descriptor;
@@ -117,18 +125,23 @@ UGraph adjacency_matrix(const Matrix& distance_m,
   // Define a undirected graph with n_atoms vertices
   UGraph ug(n_atoms);
   
+  double d{0.};
   double sum_covalent_radii{0.};
   for(size_t j{0}; j < n_atoms; j++){
     for(size_t i{j+1}; i < n_atoms; i++){
   
+      // Extract distance between atom i and atom j
+      d = distance_m(i,j);
+      
       // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
                            atom::covalent_radius(molecule[j].atomic_number);
       
       // Determine if atoms i and j are bonded
-      if( distance_m(i,j) < covalent_bond_multiplier * sum_covalent_radii ){
+      if( d < covalent_bond_multiplier * sum_covalent_radii ){
         // Add edge to boost::adjacency_list between vertices i and j
-        boost::add_edge(i, j, ug);
+        // Store the distance d between atoms i and j as the edge weight
+        boost::add_edge(i, j, d, ug);
       }
     }
   }
@@ -164,9 +177,8 @@ Matrix connectivity_matrix(const molecule::Molecule<Vector3>& molecule){
 }
 */
 
-template <typename Vector3, typename Matrix>
+template <typename Vector3>
 std::vector<Bond<Vector3>> bonds(const UGraph& ug,
-                                 const Matrix& distance_m,
                                  const molecule::Molecule<Vector3>& molecule){
   
   size_t n_atoms{ molecule.size() };
@@ -183,14 +195,16 @@ std::vector<Bond<Vector3>> bonds(const UGraph& ug,
       if( exists ){
         b.push_back(Bond<Vector3>{i, j,
                                   molecule[i].position,
-                                  molecule[j].position, distance_m(i,j)});
+                                  molecule[j].position,
+                                  boost::get(boost::edge_weight, ug, e_ij)});
       }
     }
   }
   
-  return std::move(b);
+  return b;
 }
 
+/*
 // TODO: SOLVE BUG ON ANGLE ORDER!
 template <typename Vector3, typename Matrix>
 std::vector<Angle<Vector3>> angles(const molecule::Molecule<Vector3>& molecule,
@@ -231,8 +245,9 @@ std::vector<Angle<Vector3>> angles(const molecule::Molecule<Vector3>& molecule,
     }
   }
   
-  return std::move(ang);
+  return ang;
 }
+*/
 
 }
 
