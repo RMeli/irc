@@ -73,7 +73,7 @@ TEST_CASE("Connectivity test"){
   
   SECTION("Bonds"){
     // Compute bonds
-    std::vector<Bond<vec3>> B{ bonds(adj, molecule) };
+    std::vector<Bond<vec3>> B{ bonds(adj, dist, molecule) };
   
     // Check number of bonds
     REQUIRE( B.size() == 3);
@@ -92,14 +92,6 @@ TEST_CASE("Connectivity test"){
       REQUIRE( B[i].bond * bohr_to_angstrom == target );
     }
   }
-  
-  
-  
-  
-  
-  
-  
-  
   
   /*
   std::vector<Angle<vec3>> A{angles(molecule, connectivity)};

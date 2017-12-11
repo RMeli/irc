@@ -18,7 +18,7 @@ namespace connectivity {
 
 constexpr double covalent_bond_multiplier{1.3};
 
-using EdgeProperty = boost::property<boost::edge_weight_t, double>;
+using EdgeProperty = boost::property<boost::edge_weight_t, size_t>;
 
 using UGraph =
   boost::adjacency_list<
@@ -141,7 +141,7 @@ UGraph adjacency_matrix(const Matrix& distance_m,
       if( d < covalent_bond_multiplier * sum_covalent_radii ){
         // Add edge to boost::adjacency_list between vertices i and j
         // Store the distance d between atoms i and j as the edge weight
-        boost::add_edge(i, j, d, ug);
+        boost::add_edge(i, j, 1, ug);
       }
     }
   }
@@ -149,12 +149,17 @@ UGraph adjacency_matrix(const Matrix& distance_m,
   return ug;
 }
 
-template <typename Vector3>
+
+
+template <typename Vector3, typename Matrix>
 std::vector<Bond<Vector3>> bonds(const UGraph& ug,
+                                 const Matrix& distance_m,
                                  const molecule::Molecule<Vector3>& molecule){
   
+  // Extract number of atoms
   size_t n_atoms{ molecule.size() };
   
+  // Declare bond list
   std::vector<Bond<Vector3>> b;
   
   Edge e_ij;
@@ -168,7 +173,7 @@ std::vector<Bond<Vector3>> bonds(const UGraph& ug,
         b.push_back(Bond<Vector3>{i, j,
                                   molecule[i].position,
                                   molecule[j].position,
-                                  boost::get(boost::edge_weight, ug, e_ij)});
+                                  distance_m(i,j)});
       }
     }
   }
