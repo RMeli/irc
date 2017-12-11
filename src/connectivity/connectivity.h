@@ -149,34 +149,6 @@ UGraph adjacency_matrix(const Matrix& distance_m,
   return ug;
 }
 
-/*
-template <typename Vector3, typename Matrix>
-Matrix connectivity_matrix(const molecule::Molecule<Vector3>& molecule){
-  size_t n_atoms{ molecule.size() };
-  
-  Matrix connectivity{ linalg::zeros<Matrix>(n_atoms, n_atoms) };
-  
-  double r{0.};
-  double sum_covalent_radii{0.};
-  for(size_t i{0}; i < n_atoms; i++){
-    for(size_t j{i+1}; j < n_atoms; j++){
-      
-      r = distance(molecule[i].position, molecule[j].position);
-      
-      sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
-                           atom::covalent_radius(molecule[j].atomic_number);
-      
-      if( r < sum_covalent_radii * covalent_bond_multiplier){
-        connectivity(i,j) = r;
-        connectivity(j,i) = r;
-      }
-    }
-  }
-  
-  return std::move(connectivity);
-}
-*/
-
 template <typename Vector3>
 std::vector<Bond<Vector3>> bonds(const UGraph& ug,
                                  const molecule::Molecule<Vector3>& molecule){
