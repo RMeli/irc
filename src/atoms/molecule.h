@@ -57,5 +57,4 @@ std::ostream& operator<<(std::ostream& out, const Molecule<Vector3>& molecule){
 
 }
 
-
 #endif //IRC_MOLECULE_H

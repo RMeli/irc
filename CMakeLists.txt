@@ -9,6 +9,7 @@ add_library( libirc SHARED
                     src/atoms/molecule.h
                     src/atoms/periodic_table.h
                     src/atoms/periodic_table.cpp
+                    src/atoms/periodic_table.cpp
                     src/connectivity/connectivity.h
                     src/connectivity/wilson.h
         )
@@ -52,6 +53,10 @@ add_test( UNITTEST_atom bin/test_atom )
 add_executable( test_molecule src/atoms/molecule_test.cpp )
 target_link_libraries( test_molecule libirc )
 add_test( UNITTEST_molecule bin/test_molecule )
+
+add_executable( test_io src/io/io_test.cpp )
+target_link_libraries( test_io libirc )
+add_test( UNITTEST_io bin/test_io )
 
 add_executable( test_connectivity src/connectivity/connectivity_test.cpp )
 target_link_libraries( test_connectivity libirc )

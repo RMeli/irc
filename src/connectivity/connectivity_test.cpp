@@ -5,6 +5,7 @@
 
 #include "../atoms/atom.h"
 #include "../atoms/molecule.h"
+#include "../io/io.h"
 #include "../tools/conversion.h"
 
 
@@ -48,7 +49,7 @@ TEST_CASE("Distance, angle and dihedral"){
   
 }
 
-TEST_CASE("Connectivity test"){
+TEST_CASE("Connectivity test for CH2O"){
   using namespace std;
   using namespace tools::conversion;
   using namespace molecule;
@@ -114,4 +115,43 @@ TEST_CASE("Connectivity test"){
   }
   
   REQUIRE( A.size() == 3);
+}
+
+TEST_CASE("Connectivity test for caffeine"){
+  using namespace std;
+  using namespace io;
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  // Load molecule from file
+  Molecule<vec3> molecule{ load_xyz<vec3>("../test/caffeine.xyz") };
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Compute interatomic distance for formaldehyde molecule
+  mat dd{ distances<vec3, mat>(molecule) };
+
+  UGraph adj{ adjacency_matrix(dd, molecule) };
+  
+  mat dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+  
+  // Compute bonds
+  std::vector<Bond<vec3>> B{ bonds(dist, molecule) };
+  
+  // Print bonds
+  cout << '\n' << B.size() << " bonds:" << endl;
+  for(const auto& b : B){
+    cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
+         << b.bond * bohr_to_angstrom << endl;
+  }
+  
+  std::vector<Angle<vec3>> A{angles(dist, predecessors, molecule)};
+  cout << '\n' << A.size() << " angles:" << endl;
+  for(const auto& a : A){
+    cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
+         << a.angle << endl;
+  }
 }
