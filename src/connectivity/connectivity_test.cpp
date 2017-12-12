@@ -74,11 +74,16 @@ TEST_CASE("Connectivity test"){
   
   UGraph adj{ adjacency_matrix(dd, molecule) };
   
-  mat dist{ distance_matrix<mat>(adj) };
+  mat dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<mat>(adj) ;
   
   // Distance matrix
   cout << "Distance matrix:" << endl;
   cout << dist << endl;
+  
+  // Predecessors matrix
+  cout << "Predecessors matrix:" << endl;
+  cout << predecessors << endl;
   
   SECTION("Bonds"){
     // Compute bonds
@@ -102,14 +107,11 @@ TEST_CASE("Connectivity test"){
     }
   }
   
-  
-  std::vector<Angle<vec3>> A{angles(adj, dist, molecule)};
-  /*
+  std::vector<Angle<vec3>> A{angles(dist, predecessors, molecule)};
   cout << "\nAngles:" << endl;
   for(const auto& a : A){
     cout << a.angle << endl;
   }
   
   REQUIRE( A.size() == 3);
-  */
 }

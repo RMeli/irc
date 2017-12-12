@@ -30,7 +30,6 @@ TEST_CASE("Wilson B matrix","[wilson]"){
         {"H", {0.00,  0.00,  0.0}},
         {"H", {1.00,  0.00,  0.0}}
     };
-  
     
     double d{0.01};
     vec dx{-d, 0.00, 0.00, d, 0.00, 0.00};
@@ -40,7 +39,8 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   
     connectivity::UGraph adj{ connectivity::adjacency_matrix(dd, molecule) };
   
-    mat dist{ connectivity::distance_matrix<mat>(adj) };
+    mat dist, predecessors;
+    std::tie(dist, predecessors) = connectivity::distance_matrix<mat>(adj);
   
     std::vector<connectivity::Bond<vec3>> bonds{
         connectivity::bonds(dist, molecule) };
@@ -63,7 +63,6 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     }
   }
   
-  /*
   SECTION("H2O bending"){
     
     double angle( 0.5 );
@@ -71,30 +70,35 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     
     std::vector<mat> R{
         {
+            // Rotation for H1
             {cos(angle_rad), -sin(angle_rad), 0},
             {sin(angle_rad),  cos(angle_rad), 0},
             {             0,               0, 1}
         },
         {
+            // Rotation for O
             {1, 0, 0},
             {0, 1, 0},
             {0, 0, 1}
         },
         {
+            // Rotation for H2
             {cos(-angle_rad), -sin(-angle_rad), 0},
             {sin(-angle_rad),  cos(-angle_rad), 0},
             {              0,                0, 1}
         },
     };
-  
     
     molecule::Molecule<vec3> molecule{
-        {"H", { 1.43,  -1.10,  0.00}},
-        {"O", { 0.00,   0.00,  0.00}},
-        {"H", {-1.43,  -1.10,  0.00}}
+        {"H", { 1.43,  -1.10,  0.00}}, // H1
+        {"O", { 0.00,   0.00,  0.00}}, // O
+        {"H", {-1.43,  -1.10,  0.00}}  // H2
     };
     
+    // Allocate displacements in cartesian coordinates
     vec dx{ linalg::zeros<vec>(3 * molecule.size()) };
+    
+    // Compute displacements
     for(size_t i{0}; i < 3; i++){
       vec3 v{ R[i] * molecule[i].position - molecule[i].position};
       
@@ -102,34 +106,55 @@ TEST_CASE("Wilson B matrix","[wilson]"){
       dx(3*i + 1) = v(1);
       dx(3*i + 2) = v(2);
     }
-    
-    
-    mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
-    
-    cout << "Connectivity matrix:" << endl;
-    cout << C << endl;
   
-    vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(molecule, C)};
+    // Compute interatomic distances for water
+    mat dd{ connectivity::distances<vec3, mat>(molecule) };
+  
+    // Compute adjacency matrix (graph)
+    connectivity::UGraph adj{ connectivity::adjacency_matrix(dd, molecule) };
+  
+    // Compute distance matrix and predecessor matrix
+    mat dist, predecessors;
+    std::tie(dist, predecessors) = connectivity::distance_matrix<mat>(adj) ;
+  
+    // Compute bonds
+    vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(dist, molecule)};
+    
+    // Print bonds
     cout << "\nBonds:" << endl;
     for(const auto& b : bonds){
       cout << b.bond << endl;
     }
+    
+    // Check number of bonds
+    REQUIRE( bonds.size() == 2 );
   
-    vector<connectivity::Angle<vec3>> angles{ connectivity::angles(molecule, C)};
+    // Compute angles
+    vector<connectivity::Angle<vec3>> angles{
+        connectivity::angles(dist, predecessors, molecule)};
+    
+    // Print angles
     cout << "\nAngles:" << endl;
     for(const auto& a : angles){
       cout << a.angle << endl;
     }
+    
+    // Check number of angles
+    REQUIRE( angles.size() == 1 );
   
+    // Compute Wilson's B matrix
     mat Bwilson = wilson_matrix<vec3, mat>(molecule.size(), bonds, angles);
   
+    // Print Wilson B matrix
     cout << "\nWilson B matrix:" << endl;
     cout << Bwilson << endl;
   
+    // Compute displacement in internal coordinates
     vec displacement{Bwilson * dx};
     cout << "\nDisplacement:" << endl;
     cout << displacement << endl;
     
+    // Check that bonds do not change
     SECTION("Bond change"){
       Approx target{0};
       
@@ -138,6 +163,8 @@ TEST_CASE("Wilson B matrix","[wilson]"){
       REQUIRE( displacement(0) == target );
       REQUIRE( displacement(1) == target );
     }
+    
+    // Check change in angle
     SECTION("Angle change"){
       Approx target{2 * angle};
     
@@ -146,5 +173,4 @@ TEST_CASE("Wilson B matrix","[wilson]"){
       REQUIRE( displacement(2) * 180 / tools::constants::pi == target );
     }
   }
-  */
 }

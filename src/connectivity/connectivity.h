@@ -8,7 +8,6 @@
 
 #include <cmath>
 #include <iostream>
-#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -16,11 +15,9 @@
 
 #include <boost/array.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/exterior_property.hpp>
 #include <boost/graph/graph_traits.hpp>
-#include <boost/graph/johnson_all_pairs_shortest.hpp>
 
 
 namespace connectivity {
@@ -171,7 +168,7 @@ UGraph adjacency_matrix(const Matrix& distance_m,
 /// to easily determine if two atoms are connected via one bond, two bonds
 /// (they form an angle) or three bonds (they form a dihedral).
 template<typename Matrix>
-Matrix distance_matrix(const UGraph& ug){
+std::pair<Matrix,Matrix> distance_matrix(const UGraph& ug){
   
   using namespace boost;
 
@@ -184,40 +181,35 @@ Matrix distance_matrix(const UGraph& ug){
   // Allocate predecessors matrix
   Matrix predecessors{ linalg::zeros<Matrix>(n_vertices, n_vertices) };
   
+  // Allocate distance map for single-source problem
+  std::vector<int> d_map(n_vertices, 0);
   
-  std::vector<int> d_map(n_vertices);
-  std::vector<size_t> p_map(n_vertices);
+  // Allocate predecessors map for single-source problem
+  std::vector<int> p_map(n_vertices, 0);
   
+  // Loop over vetrices
   for(size_t i{0}; i < n_vertices; i++){
-    dijkstra_shortest_paths(ug, i, distance_map(&d_map[0]).predecessor_map(&p_map[0]));
+    // Solve single-source problem for every vertex
+    dijkstra_shortest_paths(ug, i,
+                            distance_map(&d_map[0]).predecessor_map(&p_map[0]));
     
+    // Store distance and predecessors maps
     for(size_t j{0}; j < n_vertices; j++){
       // Fill distance matrix
       dist(i,j) = d_map[j];
-      dist(j,i) = d_map[j];
       
       // Fill predecessors matrix
-      predecessors(i,j) = p_map[j];
-      predecessors(j,i) = p_map[j];
+      if(i != j){
+        predecessors(i,j) = p_map[j];
+      }
+      else{
+        predecessors(i,j) = -1;
+      }
     }
   }
-
-  // Allocate distance matrix
-  //DistanceMatrix d{n_vertices};
   
-  // Find shortest distance between every pair of vertices in the graph
-  //boost::johnson_all_pairs_shortest_paths(ug, d);
-  
-  /*
-  // Copy DistanceMatrix in standard Matrix
-  for(size_t j{0}; j < n_vertices; j++){
-    for(size_t i{0}; i < n_vertices; i++){
-      dist(i,j) = d[i][j];
-    }
-  }
-  */
   // Return distance matrix
-  return dist;
+  return std::make_pair(dist, predecessors);
 }
 
 template <typename Vector3, typename Matrix>
@@ -250,31 +242,9 @@ std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
   return b;
 }
 
-
-class Path : public boost::default_bfs_visitor{
- public:
-  Path(const Vertex& t, size_t N) : target(t) {
-    predecessors = std::vector<Vertex> {N, 0};
-  }
-  
-  void discover_vertex(Vertex v, const UGraph& g){
-    if( v == target){
-      throw std::out_of_range("Reached target vertex.");
-    }
-  
-    // Call function from default_dfs_visitor
-    boost::default_bfs_visitor::discover_vertex(v,g);
-  }
-  
-  std::vector<Vertex> predecessors;
-  
- private:
-  Vertex target;
-};
-
 template <typename Vector3, typename Matrix>
-std::vector<Angle<Vector3>> angles(const UGraph& ug,
-                                   const Matrix& distance_m,
+std::vector<Angle<Vector3>> angles(const Matrix& distance_m,
+                                   const Matrix& predecessors_m,
                                    const molecule::Molecule<Vector3>& molecule){
   
   // Extract number of atoms
@@ -288,19 +258,8 @@ std::vector<Angle<Vector3>> angles(const UGraph& ug,
   for(size_t j{0}; j < n_atoms; j++){
     for(size_t i{0}; i < j; i++){
       
-      Path p{i, n_atoms};
-      
       if( distance_m(i,j) == 2){
-        // TODO: Get index of atom bonded to both i and j
-        
-        try{
-          // Start visiting near vertices from vertex i
-          // The boost::visitor wrapper is needed to create a named parameter
-          boost::breadth_first_search(ug, i, boost::visitor(p));
-        }
-        catch(const std::out_of_range& except){
-          std::cout << "LAAAALLAAAL" << std::endl;
-        }
+        k = predecessors_m(i,j);
         
         // Compute angle (i,k,j)
         a = angle(molecule[i].position,
@@ -318,51 +277,6 @@ std::vector<Angle<Vector3>> angles(const UGraph& ug,
   
   return ang;
 }
-
-/*
-// TODO: SOLVE BUG ON ANGLE ORDER!
-template <typename Vector3, typename Matrix>
-std::vector<Angle<Vector3>> angles(const molecule::Molecule<Vector3>& molecule,
-                                   const Matrix& connectivity,
-                                   double epsilon = 1e-12){
-  
-  const size_t n_atoms{ molecule.size() };
-  
-  std::vector<Angle<Vector3>> ang;
-  
-  Vector3 p1{0., 0., 0.};
-  Vector3 p2{0., 0., 0.};
-  Vector3 p3{0., 0., 0.};
-  
-  double d1{0}, d2{0};
-  for(size_t j{0}; j < n_atoms; j++){
-    for(size_t i{j+1}; i < n_atoms; i++){
-      d1 = connectivity(i,j);
-      
-      if( std::abs(d1) > epsilon ){
-        p1 = molecule[i].position;
-        p2 = molecule[j].position;
-        
-        for(size_t k{i+1}; k < n_atoms; k++){
-          d2 = connectivity(k,j);
-          
-          if( std::abs(d2) > epsilon ){
-            p3 = molecule[k].position;
-    
-            ang.push_back(Angle<Vector3>{i, j, k,
-                                         molecule[i].position,
-                                         molecule[j].position,
-                                         molecule[k].position,
-                                         angle(p1,p2,p3)});
-          }
-        }
-      }
-    }
-  }
-  
-  return ang;
-}
-*/
 
 }
 
