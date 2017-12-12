@@ -102,8 +102,9 @@ TEST_CASE("Connectivity test"){
     }
   }
   
+  
+  std::vector<Angle<vec3>> A{angles(adj, dist, molecule)};
   /*
-  std::vector<Angle<vec3>> A{angles(molecule, connectivity)};
   cout << "\nAngles:" << endl;
   for(const auto& a : A){
     cout << a.angle << endl;
