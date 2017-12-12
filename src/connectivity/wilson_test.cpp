@@ -24,7 +24,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   using namespace std;
   using namespace wilson;
   
-  //SECTION("H2 bond stretching"){
+  SECTION("H2 bond stretching"){
     // Define dihydrogen molecule (H2)
     molecule::Molecule<vec3> molecule{
         {"H", {0.00,  0.00,  0.0}},
@@ -35,10 +35,15 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     double d{0.01};
     vec dx{-d, 0.00, 0.00, d, 0.00, 0.00};
   
-    /*
-    mat C{ connectivity::connectivity_matrix<vec3, mat>(molecule)};
+    // Compute interatomic distance for formaldehyde molecule
+    mat dd{ connectivity::distances<vec3, mat>(molecule) };
   
-    vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(molecule, C)};
+    connectivity::UGraph adj{ connectivity::adjacency_matrix(dd, molecule) };
+  
+    mat dist{ connectivity::distance_matrix<mat>(adj) };
+  
+    std::vector<connectivity::Bond<vec3>> bonds{
+        connectivity::bonds(dist, molecule) };
   
     mat Bwilson = wilson_matrix<vec3, mat>(molecule.size(), bonds);
   
@@ -58,6 +63,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     }
   }
   
+  /*
   SECTION("H2O bending"){
     
     double angle( 0.5 );

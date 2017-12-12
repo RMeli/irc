@@ -121,7 +121,6 @@ Matrix distances(const molecule::Molecule<Vector3>& molecule){
 /// as implemented in the Boost Graph Library (BGL).
 /// The number of vertices corresponds to the number of atoms, while the
 /// number of edges is determined by covalent bonding.
-/// Hydrogen bonding is taken into account separately.
 template <typename Vector3, typename Matrix>
 UGraph adjacency_matrix(const Matrix& distance_m,
                         const molecule::Molecule<Vector3>& molecule){
@@ -147,7 +146,7 @@ UGraph adjacency_matrix(const Matrix& distance_m,
       // Determine if atoms i and j are bonded
       if( d < covalent_bond_multiplier * sum_covalent_radii ){
         // Add edge to boost::adjacency_list between vertices i and j
-        // Store the distance d between atoms i and j as the edge weight
+        // The weights are set to 1 for all edges.
         boost::add_edge(i, j, 1, ug);
       }
     }
@@ -156,9 +155,20 @@ UGraph adjacency_matrix(const Matrix& distance_m,
   return ug;
 }
 
+/// Find the distance matrix of the graph \param ug
+/// \tparam Matrix
+/// \param ug Graph
+/// \return Distance matrix
+///
+/// The element \f$(i,j)\f$ of the distance matrix is an integer indicating
+/// how many bonds are between atom \f$i\f$ and atom \f$j\f$, since the
+/// weight of each edge is set to 1 in \function adjacency_matrix. This allow
+/// to easily determine if two atoms are connected via one bond, two bonds
+/// (they form an angle) or three bonds (they form a dihedral).
 template<typename Matrix>
 Matrix distance_matrix(const UGraph& ug){
 
+  // Store number of vertices (number of atoms)
   const size_t n_vertices{ boost::num_vertices(ug) };
 
   // Allocate distance matrix
@@ -170,7 +180,7 @@ Matrix distance_matrix(const UGraph& ug){
   // Allocate Matrix
   Matrix dist{ linalg::zeros<Matrix>(n_vertices, n_vertices) };
   
-  // Compy DistanceMatrix in standard Matrix
+  // Copy DistanceMatrix in standard Matrix
   for(size_t j{0}; j < n_vertices; j++){
     for(size_t i{0}; i < n_vertices; i++){
       dist(i,j) = d[i][j];
@@ -196,8 +206,10 @@ std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
     for(size_t i{0}; i < j; i++){
       
       if( distance_m(i,j) == 1 ){
+        // Compute distance between atom i and atom j
         d = distance(molecule[i].position, molecule[j].position);
         
+        // Store bond informations between atom i and atom j
         b.push_back(Bond<Vector3>{i, j,
                                   molecule[i].position,
                                   molecule[j].position,
@@ -208,6 +220,37 @@ std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
   
   return b;
 }
+
+template <typename Vector3, typename Matrix>
+std::vector<Angle<Vector3>> angles(const Matrix& distance_m,
+                                   const molecule::Molecule<Vector3>& molecule){
+  
+  // Extract number of atoms
+  const size_t n_atoms{ molecule.size() };
+  
+  // Declare list of angles
+  std::vector<Angle<Vector3>> ang;
+  
+  size_t k{0};
+  double a{0.};
+  for(size_t j{0}; j < n_atoms; j++){
+    for(size_t i{0}; i < j; i++){
+      
+      if( distance_m(i,j) == 2){
+        // TODO: Get index of atom bonded to both i and j
+        k = 0;
+        
+        // Compute angle (i,k,j)
+        a = angle(molecule[i], molecule[k], molecule[j]);
+        
+        ang.push_back( Angle<Vector3>{i, k, j,
+                                      molecule[i],
+                                      molecule[k],
+                                      molecule[j], a} );
+      }
+    }
+  }
+};
 
 /*
 // TODO: SOLVE BUG ON ANGLE ORDER!
