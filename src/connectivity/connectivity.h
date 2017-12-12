@@ -157,16 +157,19 @@ UGraph adjacency_matrix(const Matrix& distance_m,
   return ug;
 }
 
-/// Find the distance matrix of the graph \param ug
+/// Find the distance and predecessors matrices of the graph \param ug
 /// \tparam Matrix
 /// \param ug Graph
-/// \return Distance matrix
+/// \return Distance and predecessors matrices
 ///
 /// The element \f$(i,j)\f$ of the distance matrix is an integer indicating
 /// how many bonds are between atom \f$i\f$ and atom \f$j\f$, since the
 /// weight of each edge is set to 1 in \function adjacency_matrix. This allow
 /// to easily determine if two atoms are connected via one bond, two bonds
 /// (they form an angle) or three bonds (they form a dihedral).
+/// The element \f$(i,j)\f% of the predecessors matrix is an integer indicating
+/// the index of the second to last vertex in the shortest path from i to j.
+/// This information allow to reconstruct the shortest path from i to j.
 template<typename Matrix>
 std::pair<Matrix,Matrix> distance_matrix(const UGraph& ug){
   
@@ -212,6 +215,12 @@ std::pair<Matrix,Matrix> distance_matrix(const UGraph& ug){
   return std::make_pair(dist, predecessors);
 }
 
+/// Returns the covalent covalent bonds in \param molecule
+/// \tparam Vector3 3D vevtor
+/// \tparam Matrix Matrix
+/// \param distance_m Distance matrix
+/// \param molecule Molecule
+/// \return List of covalent bonds
 template <typename Vector3, typename Matrix>
 std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
                                  const molecule::Molecule<Vector3>& molecule){
@@ -242,6 +251,15 @@ std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
   return b;
 }
 
+/// Returns the angles between atoms bonded via a covalent bond in \param
+/// molecule
+///
+/// \tparam Vector3 3D vector
+/// \tparam Matrix Matrix
+/// \param distance_m Distance matrix
+/// \param predecessors_m Matrix of predecessors
+/// \param molecule Molecule
+/// \return List of angles
 template <typename Vector3, typename Matrix>
 std::vector<Angle<Vector3>> angles(const Matrix& distance_m,
                                    const Matrix& predecessors_m,
