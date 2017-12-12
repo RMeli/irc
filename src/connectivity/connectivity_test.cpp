@@ -134,7 +134,7 @@ TEST_CASE("Connectivity test for caffeine"){
   using namespace connectivity;
   
   // Load molecule from file
-  Molecule<vec3> molecule{ load_xyz<vec3>("../test/caffeine.xyz") };
+  Molecule<vec3> molecule{ load_xyz<vec3>("../test/ethanol.xyz") };
   
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
@@ -162,5 +162,13 @@ TEST_CASE("Connectivity test for caffeine"){
   for(const auto& a : A){
     cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
          << a.angle << endl;
+  }
+  
+  std::vector<Dihedral<vec3>> D{dihedrals(dist, predecessors, molecule)};
+  cout << '\n' << D.size() << " dihedrals:" << endl;
+  for(const auto& d : D){
+    cout << '(' << d.i + 1 << ',' << d.j + 1 << ','
+         << d.k + 1 << ',' << d.l + 1 << ") "
+         << d.dihedral << endl;
   }
 }

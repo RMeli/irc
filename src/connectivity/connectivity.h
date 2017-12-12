@@ -345,6 +345,46 @@ std::vector<Angle<Vector3>> angles(const Matrix& distance_m,
   return ang;
 }
 
+template <typename Vector3, typename Matrix>
+std::vector<Dihedral<Vector3>> dihedrals(const Matrix& distance_m,
+                                         const Matrix& predecessors_m,
+                                         const molecule::Molecule<Vector3>&
+                                             molecule){
+  
+  // Extract number of atoms
+  const size_t n_atoms{ molecule.size() };
+  
+  // Declare list of dihedrals
+  std::vector<Dihedral<Vector3>> dih;
+  
+  size_t k{0}, l{0};
+  double d{0.};
+  for(size_t j{0}; j < n_atoms; j++){
+    for(size_t i{0}; i < j; i++){
+      
+      if( distance_m(i,j) == 3){
+        k = predecessors_m(i,j);
+        l = predecessors_m(i,k);
+        
+        // Compute angle (i,k,j)
+        d = dihedral(molecule[i].position,
+                     molecule[l].position,
+                     molecule[k].position,
+                     molecule[j].position);
+        
+        // Store angle
+        dih.push_back( Dihedral<Vector3>{i, l, k, j,
+                                         molecule[i].position,
+                                         molecule[l].position,
+                                         molecule[k].position,
+                                         molecule[j].position, d} );
+      }
+    }
+  }
+  
+  return dih;
+}
+
 }
 
 #endif //IRC_CONNECTIVITY_H
