@@ -46,6 +46,9 @@ double norm(const T&);
 template<typename T>
 double dot(const T& a, const T& b);
 
+template <typename Vector3>
+Vector3 cross(const Vector3& a, const Vector3& b);
+
 template <typename Vector>
 Vector zeros(size_t nelements);
 

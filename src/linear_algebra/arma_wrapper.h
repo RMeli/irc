@@ -34,6 +34,11 @@ double dot(const T& a, const T& b){
   return arma::dot(a, b);
 }
 
+template <typename Vector3>
+Vector3 cross(const Vector3& a, const Vector3& b){
+  return arma::cross(a, b);
+}
+
 template <typename Vector>
 Vector zeros(size_t nelements){
   return std::move(arma::zeros<Vector>(nelements));

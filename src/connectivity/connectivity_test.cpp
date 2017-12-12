@@ -30,6 +30,7 @@ TEST_CASE("Distance, angle and dihedral"){
   vec3 p1{ 0.00,  0.00, -0.25};
   vec3 p2{ 0.00,  0.00,  1.50};
   vec3 p3{ 0.00,  1.00,  1.50};
+  vec3 p4{ 5.00,  1.00,  1.50};
   
   SECTION("Distance"){
     Approx target{1.75};
@@ -45,6 +46,14 @@ TEST_CASE("Distance, angle and dihedral"){
     target.margin(1e-12);
     
     REQUIRE( angle(p1, p2, p3) == target);
+  }
+  
+  SECTION("Dihedral"){
+    Approx target{90};
+  
+    target.margin(1e-12);
+  
+    REQUIRE( dihedral(p1, p2, p3, p4) == target);
   }
   
 }

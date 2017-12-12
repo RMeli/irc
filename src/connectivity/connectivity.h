@@ -62,6 +62,19 @@ struct Angle{
 };
 
 template <typename Vector3>
+struct Dihedral{
+  size_t i;
+  size_t j;
+  size_t k;
+  size_t l;
+  Vector3 p1;
+  Vector3 p2;
+  Vector3 p3;
+  Vector3 p4;
+  double dihedral;
+};
+
+template <typename Vector3>
 double distance(const Vector3& v1, const Vector3& v2){
   return linalg::norm(v1 - v2);
 }
@@ -73,9 +86,45 @@ double angle(const Vector3& v1, const Vector3& v2, const Vector3& v3){
   
   double N{ linalg::norm(r1) * linalg::norm(r2) };
   
-  double angle = std::acos( linalg::dot(r1, r2) / N );
+  double angle{ std::acos( linalg::dot(r1, r2) / N ) };
   
   return angle * 180.0 /  tools::constants::pi;
+}
+
+template <typename Vector3>
+double dihedral(const Vector3& v1,
+                const Vector3& v2,
+                const Vector3& v3,
+                const Vector3& v4){
+  Vector3 b1{v2 - v1};
+  Vector3 b2{v3 - v2};
+  Vector3 b3{v4 - v3};
+  
+  Vector3 n1{ linalg::cross(b1, b2) };
+  Vector3 n2{ linalg::cross(b2, b3) };
+  
+  n1 /= linalg::norm(n1);
+  n2 /= linalg::norm(n2);
+  
+  Vector3 m{ linalg::cross(n1, b2) / linalg::norm(b2) };
+  
+  double x{ linalg::dot(n1, n2) };
+  double y{ linalg::dot(m, n2) };
+  
+  
+  
+  // Compute dihedral angle in radians
+  double angle{ std::atan2(y,x) };
+  
+  // Convert angle to the interval [-pi,pi]
+  if(angle > tools::constants::pi){
+    angle -= 2. * tools::constants::pi;
+  }
+  
+  // Convert angle from radians to degrees
+  angle *= 180.0 /  tools::constants::pi;
+  
+  return angle;
 }
 
 /// Compute the distance matrix for \param molecule
