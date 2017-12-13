@@ -124,9 +124,10 @@ constexpr std::array<double, pt_size> pt_masses = {
     243.         ,  //   Americium       Am      95
 };
 
+using tools::conversion::angstrom_to_bohr;
+
 /// J. C. Slater, "Atomic Radii in Crystals",
 /// J. Phys. Chem. 41, 3199-3204 (1964)
-using tools::conversion::angstrom_to_bohr;
 constexpr std::array<double, pt_size> pt_covalent_radii = {
     0.00 * angstrom_to_bohr,  //   Ghost Atom      X       0
     0.25 * angstrom_to_bohr,  //   Hydrogen        H       1
@@ -224,6 +225,107 @@ constexpr std::array<double, pt_size> pt_covalent_radii = {
     1.75 * angstrom_to_bohr,  //   Neptunium       Np      93
     1.75 * angstrom_to_bohr,  //   Plutonium       Pu      94
     1.75 * angstrom_to_bohr,  //   Americium       Am      95
+};
+
+/// S. S. Batsanov, "Van der Waals Radii of Elements",
+/// Inorganic Materials 37, 871-855 (2001)
+constexpr std::array<double, pt_size> pt_vdv_radii = {
+    0.00 * angstrom_to_bohr,  //   Ghost Atom      X       0
+    1.20 * angstrom_to_bohr,  //   Hydrogen        H       1
+    0 * angstrom_to_bohr,  //   Helium          He      2
+    2.24 * angstrom_to_bohr,  //   Lithium         Li      3
+    1.86 * angstrom_to_bohr,  //   Beryllium       Be      4
+    1.74 * angstrom_to_bohr,  //   Boron           B       5
+    1.70 * angstrom_to_bohr,  //   Carbon          C       6
+    1.55 * angstrom_to_bohr,  //   Nitrogen        N       7
+    1.52 * angstrom_to_bohr,  //   Oxygen          O       8
+    1.47 * angstrom_to_bohr,  //   Fluorine        F       9
+    0 * angstrom_to_bohr,  //   Neon            Ne      10
+    2.57 * angstrom_to_bohr,  //   Sodium          Na      11
+    2.27 * angstrom_to_bohr,  //   Magnesium       Mg      12
+    2.11 * angstrom_to_bohr,  //   Aluminum        Al      13
+    2.06 * angstrom_to_bohr,  //   Silicon         Si      14
+    0 * angstrom_to_bohr,  //   Phosphorus      P       15
+    1.80 * angstrom_to_bohr,  //   Sulfur          S       16
+    1.75 * angstrom_to_bohr,  //   Chlorine        Cl      17
+    0 * angstrom_to_bohr,  //   Argon           Ar      18
+    3.00 * angstrom_to_bohr,  //   Potassium       K       19
+    2.61 * angstrom_to_bohr,  //   Calcium         Ca      20
+    2.28 * angstrom_to_bohr,  //   Scandium        Sc      21
+    2.14 * angstrom_to_bohr,  //   Titanium        Ti      22
+    2.03 * angstrom_to_bohr,  //   Vanadium        V       23
+    1.97 * angstrom_to_bohr,  //   Chromium        Cr      24
+    1.96 * angstrom_to_bohr,  //   Manganese       Mn      25
+    1.96 * angstrom_to_bohr,  //   Iron            Fe      26
+    1.95 * angstrom_to_bohr,  //   Cobalt          Co      27
+    1.94 * angstrom_to_bohr,  //   Nickel          Ni      28
+    2.00 * angstrom_to_bohr,  //   Copper          Cu      29
+    2.02 * angstrom_to_bohr,  //   Zinc            Zn      30
+    2.08 * angstrom_to_bohr,  //   Gallium         Ga      31
+    2.13 * angstrom_to_bohr,  //   Germanium       Ge      32
+    2.16 * angstrom_to_bohr,  //   Arsenic         As      33
+    0 * angstrom_to_bohr,  //   Selenium        Se      34
+    1.85 * angstrom_to_bohr,  //   Bromine         Br      35
+    0 * angstrom_to_bohr,  //   Krypton         Kr      36
+    0 * angstrom_to_bohr,  //   Rubidium        Rb      37
+    2.78 * angstrom_to_bohr,  //   Strontium       Sr      38
+    2.45 * angstrom_to_bohr,  //   Yttrium         Y       39
+    2.25 * angstrom_to_bohr,  //   Zirconium       Zr      40
+    2.13 * angstrom_to_bohr,  //   Niobium         Nb      41
+    2.06 * angstrom_to_bohr,  //   Molybdenum      Mo      42
+    2.04 * angstrom_to_bohr,  //   Technetium      Tc      43
+    2.02 * angstrom_to_bohr,  //   Ruthenium       Ru      44
+    2.02 * angstrom_to_bohr,  //   Rhodium         Rh      45
+    2.05 * angstrom_to_bohr,  //   Palladium       Pd      46
+    2.13 * angstrom_to_bohr,  //   Silver          Ag      47
+    2.17 * angstrom_to_bohr,  //   Cadmium         Cd      48
+    2.24 * angstrom_to_bohr,  //   Indium          In      49
+    2.29 * angstrom_to_bohr,  //   Tin             Sn      50
+    2.33 * angstrom_to_bohr,  //   Antimony        Sb      51
+    0 * angstrom_to_bohr,  //   Tellurium       Te      52
+    1.98 * angstrom_to_bohr,  //   Iodine          I       53
+    0 * angstrom_to_bohr,  //   Xenon           Xe      54
+    0 * angstrom_to_bohr,  //   Cesium          Cs      55
+    2.85 * angstrom_to_bohr,  //   Barium          Ba      56
+    2.51 * angstrom_to_bohr,  //   Lanthanum       La      57
+    0 * angstrom_to_bohr,  //   Cerium          Ce      58
+    0 * angstrom_to_bohr,  //   Praseodymium    Pr      59
+    0 * angstrom_to_bohr,  //   Neodymium       Nd      60
+    0 * angstrom_to_bohr,  //   Promethium      Pm      61
+    0 * angstrom_to_bohr,  //   Samarium        Sm      62
+    0 * angstrom_to_bohr,  //   Europium        Eu      63
+    0 * angstrom_to_bohr,  //   Gadolinium      Gd      64
+    0 * angstrom_to_bohr,  //   Terbium         Tb      65
+    0 * angstrom_to_bohr,  //   Dysprosium      Dy      66
+    0 * angstrom_to_bohr,  //   Holmium         Ho      67
+    0 * angstrom_to_bohr,  //   Erbium          Er      68
+    0 * angstrom_to_bohr,  //   Thulium         Tm      69
+    0 * angstrom_to_bohr,  //   Ytterbium       Yb      70
+    0 * angstrom_to_bohr,  //   Lutetium        Lu      71
+    2.24 * angstrom_to_bohr,  //   Hafnium         Hf      72
+    0 * angstrom_to_bohr,  //   Tantalum        Ta      73
+    0 * angstrom_to_bohr,  //   Tungsten        W       74
+    0 * angstrom_to_bohr,  //   Rhenium         Re      75
+    2.03 * angstrom_to_bohr,  //   Osmium          Os      76
+    2.03 * angstrom_to_bohr,  //   Iridium         Ir      77
+    2.06 * angstrom_to_bohr,  //   Platinum        Pt      78
+    2.13 * angstrom_to_bohr,  //   Gold            Au      79
+    2.17 * angstrom_to_bohr,  //   Mercury         Hg      80
+    0 * angstrom_to_bohr,  //   Thallium        Tl      81
+    2.36 * angstrom_to_bohr,  //   Lead            Pb      82
+    0 * angstrom_to_bohr,  //   Bismuth         Bi      83
+    0 * angstrom_to_bohr,  //   Polonium        Po      84
+    0 * angstrom_to_bohr,  //   Astatine        At      85
+    0 * angstrom_to_bohr,  //   Radon           Rn      86
+    0 * angstrom_to_bohr,  //   Francium        Fr      87
+    0 * angstrom_to_bohr,  //   Radium          Ra      88
+    0 * angstrom_to_bohr,  //   Actinium        Ac      89
+    2.43 * angstrom_to_bohr,  //   Thorium         Th      90
+    0 * angstrom_to_bohr,  //   Protactinium    Pa      91
+    2.17 * angstrom_to_bohr,  //   Uranium         U       92
+    0 * angstrom_to_bohr,  //   Neptunium       Np      93
+    0 * angstrom_to_bohr,  //   Plutonium       Pu      94
+    0 * angstrom_to_bohr,  //   Americium       Am      95
 };
 
 /// Check if atomic number \param an is valid

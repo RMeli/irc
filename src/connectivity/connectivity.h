@@ -200,6 +200,8 @@ UGraph adjacency_matrix(const Matrix& distance_m,
         // The weights are set to 1 for all edges.
         boost::add_edge(i, j, 1, ug);
       }
+      
+      // TODO: Look for H-bonds
     }
   }
   
