@@ -39,6 +39,25 @@ double mass(const AtomicNumber& an);
 /// \return Covalent radius corresponding to \class AtomicNumber
 double covalent_radius(const AtomicNumber& an);
 
+/// Get Van der Waals radius from \class AtomicNumber
+///
+/// \param an \class AtomicNumber
+/// \return Van der Waals radius corresponding to \class AtomicNumber
+double vdw_radius(const AtomicNumber& an);
+
+/// Check if an atom is either N, O, F, P, S or Cl
+///
+/// \param an Atomic number
+/// \return
+bool is_NOFPSCl(const AtomicNumber& an);
+
+/// Check if an atom is an hydrogen atom
+///
+/// \param an Atomic number
+/// \return
+bool is_H(const AtomicNumber& an);
+
+
 /// Print \class AtomicNumber
 ///
 /// \param out Output stream

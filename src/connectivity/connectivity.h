@@ -23,6 +23,7 @@
 namespace connectivity {
 
 constexpr double covalent_bond_multiplier{1.3};
+constexpr double vdw_bond_multiplier{0.9};
 
 using EdgeProperty = boost::property<boost::edge_weight_t, int>;
 
@@ -184,6 +185,7 @@ UGraph adjacency_matrix(const Matrix& distance_m,
   
   double d{0.};
   double sum_covalent_radii{0.};
+  double sum_vdw_radii{0.};
   for(size_t j{0}; j < n_atoms; j++){
     for(size_t i{j+1}; i < n_atoms; i++){
   
@@ -199,9 +201,61 @@ UGraph adjacency_matrix(const Matrix& distance_m,
         // Add edge to boost::adjacency_list between vertices i and j
         // The weights are set to 1 for all edges.
         boost::add_edge(i, j, 1, ug);
+        
+        // Search for H-bonds: XH...Y
+        if( (atom::is_NOFPSCl(molecule[i].atomic_number) and
+             atom::is_H(molecule[j].atomic_number))
+            or
+            (atom::is_NOFPSCl(molecule[j].atomic_number) and
+             atom::is_H(molecule[i].atomic_number))){ // Possible H-bond
+          
+          size_t idx{0}; // X atom index
+          size_t h_idx{0}; // Hydrogen bond index
+          
+          double a{0}; // Angle between X, H and Y in XH...Y
+          
+          // Assign correct indices to X and H
+          if( atom::is_H(molecule[j].atomic_number) ){
+            idx = i;
+            h_idx = j;
+          }
+          else{
+            idx = j;
+            h_idx = i;
+          }
+          
+          // Loop over all other atoms, excluding i and j
+          for(size_t k{0}; k < n_atoms; k++){
+            if( atom::is_NOFPSCl(molecule[k].atomic_number) and
+                k != idx and k != h_idx ){
+              
+              // Load distance
+              d = distance_m(h_idx,k);
+  
+              // Compute sum of Van der Waals radii
+              sum_vdw_radii =
+                  atom::vdw_radius(molecule[h_idx].atomic_number) +
+                  atom::vdw_radius(molecule[k].atomic_number);
+  
+              // Compute sum of covalent radii
+              sum_covalent_radii =
+                  atom::covalent_radius(molecule[h_idx].atomic_number) +
+                  atom::covalent_radius(molecule[k].atomic_number);
+  
+              a = angle(molecule[idx].position,
+                        molecule[h_idx].position,
+                        molecule[k].position);
+  
+              // Check H-bond properties
+              if( d > sum_covalent_radii and
+                  d < sum_vdw_radii * vdw_bond_multiplier and
+                  a > 90){
+                boost::add_edge(h_idx, k, 1, ug);
+              }
+            }
+          } // End H-bond search
+        }
       }
-      
-      // TODO: Look for H-bonds
     }
   }
   

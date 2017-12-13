@@ -126,7 +126,7 @@ TEST_CASE("Connectivity test for CH2O"){
   REQUIRE( A.size() == 3);
 }
 
-TEST_CASE("Connectivity test for caffeine"){
+TEST_CASE("Connectivity test with molecule from input"){
   using namespace std;
   using namespace io;
   using namespace tools::conversion;
@@ -134,7 +134,7 @@ TEST_CASE("Connectivity test for caffeine"){
   using namespace connectivity;
   
   // Load molecule from file
-  Molecule<vec3> molecule{ load_xyz<vec3>("../test/ethanol.xyz") };
+  Molecule<vec3> molecule{ load_xyz<vec3>("../test/water_dimer.xyz") };
   
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);

@@ -337,7 +337,6 @@ bool valid_atomic_number(size_t an);
 /// \param symbol Atomic symbol
 /// \return Atomic number
 size_t atomic_number(const std::string& symbol);
-
 }
 
 #endif //IRC_PERIODIC_TABLE_H
