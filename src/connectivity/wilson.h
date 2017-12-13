@@ -20,7 +20,8 @@ std::pair<Vector3,Vector3> bond_gradient(const connectivity::Bond<Vector3>& b){
 }
 
 template <typename Vector3>
-std::tuple<Vector3, Vector3, Vector3> angle_gradient(const connectivity::Angle<Vector3>& a){
+std::tuple<Vector3, Vector3, Vector3> angle_gradient(
+    const connectivity::Angle<Vector3>& a){
   double angle_rad{ a.angle / 180. * tools::constants::pi};
   
   // TODO: Check pyberny for more robust implementation
@@ -43,6 +44,54 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const connectivity::Angle<V
   Vector3 v2{ -v1 -v3 };
   
   return {v1, v2, v3};
+}
+
+template <typename Vector3>
+std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
+    const connectivity::Dihedral<Vector3>& d){
+  
+  double angle123{ connectivity::angle(d.p1, d.p2, d.p3)};
+  double angle123_rad{ angle123 * tools::constants::pi / 180. };
+  double sin_angle123{ std::sin(angle123_rad) };
+  double cos_angle123{ std::cos(angle123_rad) };
+  
+  double angle234{ connectivity::angle(d.p2, d.p3, d.p4) };
+  double angle234_rad{ angle234 * tools::constants::pi / 180. };
+  double sin_angle234{ std::sin(angle234_rad) };
+  double cos_angle234{ std::cos(angle234_rad) };
+  
+  Vector3 b12{ d.p2 - d.p1 };
+  Vector3 b23{ d.p3 - d.p2 };
+  Vector3 b34{ d.p4 - d.p3 };
+  Vector3 b32{ -b23 };
+  Vector3 b43{ -b34 };
+  
+  double bond12{ linalg::norm(b12) };
+  double bond23{ linalg::norm(b23) };
+  double bond34{ linalg::norm(b34) };
+  
+  Vector3 v1{-linalg::cross(b12, b23) / (bond12 * sin_angle123 * sin_angle123)};
+  
+  double vc1{0.}, vc2{0.};
+  Vector3 vv1, vv2{0.,0.,0.};
+  
+  vc1 = (bond23 - bond12 * cos_angle123) / (bond12 * bond23 * sin_angle123);
+  vc2 = cos_angle234 / (bond23 * sin_angle234);
+  vv1 = linalg::cross(b12, b23) / sin_angle123;
+  vv2 = linalg::cross(b43, b32) / sin_angle234;
+  
+  Vector3 v2{ vc1 * vv1 + vc2 * vv2 };
+  
+  vc1 = (bond23 - bond34 * cos_angle234) / (bond23 * bond34 * sin_angle234);
+  vc2 = cos_angle123 / (bond23 * sin_angle123);
+  vv1 = linalg::cross(b43, b32) / sin_angle234;
+  vv2 = linalg::cross(b12, b23) / sin_angle123;
+  
+  Vector3 v3{ vc1 * vv1 + vc2 * vv2 };
+  
+  Vector3 v4{-linalg::cross(b43, b32) / (bond34 * sin_angle234 * sin_angle234)};
+  
+  return {v1, v2, v3, v4};
 }
 
 /// Function computing Wilson's \f$\mathbf{B}\f$ matrix from a set of internal
@@ -73,7 +122,10 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const connectivity::Angle<V
 template <typename Vector3, typename Matrix>
 Matrix wilson_matrix(size_t n_atoms,
                      const std::vector<connectivity::Bond<Vector3>>& bonds,
-                     const std::vector<connectivity::Angle<Vector3>>& angles = {}){
+                     const std::vector<connectivity::Angle<Vector3>>&
+                        angles = {},
+                     const std::vector<connectivity::Dihedral<Vector3>>&
+                        dihedrals = {} ){
   // Get the total number of internal redundant coordinates
   size_t n_irc{ bonds.size() + angles.size()};
   
@@ -81,7 +133,7 @@ Matrix wilson_matrix(size_t n_atoms,
   Matrix B{ linalg::zeros<Matrix>(n_irc, 3 * n_atoms) };
   
   // Utility vector for gradients storage
-  Vector3 g1, g2, g3;
+  Vector3 g1, g2, g3, g4;
   
   // Populate B matrix's rows corresponding to bonds
   connectivity::Bond<Vector3> bond;
@@ -110,7 +162,20 @@ Matrix wilson_matrix(size_t n_atoms,
     }
   }
   
-  // TODO: Populate B matrix's rows corresponding to dihedrals
+  // Populate B matrix's rows corresponding to dihedrals
+  connectivity::Dihedral<Vector3> dihedral;
+  for(size_t i{0}; i < dihedrals.size(); i++){
+    dihedral = dihedrals[i];
+    
+    std::tie(g1, g2, g3, g4) = dihedral_gradient(dihedral);
+    
+    for(size_t idx{0}; idx < 3; idx++){
+      B(i + bonds.size() + angles.size(), 3 * dihedral.i + idx) = g1(idx);
+      B(i + bonds.size() + angles.size(), 3 * dihedral.j + idx) = g2(idx);
+      B(i + bonds.size() + angles.size(), 3 * dihedral.k + idx) = g3(idx);
+      B(i + bonds.size() + angles.size(), 3 * dihedral.l + idx) = g4(idx);
+    }
+  }
   
   return B;
 }
