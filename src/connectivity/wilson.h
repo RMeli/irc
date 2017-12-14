@@ -3,12 +3,15 @@
 
 #include "connectivity.h"
 
+#include "../atoms/molecule.h"
+#include "../connectivity/connectivity.h"
 #include "../tools/constants.h"
 
 #include <cmath>
 #include <iostream>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 namespace wilson{
 
@@ -188,6 +191,36 @@ Matrix wilson_matrix(size_t n_atoms,
   return B;
 }
 
+
+template <typename Vector3, typename Matrix>
+Matrix wilson_matrix(const molecule::Molecule<Vector3>& molecule){
+  // Compute interatomic distances
+  Matrix dd{ connectivity::distances<Vector3, Matrix>(molecule) };
+  
+  // Compute adjacency matrix (graph)
+  connectivity::UGraph adj{ connectivity::adjacency_matrix(dd, molecule) };
+  
+  // Compute distance matrix and predecessor matrix
+  Matrix dist, predecessors;
+  std::tie(dist, predecessors) = connectivity::distance_matrix<Matrix>(adj) ;
+  
+  // Compute bonds
+  std::vector<connectivity::Bond<Vector3>> bonds{
+      connectivity::bonds(dist, molecule)};
+  
+  // Compute angles
+  std::vector<connectivity::Angle<Vector3>> angles{
+      connectivity::angles(dist, predecessors, molecule)};
+  
+  // Compute dihedrals
+  std::vector<connectivity::Dihedral<Vector3>> dihedrals{
+      connectivity::dihedrals(dist, predecessors, molecule)};
+  
+  // Return Wilson's B matrix
+  return wilson_matrix<Vector3, Matrix>(molecule.size(),
+                                        bonds, angles, dihedrals);
+}
+
 template <typename Matrix>
 std::pair<Matrix, Matrix> G_matirces(const Matrix& B){
   Matrix G{ B * linalg::transpose(B) };
@@ -199,6 +232,8 @@ template <typename Matrix>
 Matrix projector(const Matrix& G, const Matrix& iG){
   return G * iG;
 }
+
+
 
 }
 

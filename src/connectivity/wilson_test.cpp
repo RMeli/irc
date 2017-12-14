@@ -35,18 +35,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     double d{0.01};
     vec dx{-d, 0.00, 0.00, d, 0.00, 0.00};
   
-    // Compute interatomic distance for formaldehyde molecule
-    mat dd{ connectivity::distances<vec3, mat>(molecule) };
-  
-    connectivity::UGraph adj{ connectivity::adjacency_matrix(dd, molecule) };
-  
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = connectivity::distance_matrix<mat>(adj);
-  
-    std::vector<connectivity::Bond<vec3>> bonds{
-        connectivity::bonds(dist, molecule) };
-  
-    mat Bwilson = wilson_matrix<vec3, mat>(molecule.size(), bonds);
+    mat Bwilson = wilson_matrix<vec3, mat>(molecule);
   
     cout << "Wilson B matrix:" << endl;
     cout << Bwilson << endl;
