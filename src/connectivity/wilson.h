@@ -233,8 +233,6 @@ Matrix projector(const Matrix& G, const Matrix& iG){
   return G * iG;
 }
 
-
-
 }
 
 #endif //IRC_WILSON_H
