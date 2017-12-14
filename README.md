@@ -4,7 +4,7 @@
 
 ### Internal Redoundant Coordinates
 
-- P. Puly and G. Fogarasi, J. Chem. Phys. **96** 2856 (1992).
+- P. Puly and G. Fogarasi, *Geometry optimization in redundant internal coordinates*, J. Chem. Phys. **96** 2856 (1992).
 
 - C. Peng, P. Y. Ayala and H. B. Schlegel, *Using Redundant Internal Coordinates to Optimize Equilibrium Geometries and Transition States*, J. Comp. Chem. **17**, 49-56 (1996).
 
