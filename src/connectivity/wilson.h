@@ -50,6 +50,9 @@ template <typename Vector3>
 std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
     const connectivity::Dihedral<Vector3>& d){
   
+  // TODO: Check pyberny for more robust implementation
+  // https://github.com/azag0/pyberny
+  
   double angle123{ connectivity::angle(d.p1, d.p2, d.p3)};
   double angle123_rad{ angle123 * tools::constants::pi / 180. };
   double sin_angle123{ std::sin(angle123_rad) };
@@ -63,12 +66,17 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
   Vector3 b12{ d.p2 - d.p1 };
   Vector3 b23{ d.p3 - d.p2 };
   Vector3 b34{ d.p4 - d.p3 };
-  Vector3 b32{ -b23 };
-  Vector3 b43{ -b34 };
   
   double bond12{ linalg::norm(b12) };
   double bond23{ linalg::norm(b23) };
   double bond34{ linalg::norm(b34) };
+  
+  b12 = b12 / bond12;
+  b23 = b23 / bond23;
+  b34 = b34 / bond34;
+  
+  Vector3 b32{ -b23 };
+  Vector3 b43{ -b34 };
   
   Vector3 v1{-linalg::cross(b12, b23) / (bond12 * sin_angle123 * sin_angle123)};
   
@@ -88,7 +96,7 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
   vv2 = linalg::cross(b12, b23) / sin_angle123;
   
   Vector3 v3{ vc1 * vv1 + vc2 * vv2 };
-  
+
   Vector3 v4{-linalg::cross(b43, b32) / (bond34 * sin_angle234 * sin_angle234)};
   
   return {v1, v2, v3, v4};
@@ -127,7 +135,7 @@ Matrix wilson_matrix(size_t n_atoms,
                      const std::vector<connectivity::Dihedral<Vector3>>&
                         dihedrals = {} ){
   // Get the total number of internal redundant coordinates
-  size_t n_irc{ bonds.size() + angles.size()};
+  size_t n_irc{ bonds.size() + angles.size() + dihedrals.size() };
   
   // Allocate Wilson's B matrix
   Matrix B{ linalg::zeros<Matrix>(n_irc, 3 * n_atoms) };
@@ -178,6 +186,18 @@ Matrix wilson_matrix(size_t n_atoms,
   }
   
   return B;
+}
+
+template <typename Matrix>
+std::pair<Matrix, Matrix> G_matirces(const Matrix& B){
+  Matrix G{ B * linalg::transpose(B) };
+  
+  return std::make_pair( G, linalg::pseudo_inverse(G)  );
+};
+
+template <typename Matrix>
+Matrix projector(const Matrix& G, const Matrix& iG){
+  return G * iG;
 }
 
 }

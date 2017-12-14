@@ -41,22 +41,22 @@ Vector3 cross(const Vector3& a, const Vector3& b){
 
 template <typename Vector>
 Vector zeros(size_t nelements){
-  return std::move(arma::zeros<Vector>(nelements));
+  return arma::zeros<Vector>(nelements);
 }
 
 template <typename Matrix>
 Matrix zeros(size_t nrows, size_t ncols){
-  return std::move(arma::zeros<Matrix>(nrows, ncols));
+  return arma::zeros<Matrix>(nrows, ncols);
 }
 
 template <typename Matrix>
 Matrix transpose(const Matrix& mat){
-  return std::move(arma::trans(mat));
+  return arma::trans(mat);
 }
 
 template <typename Matrix>
 Matrix pseudo_inverse(const Matrix& mat){
-  return std::move(arma::pinv(mat));
+  return arma::pinv(mat);
 }
 
 #endif
