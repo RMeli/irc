@@ -226,7 +226,7 @@ std::pair<Matrix, Matrix> G_matirces(const Matrix& B){
   Matrix G{ B * linalg::transpose(B) };
   
   return std::make_pair( G, linalg::pseudo_inverse(G)  );
-};
+}
 
 template <typename Matrix>
 Matrix projector(const Matrix& G, const Matrix& iG){

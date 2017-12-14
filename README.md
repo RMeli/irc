@@ -1,4 +1,4 @@
-# Internal Reduntant Coordinates
+# Internal Redundant Coordinates
 
 ## Sources
 
