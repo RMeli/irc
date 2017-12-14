@@ -26,16 +26,13 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   using namespace wilson;
   
   SECTION("H2 stretching"){
-    // Define dihydrogen molecule (H2)
-    molecule::Molecule<vec3> molecule{
-        {"H", {0.00,  0.00,  0.0}},
-        {"H", {1.00,  0.00,  0.0}}
-    };
     
+    // Compute Wilson B matrix for H2
+    mat Bwilson = wilson_matrix<vec3, mat>({{1,0.,0.,0.},{1,1.,0.,0.}});
+  
+    // H2 bond stretching
     double d{0.01};
     vec dx{-d, 0.00, 0.00, d, 0.00, 0.00};
-  
-    mat Bwilson = wilson_matrix<vec3, mat>(molecule);
   
     cout << "Wilson B matrix:" << endl;
     cout << Bwilson << endl;
@@ -96,44 +93,9 @@ TEST_CASE("Wilson B matrix","[wilson]"){
       dx(3*i + 1) = v(1);
       dx(3*i + 2) = v(2);
     }
-  
-    // Compute interatomic distances for water
-    mat dd{ connectivity::distances<vec3, mat>(molecule) };
-  
-    // Compute adjacency matrix (graph)
-    connectivity::UGraph adj{ connectivity::adjacency_matrix(dd, molecule) };
-  
-    // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = connectivity::distance_matrix<mat>(adj) ;
-  
-    // Compute bonds
-    vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(dist, molecule)};
     
-    // Print bonds
-    cout << "\nBonds:" << endl;
-    for(const auto& b : bonds){
-      cout << b.bond << endl;
-    }
-    
-    // Check number of bonds
-    REQUIRE( bonds.size() == 2 );
-  
-    // Compute angles
-    vector<connectivity::Angle<vec3>> angles{
-        connectivity::angles(dist, predecessors, molecule)};
-    
-    // Print angles
-    cout << "\nAngles:" << endl;
-    for(const auto& a : angles){
-      cout << a.angle << endl;
-    }
-    
-    // Check number of angles
-    REQUIRE( angles.size() == 1 );
-  
     // Compute Wilson's B matrix
-    mat Bwilson = wilson_matrix<vec3, mat>(molecule.size(), bonds, angles);
+    mat Bwilson = wilson_matrix<vec3, mat>(molecule);
   
     // Print Wilson B matrix
     cout << "\nWilson B matrix:" << endl;

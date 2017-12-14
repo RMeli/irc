@@ -106,7 +106,8 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
 }
 
 /// Function computing Wilson's \f$\mathbf{B}\f$ matrix from a set of internal
-/// redundant coordinates.
+/// redundant coordinates, defined as a collection of bonds, angles and
+/// dihedral angles.
 ///
 /// \tparam Vector3 3D vector type
 /// \tparam Matrix Matrix type
@@ -219,6 +220,16 @@ Matrix wilson_matrix(const molecule::Molecule<Vector3>& molecule){
   // Return Wilson's B matrix
   return wilson_matrix<Vector3, Matrix>(molecule.size(),
                                         bonds, angles, dihedrals);
+}
+
+template <typename Vector3, typename Matrix>
+Matrix wilson_matrix(
+    const std::vector<std::tuple<size_t, double, double, double>>& atoms) {
+  molecule::Molecule<Vector3> molecule{
+      molecule::make_molecule<Vector3>(atoms)
+  };
+  
+  return wilson_matrix<Vector3, Matrix>(molecule);
 }
 
 template <typename Matrix>
