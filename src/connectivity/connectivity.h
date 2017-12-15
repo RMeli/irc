@@ -112,15 +112,8 @@ double dihedral(const Vector3& v1,
   double x{ linalg::dot(n1, n2) };
   double y{ linalg::dot(m, n2) };
   
-  
-  
-  // Compute dihedral angle in radians
+  // Compute dihedral angle in radians (in the intervale [-pi,pi])
   double angle{ std::atan2(y,x) };
-  
-  // Convert angle to the interval [-pi,pi]
-  if(angle > tools::constants::pi){
-    angle -= 2. * tools::constants::pi;
-  }
   
   // Convert angle from radians to degrees
   angle *= 180.0 /  tools::constants::pi;
@@ -152,7 +145,7 @@ Matrix distances(const molecule::Molecule<Vector3>& molecule){
     for(size_t j{0}; j < n_atoms; j++){
       
       r = distance(molecule[i].position, molecule[j].position);
-      
+  
       distances_m(i,j) = r;
       distances_m(j,i) = r;
     }
@@ -202,6 +195,7 @@ UGraph adjacency_matrix(const Matrix& distance_m,
         // The weights are set to 1 for all edges.
         boost::add_edge(i, j, 1, ug);
         
+        // TODO: Better ways of doing this...
         // Search for H-bonds: XH...Y
         if( (atom::is_NOFPSCl(molecule[i].atomic_number) and
              atom::is_H(molecule[j].atomic_number))
@@ -224,7 +218,7 @@ UGraph adjacency_matrix(const Matrix& distance_m,
             h_idx = i;
           }
           
-          // Loop over all other atoms, excluding i and j
+          // Loop over all other atoms, excluding i and j, to find Y
           for(size_t k{0}; k < n_atoms; k++){
             if( atom::is_NOFPSCl(molecule[k].atomic_number) and
                 k != idx and k != h_idx ){
@@ -250,6 +244,7 @@ UGraph adjacency_matrix(const Matrix& distance_m,
               if( d > sum_covalent_radii and
                   d < sum_vdw_radii * vdw_bond_multiplier and
                   a > 90){
+                // Add hydrogen bond
                 boost::add_edge(h_idx, k, 1, ug);
               }
             }
@@ -258,6 +253,9 @@ UGraph adjacency_matrix(const Matrix& distance_m,
       }
     }
   }
+  
+  // TODO: Look for disconnected fragments
+  // Look at boost::connected_components
   
   return ug;
 }
@@ -320,12 +318,15 @@ std::pair<Matrix,Matrix> distance_matrix(const UGraph& ug){
   return std::make_pair(dist, predecessors);
 }
 
-/// Returns the covalent covalent bonds in \param molecule
+/// Returns the bonds in \param molecule
+///
 /// \tparam Vector3 3D vevtor
 /// \tparam Matrix Matrix
 /// \param distance_m Distance matrix
 /// \param molecule Molecule
 /// \return List of covalent bonds
+///
+/// The bonds can be covalent bonds, hydrogen bonds or inter-fragment bonds.
 template <typename Vector3, typename Matrix>
 std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
                                  const molecule::Molecule<Vector3>& molecule){
@@ -353,6 +354,7 @@ std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
     }
   }
   
+  // Return list of bonds
   return b;
 }
 
@@ -398,6 +400,7 @@ std::vector<Angle<Vector3>> angles(const Matrix& distance_m,
     }
   }
   
+  // Return list of angles
   return ang;
 }
 
@@ -438,6 +441,7 @@ std::vector<Dihedral<Vector3>> dihedrals(const Matrix& distance_m,
     }
   }
   
+  // Return list of dihedral angles
   return dih;
 }
 

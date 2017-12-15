@@ -116,7 +116,7 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
 /// \param angles Collection of angles between bonded atoms
 /// \return Wilson's B matrix
 ///
-/// This function resurns Wilson's \f$\mathbf{B}\f$ matrix given a collection
+/// This function returns Wilson's \f$\mathbf{B}\f$ matrix given a collection
 /// of bonds, angles and dihedral angles.
 ///
 /// Wilson's \f$\mathbf{B}\f$ matrix
