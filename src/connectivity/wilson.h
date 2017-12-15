@@ -222,6 +222,7 @@ Matrix wilson_matrix(const molecule::Molecule<Vector3>& molecule){
                                         bonds, angles, dihedrals);
 }
 
+/*
 template <typename Vector3, typename Matrix>
 Matrix wilson_matrix(
     const std::vector<std::tuple<size_t, double, double, double>>& atoms) {
@@ -231,6 +232,7 @@ Matrix wilson_matrix(
   
   return wilson_matrix<Vector3, Matrix>(molecule);
 }
+*/
 
 template <typename Matrix>
 std::pair<Matrix, Matrix> G_matirces(const Matrix& B){

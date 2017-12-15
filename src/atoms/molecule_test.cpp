@@ -22,11 +22,11 @@ TEST_CASE("Molecule") {
   using namespace periodic_table;
   
   
-  Molecule<vec3> molecule{ make_molecule<vec3>(
-      {{1, 0.0, 1.1, 2.2},
-       {2, 0.0, 1.1, 2.2},
-       {3, 0.0, 1.1, 2.2}}
-  )};
+  Molecule<vec3> molecule{{
+                              {1, {0.0, 1.1, 2.2}},
+                              {2, {0.0, 1.1, 2.2}},
+                              {3, {0.0, 1.1, 2.2}}
+                          }};
   
   SECTION("Mass") {
     Approx target{pt_masses[1] + pt_masses[2] + pt_masses[3]};

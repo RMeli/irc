@@ -19,7 +19,7 @@ size_t atomic_number(const std::string &symbol) {
     }
   }
   
-  if( an == 0){
+  if( an == 0 ){
     throw std::logic_error("Invalid atomic symbol.");
   }
   

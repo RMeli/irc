@@ -17,6 +17,7 @@ namespace atom{
 class AtomicNumber{
  public:
   AtomicNumber(size_t an);
+  AtomicNumber(const std::string& symbol);
   
   size_t atomic_number;
 };
@@ -100,7 +101,7 @@ Atom<Vector3>::Atom(const AtomicNumber& an, const Vector3& pos)
 
 template<typename Vector3>
 Atom<Vector3>::Atom(const std::string& symbol, const Vector3& pos)
-    : atomic_number( periodic_table::atomic_number(symbol) ), position(pos)
+    : atomic_number( symbol ), position(pos)
 {}
 
 /// Output operator for an atom

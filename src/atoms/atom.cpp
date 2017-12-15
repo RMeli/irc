@@ -12,6 +12,10 @@ AtomicNumber::AtomicNumber(size_t an) {
   atomic_number = an;
 }
 
+AtomicNumber::AtomicNumber(const std::string& symbol)
+: AtomicNumber( periodic_table::atomic_number(symbol) )
+{}
+
 std::string symbol(const AtomicNumber& an){
   return periodic_table::pt_symbols[an.atomic_number];
 }

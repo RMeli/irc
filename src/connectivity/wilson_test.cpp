@@ -28,7 +28,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   SECTION("H2 stretching"){
     
     // Compute Wilson B matrix for H2
-    mat Bwilson = wilson_matrix<vec3, mat>({{1,0.,0.,0.},{1,1.,0.,0.}});
+    mat Bwilson = wilson_matrix<vec3, mat>({{1,{0.,0.,0.}},{1,{1.,0.,0.}}});
   
     // H2 bond stretching
     double d{0.01};

@@ -13,25 +13,6 @@ namespace molecule{
 template<typename Vector3>
 using Molecule = std::vector<atom::Atom<Vector3>>;
 
-template<typename Vector3>
-Molecule<Vector3> make_molecule(
-    const std::vector<std::tuple<size_t, double, double, double>>& atoms){
-  size_t n_atoms{ atoms.size() };
-  
-  Molecule<Vector3> molecule;
-  
-  size_t an;
-  double x, y, z;
-  for(size_t i{0}; i < n_atoms; i++){
-    std::tie(an, x, y, z) = atoms[i];
-    
-    // TODO: Preallocate memory
-    molecule.push_back({an, {x,y,z}});
-  }
-  
-  return molecule;
-}
-
 /// Compute the total mass of a molecule
 ///
 /// \tparam T 3D vector
