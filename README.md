@@ -4,7 +4,9 @@
 
 ### Internal Redoundant Coordinates
 
+## Contributions
 
+Any contribution to this open source project is very welcome. If you are considering contributing you may find beneficial to have a look at the [Open Source Guides](https://opensource.guide/).
 
 ## Sources
 
