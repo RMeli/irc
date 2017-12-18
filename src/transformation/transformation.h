@@ -4,6 +4,8 @@
 #include "../connectivity/connectivity.h"
 #include "../linear_algebra/linalg.h"
 
+#include<iostream>
+
 namespace transformation{
 
 
@@ -101,6 +103,23 @@ Vector cartesian_to_irc(const Vector& x_c,
   return q_irc;
 }
 
+///
+/// \tparam Vector3
+/// \tparam Vector
+/// \tparam Matrix
+/// \param q_irc_old
+/// \param dq_irc
+/// \param x_c_old
+/// \param bonds
+/// \param angles
+/// \param dihedrals
+/// \param B
+/// \param iG
+/// \param max_iters
+/// \param tolerance
+/// \return
+///
+/// Convergence: V. Bakken and T. Helgaker, J. Chem. Phys. 117, 9160 (2002).
 template <typename Vector3, typename Vector, typename Matrix>
 Vector irc_to_cartesian(const Vector& q_irc_old,
            const Vector& dq_irc,
@@ -122,6 +141,8 @@ Vector irc_to_cartesian(const Vector& q_irc_old,
   // Store change in internal redundant coordinates
   Vector dq{ dq_irc };
   
+  Vector dq1{ dq_irc };
+  
   // Old internal coordinates
   Vector q_old{ q_irc_old };
   
@@ -139,7 +160,7 @@ Vector irc_to_cartesian(const Vector& q_irc_old,
     
     // Compute displacement in cartesian coordinates
     dx = Bt * iG * dq;
-  
+    
     // Check for convergence
     if( rms<Vector>(dx) < tolerance ){
       converged = true;
@@ -163,6 +184,9 @@ Vector irc_to_cartesian(const Vector& q_irc_old,
   // If iteration does not converge, use first estimate
   if( !converged ){
     x_c = x_c_old + linalg::transpose(B) * iG * dq_irc;
+    
+  // TODO: Something better?
+    std::cerr << "WARNING: IRC_TO_CARTESIAN not converged." << std::endl;
   }
   
   return x_c;
