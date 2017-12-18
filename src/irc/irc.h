@@ -5,6 +5,7 @@
 #include "../connectivity/connectivity.h"
 #include "../connectivity/wilson.h"
 #include "../linear_algebra/linalg.h"
+#include "../transformation/transformation.h"
 
 #include <utility>
 
@@ -19,7 +20,9 @@ class IRC {
   
   Vector grad_cartesian_to_projected_irc(const Vector& grad_c) const;
   
-  Vector irc_to_cartesian(const Vector& q_irc);
+  Vector irc_to_cartesian(const Vector& dq_irc,
+                          const Vector& x_c_old,
+                          size_t max_iters = 25);
   
  private:
   /// Distance matrix
@@ -45,6 +48,9 @@ class IRC {
   /// Number of internal coordinates
   size_t n_irc;
   
+  /// Number of cartesian coordinates
+  size_t n_c;
+  
   /// Wilson B matrix
   Matrix B;
   
@@ -60,6 +66,9 @@ class IRC {
 
 template <typename Vector3, typename Vector, typename Matrix>
 IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3>& molecule){
+  // Number of cartesian coordinates
+  n_c = 3 * molecule.size();
+  
   // Compute interatomic distances
   Matrix dd{ connectivity::distances<Vector3, Matrix>(molecule) };
   
@@ -79,7 +88,7 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3>& molecule){
   // Compute dihedrals
   dihedrals = connectivity::dihedrals(distance_m, predecessors_m, molecule);
 
-  // Count the number of internall coordinates
+  // Count the number of internal coordinates
   n_irc = bonds.size() + angles.size() + dihedrals.size();
   
   // Store initial Wilson's B matrix
@@ -142,7 +151,16 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
 template <typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
     const Vector& grad_c) const{
-  return P * iG * B * grad_c;
+  return P *
+      transformation::gradient_cartesian_to_irc<Vector,Matrix>(grad_c, B, iG);
+}
+
+template <typename Vector3, typename Vector, typename Matrix>
+Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(
+    const Vector& dq_irc,
+    const Vector& x_c_old,
+    size_t max_iters){
+  
 }
 
 }

@@ -81,6 +81,10 @@ add_executable( test_wilson src/connectivity/wilson_test.cpp )
 target_link_libraries( test_wilson libirc )
 add_test( UNITTEST_wilson bin/test_wilson )
 
+add_executable( test_transformation src/transformation/transformation_test.cpp )
+target_link_libraries( test_transformation libirc )
+add_test( UNITTEST_transformation bin/transformation_irc )
+
 add_executable( test_irc src/irc/irc_test.cpp )
 target_link_libraries( test_irc libirc )
 add_test( UNITTEST_irc bin/test_irc )

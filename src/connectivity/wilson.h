@@ -246,6 +246,6 @@ Matrix projector(const Matrix& G, const Matrix& iG){
   return G * iG;
 }
 
-}
+} // namespace wilson
 
 #endif //IRC_WILSON_H
