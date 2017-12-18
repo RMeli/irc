@@ -62,6 +62,9 @@ template <typename Matrix>
 Matrix transpose(const Matrix& mat);
 
 template <typename Matrix>
+Matrix inv(const Matrix& mat);
+
+template <typename Matrix>
 Matrix pseudo_inverse(const Matrix& mat);
 
 

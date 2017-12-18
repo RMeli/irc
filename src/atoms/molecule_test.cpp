@@ -10,7 +10,9 @@
 
 #ifdef HAVE_ARMA
 #include <armadillo>
-using vec3 = arma::vec3;
+using arma::vec3;
+#elif HAVE_EIGEN3
+# error // TODO: Solve problem with std::initializer_list
 #else
 #error
 #endif

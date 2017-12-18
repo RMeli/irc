@@ -11,6 +11,9 @@
 #ifdef HAVE_ARMA
 #include <armadillo>
 using arma::vec3;
+#elif HAVE_EIGEN3
+#include <Eigen3/Eigen/Dense>
+using vec3 = Eigen::Vector3d;
 #else
 #error
 #endif

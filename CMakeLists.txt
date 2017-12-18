@@ -27,12 +27,27 @@ target_link_libraries(libirc ${Boost_LIBRARIES})
 find_package(
         Armadillo
         8.200.0
+        REQUIRED
         )
 if( ${ARMADILLO_FOUND})
         include_directories(${ARMADILLO_INCLUDE_DIRS})
         target_link_libraries(libirc ${ARMADILLO_LIBRARIES})
         add_definitions(-DHAVE_ARMA)
+
+        message("-- Armadillo version: " ${ARMADILLO_VERSION_STRING})
 endif()
+
+#find_package(
+#        Eigen3
+#        3.2
+#)
+#if( ${EIGEN3_FOUND})
+#        include_directories(${EIGEN3_INCLUDE_DIRS})
+#        target_link_libraries(libirc ${EIGEN3_LIBRARIES})
+#        add_definitions(-DHAVE_EIGEN3)
+
+#        message("-- Eigen3 version: " ${EIGEN3_VERSION})
+#endif()
 
 enable_testing()
 
