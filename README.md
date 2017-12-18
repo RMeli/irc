@@ -1,8 +1,10 @@
 # Internal Redundant Coordinates
 
+## Usage
+
 ## Theory
 
-### Internal Redoundant Coordinates
+### Internal Redundant Coordinates
 
 ## Contributions
 
