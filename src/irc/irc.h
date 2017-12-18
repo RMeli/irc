@@ -15,8 +15,10 @@ class IRC {
  public:
   IRC(const molecule::Molecule<Vector3>& molecule);
   
-  Matrix projected_initial_hessian(double alpha = 1000) const;
+  Matrix projected_initial_hessian_inv(double alpha = 1000) const;
+  
   Vector grad_cartesian_to_projected_irc(const Vector& grad_c) const;
+  
   Vector irc_to_cartesian(const Vector& q_irc);
   
  private:
@@ -97,7 +99,7 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3>& molecule){
 ///
 /// V. Bakken and T. Helgaker, J. Chem. Phys 117, 9160 (2002).
 template <typename Vector3, typename Vector, typename Matrix>
-Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian(
+Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
     double alpha) const {
   Matrix H0( linalg::zeros<Matrix>(n_irc, n_irc) );
   Matrix I( linalg::identity<Matrix>(n_irc) );
@@ -118,7 +120,7 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian(
     H0(i + offset, i + offset) = 0.1;
   }
   
-  return P * H0 * P + alpha * (I - P);
+  return linalg::inv<Matrix>( P * H0 * P + alpha * (I - P) );
 }
 
 }
