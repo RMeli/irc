@@ -123,7 +123,28 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
   return linalg::inv<Matrix>( P * H0 * P + alpha * (I - P) );
 }
 
+/// Transform gradient in cartesian coordinates to gradient in internal
+/// redundant coordinates and project the latter in the non-redundant
+/// part of the internal coordinate space
+///
+/// \param grad_c Gradient in cartesian coordinates
+/// \return Projected gradient in internal redundant coordinates
+///
+/// The gradient in redundant internal coordinates is given by
+/// \f\[
+///   \mathbf{g}_q = \mathbf{G}^-\mathbf{B} \mathbf{g}_x,
+/// \f\]
+/// where \f$\mathbf{g}_q\f$ and \f$\mathbf{g}_x\f$ are respectively the
+/// gradient in internal redundant coordinates and the gradient in cartesian
+/// coordinates. \f$\mathbf{B}\f$ is the Wilson B matrix, \f$\mathbf{G}\f$ is
+/// the matrix defined by \f$\mathbf{G} = \mathbf{B}\mathbf{B}^T\f$ and
+/// \f$\mathbf{G}^-\f$ is the pseudo-inverse of \f$\mathbf{G}\f$.
+template <typename Vector3, typename Vector, typename Matrix>
+Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
+    const Vector& grad_c) const{
+  return P * iG * B * grad_c;
 }
 
+}
 
 #endif //IRC_IRC_H
