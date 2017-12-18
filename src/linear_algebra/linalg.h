@@ -56,6 +56,9 @@ template <typename Matrix>
 Matrix zeros(size_t nrows, size_t ncols);
 
 template <typename Matrix>
+Matrix identity(size_t n);
+
+template <typename Matrix>
 Matrix transpose(const Matrix& mat);
 
 template <typename Matrix>

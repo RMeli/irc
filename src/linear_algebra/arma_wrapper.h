@@ -50,6 +50,11 @@ Matrix zeros(size_t nrows, size_t ncols){
 }
 
 template <typename Matrix>
+Matrix identity(size_t n){
+  return arma::eye(n, n);
+}
+
+template <typename Matrix>
 Matrix transpose(const Matrix& mat){
   return arma::trans(mat);
 }
