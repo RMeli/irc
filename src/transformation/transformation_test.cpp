@@ -141,10 +141,14 @@ TEST_CASE("Transformation"){
     std::tie(G, iG) = G_matirces(W);
   
     // Allocate vector for internal reaction coordinates
-    vec q_irc{ B[0].bond };
+    vec q_irc{ irc_from_bad<vec3,vec>(B, {}, {}) };
     
     // Displacement in internal coordinates
     vec dq_irc{ 0.1 };
+  
+    // Print displacement in internal coordinates
+    cout << "\nDisplacement in internal coordinates (a.u.):\n "
+         << dq_irc << endl;
   
     // Compute number of cartesian coordinates
     size_t n_c{ 3 * molecule.size() };
@@ -228,10 +232,10 @@ TEST_CASE("Transformation"){
     std::tie(G, iG) = G_matirces(W);
     
     // Allocate vector for internal reaction coordinates
-    vec q_irc_old{ {B[0].bond, B[1].bond, A[0].angle} };
+    vec q_irc_old{ irc_from_bad<vec3,vec>(B, A, {}) };
     
     // Displacement in internal coordinates
-    vec dq_irc{ 0.1, 0.2, 0.15 };
+    vec dq_irc{ 0.0, 0.0, 0.1 };
     
     vec q_irc_new{ q_irc_old + dq_irc };
     

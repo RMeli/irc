@@ -8,6 +8,46 @@
 
 namespace transformation{
 
+/// Get current internal redundant coordinates for list of bonds, angles and
+/// dihedrals
+///
+/// \tparam Vector3
+/// \tparam Vector
+/// \param bonds List of bonds
+/// \param angles List of angles
+/// \param dihedrals List of dihedrals
+/// \return Current internal redundant coordinates
+template<typename Vector3, typename Vector>
+Vector irc_from_bad(
+    const std::vector<connectivity::Bond<Vector3>>& bonds,
+    const std::vector<connectivity::Angle<Vector3>>& angles,
+    const std::vector<connectivity::Dihedral<Vector3>>& dihedrals){
+  size_t n_bonds{bonds.size()};
+  size_t n_angles{angles.size()};
+  size_t n_dihedrals{dihedrals.size()};
+  
+  size_t n_irc{ n_bonds + n_angles + n_dihedrals };
+  
+  Vector q_irc{ linalg::zeros<Vector>(n_irc) };
+  
+  size_t offset{0};
+  
+  for(size_t i{0}; i < n_bonds; i++){
+    q_irc(i) = bonds[i].bond;
+  }
+  
+  offset = n_bonds;
+  for(size_t i{0}; i < n_angles; i++){
+    q_irc(i + offset) = angles[i].angle;
+  }
+  
+  offset = n_bonds + n_angles;
+  for(size_t i{0}; i < n_dihedrals; i++){
+    q_irc(i + offset) = dihedrals[i].dihedral;
+  }
+  
+  return q_irc;
+}
 
 /// Compute the root mean square value of \param v
 ///
@@ -103,23 +143,25 @@ Vector cartesian_to_irc(const Vector& x_c,
   return q_irc;
 }
 
+/// Transform internal redundant displacements to cartesian coordinates
 ///
 /// \tparam Vector3
 /// \tparam Vector
 /// \tparam Matrix
-/// \param q_irc_old
-/// \param dq_irc
-/// \param x_c_old
-/// \param bonds
-/// \param angles
-/// \param dihedrals
-/// \param B
-/// \param iG
-/// \param max_iters
-/// \param tolerance
-/// \return
+/// \param q_irc_old Old internal reaction coordinates
+/// \param dq_irc Change in internar reaction coordinates
+/// \param x_c_old Old cartesian coordinates
+/// \param bonds List of bonds
+/// \param angles List of angles
+/// \param dihedrals List of dihedral angles
+/// \param B Wilson \f$\mathbf{B}\f$ matrix
+/// \param iG Pseudoinverse of the \f$\mathbf{G}\f$ matrix
+/// \param max_iters Maximum number of iterations
+/// \param tolerance Tolerance on change in cartesian coordinates
+/// \return New cartesian coordinates
 ///
-/// Convergence: V. Bakken and T. Helgaker, J. Chem. Phys. 117, 9160 (2002).
+/// Since Cartesian coordinates are rectilinear and the internal coordinates are
+/// curvilinear, the transformation must be done iteratively.
 template <typename Vector3, typename Vector, typename Matrix>
 Vector irc_to_cartesian(const Vector& q_irc_old,
            const Vector& dq_irc,
@@ -185,7 +227,7 @@ Vector irc_to_cartesian(const Vector& q_irc_old,
   if( !converged ){
     x_c = x_c_old + linalg::transpose(B) * iG * dq_irc;
     
-  // TODO: Something better?
+    // TODO: Something better?
     std::cerr << "WARNING: IRC_TO_CARTESIAN not converged." << std::endl;
   }
   
