@@ -46,7 +46,7 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(
   Vector3 v3{ (cos_angle * b23 - b21) / (sin_angle * bond23)};
   Vector3 v2{ -v1 -v3 };
   
-  return {v1, v2, v3};
+  return std::make_tuple(v1, v2, v3);
 }
 
 template <typename Vector3>
@@ -102,7 +102,7 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
 
   Vector3 v4{-linalg::cross(b43, b32) / (bond34 * sin_angle234 * sin_angle234)};
   
-  return {v1, v2, v3, v4};
+  return std::make_tuple(v1, v2, v3, v4);
 }
 
 /// Function computing Wilson's \f$\mathbf{B}\f$ matrix from a set of internal
