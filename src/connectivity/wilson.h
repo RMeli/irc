@@ -136,159 +136,69 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
 /// More details can be found in Peng et al., J. Comp. Chem. 17, 49-56, 1996.
 template<typename Vector3, typename Matrix>
 Matrix wilson_matrix(size_t n_atoms,
-                     const std::vector<connectivity::Bond < Vector3>>
+                     const std::vector<connectivity::Bond<Vector3>>& bonds,
+                     const std::vector<connectivity::Angle<Vector3>>&
+                        angles = {},
+                     const std::vector<connectivity::Dihedral<Vector3>>&
+                        dihedrals = {}){
+  // Get the total number of internal redundant coordinates
+  size_t n_irc{ bonds.size() + angles.size() + dihedrals.size() };
 
-& bonds,
-const std::vector<connectivity::Angle < Vector3>>&
-angles = {},
-const std::vector<connectivity::Dihedral < Vector3>>&
-dihedrals = {}
-) {
-// Get the total number of internal redundant coordinates
-size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  // Allocate Wilson's B matrix
+  Matrix B{ linalg::zeros<Matrix>(n_irc, 3 * n_atoms) };
 
-// Allocate Wilson's B matrix
-Matrix B{linalg::zeros<Matrix>(n_irc, 3 * n_atoms)};
+  // Utility vector for gradients storage
+  Vector3 g1, g2, g3, g4;
 
-// Utility vector for gradients storage
-Vector3 g1, g2, g3, g4;
+  // B-matrix rows offset
+  size_t offset{0};
 
-// Populate B matrix's rows corresponding to bonds
-connectivity::Bond <Vector3> bond;
-for(
-size_t i{0};
-i<bonds.
+  // Populate B matrix's rows corresponding to bonds
+  connectivity::Bond <Vector3> bond;
+  for(size_t i{0}; i < bonds.size(); i++) {
+    bond = bonds[i];
 
-size();
+    std::tie(g1, g2) = bond_gradient(bond);
 
-i++) {
-bond = bonds[i];
+    for(size_t idx{0}; idx < 3; idx++) {
+      B(i, 3 * bond.i + idx) = g1(idx);
+      B(i, 3 * bond.j + idx) = g2(idx);
+    }
+  }
 
-std::tie(g1, g2
-) =
-bond_gradient(bond);
+  // Populate B matrix's rows corresponding to angles
+  offset = bonds.size();
+  connectivity::Angle <Vector3> angle;
+  for(size_t i{0}; i < angles.size(); i++){
+    angle = angles[i];
 
-for(
-size_t idx{0};
-idx < 3; idx++) {
-B(i,
-3 * bond.i + idx) =
-g1(idx);
-B(i,
-3 * bond.j + idx) =
-g2(idx);
-}
-}
+    std::tie(g1, g2, g3) = angle_gradient(angle);
 
-// Populate B matrix's rows corresponding to angles
-connectivity::Angle <Vector3> angle;
-for(
-size_t i{0};
-i<angles.
+    for(size_t idx{0}; idx < 3; idx++){
+      B(i + offset, 3 * angle.i + idx) = g1(idx);
+      B(i + offset, 3 * angle.j + idx) = g2(idx);
+      B(i + offset, 3 * angle.k + idx) = g3(idx);
 
-size();
+    }
+  }
 
-i++){
-angle = angles[i];
+  // Populate B matrix's rows corresponding to dihedrals
+  offset = bonds.size() + angles.size();
+  connectivity::Dihedral <Vector3> dihedral;
+  for(size_t i{0}; i < dihedrals.size(); i++){
+    dihedral = dihedrals[i];
 
-std::tie(g1, g2, g3
-) =
-angle_gradient(angle);
+    std::tie(g1, g2, g3, g4) = dihedral_gradient(dihedral);
 
-for(
-size_t idx{0};
-idx < 3; idx++){
-B(i
-+ bonds.
+    for(size_t idx{0}; idx < 3; idx++){
+      B(i + offset, 3 * dihedral.i + idx) = g1(idx);
+      B(i + offset, 3 * dihedral.j + idx) = g2(idx);
+      B(i + offset, 3 * dihedral.k + idx) = g3(idx);
+      B(i + offset, 3 * dihedral.l + idx) = g4(idx);
+    }
+  }
 
-size(),
-
-3 * angle.i + idx) =
-g1(idx);
-B(i
-+ bonds.
-
-size(),
-
-3 * angle.j + idx) =
-g2(idx);
-B(i
-+ bonds.
-
-size(),
-
-3 * angle.k + idx) =
-g3(idx);
-}
-}
-
-// Populate B matrix's rows corresponding to dihedrals
-connectivity::Dihedral <Vector3> dihedral;
-for(
-size_t i{0};
-i<dihedrals.
-
-size();
-
-i++){
-dihedral = dihedrals[i];
-
-std::tie(g1, g2, g3, g4
-) =
-dihedral_gradient(dihedral);
-
-for(
-size_t idx{0};
-idx < 3; idx++){
-B(i
-+ bonds.
-
-size()
-
-+ angles.
-
-size(),
-
-3 * dihedral.i + idx) =
-g1(idx);
-B(i
-+ bonds.
-
-size()
-
-+ angles.
-
-size(),
-
-3 * dihedral.j + idx) =
-g2(idx);
-B(i
-+ bonds.
-
-size()
-
-+ angles.
-
-size(),
-
-3 * dihedral.k + idx) =
-g3(idx);
-B(i
-+ bonds.
-
-size()
-
-+ angles.
-
-size(),
-
-3 * dihedral.l + idx) =
-g4(idx);
-}
-}
-
-return
-B;
+  return B;
 }
 
 
