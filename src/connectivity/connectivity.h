@@ -77,12 +77,12 @@ struct Dihedral {
 };
 
 template<typename Vector3>
-double distance(const Vector3 &v1, const Vector3 &v2) {
+inline double distance(const Vector3 &v1, const Vector3 &v2) {
   return linalg::norm(v1 - v2);
 }
 
 template<typename Vector3>
-double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
+inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
   Vector3 r1{v1 - v2};
   Vector3 r2{v3 - v2};
   
@@ -94,10 +94,10 @@ double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
 }
 
 template<typename Vector3>
-double dihedral(const Vector3 &v1,
-                const Vector3 &v2,
-                const Vector3 &v3,
-                const Vector3 &v4) {
+inline double dihedral(const Vector3 &v1,
+                       const Vector3 &v2,
+                       const Vector3 &v3,
+                       const Vector3 &v4) {
   Vector3 b1{v1 - v2};
   Vector3 b2{v2 - v3};
   Vector3 b3{v3 - v4};
