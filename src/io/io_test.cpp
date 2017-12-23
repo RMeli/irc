@@ -14,6 +14,8 @@ using vec3 = arma::vec3;
 #error
 #endif
 
+using namespace irc;
+
 TEST_CASE("Loading XYZ file"){
   
   using namespace io;

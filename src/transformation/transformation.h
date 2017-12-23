@@ -6,7 +6,9 @@
 
 #include<iostream>
 
-namespace transformation{
+namespace irc {
+
+namespace transformation {
 
 /// Get current internal redundant coordinates for list of bonds, angles and
 /// dihedrals
@@ -19,30 +21,30 @@ namespace transformation{
 /// \return Current internal redundant coordinates
 template<typename Vector3, typename Vector>
 Vector irc_from_bad(
-    const std::vector<connectivity::Bond<Vector3>>& bonds,
-    const std::vector<connectivity::Angle<Vector3>>& angles,
-    const std::vector<connectivity::Dihedral<Vector3>>& dihedrals){
+    const std::vector<connectivity::Bond<Vector3>> &bonds,
+    const std::vector<connectivity::Angle<Vector3>> &angles,
+    const std::vector<connectivity::Dihedral<Vector3>> &dihedrals) {
   size_t n_bonds{bonds.size()};
   size_t n_angles{angles.size()};
   size_t n_dihedrals{dihedrals.size()};
   
-  size_t n_irc{ n_bonds + n_angles + n_dihedrals };
+  size_t n_irc{n_bonds + n_angles + n_dihedrals};
   
-  Vector q_irc{ linalg::zeros<Vector>(n_irc) };
+  Vector q_irc{linalg::zeros<Vector>(n_irc)};
   
   size_t offset{0};
   
-  for(size_t i{0}; i < n_bonds; i++){
+  for (size_t i{0}; i < n_bonds; i++) {
     q_irc(i) = bonds[i].bond;
   }
   
   offset = n_bonds;
-  for(size_t i{0}; i < n_angles; i++){
+  for (size_t i{0}; i < n_angles; i++) {
     q_irc(i + offset) = angles[i].angle;
   }
   
   offset = n_bonds + n_angles;
-  for(size_t i{0}; i < n_dihedrals; i++){
+  for (size_t i{0}; i < n_dihedrals; i++) {
     q_irc(i + offset) = dihedrals[i].dihedral;
   }
   
@@ -54,18 +56,18 @@ Vector irc_from_bad(
 /// \tparam Vector Vector
 /// \param v Vector
 /// \return Root mean square value of \param v
-template <typename Vector>
-double rms(const Vector& v){
+template<typename Vector>
+double rms(const Vector &v) {
   size_t size{linalg::size<Vector>(v)};
   
   double sum{0};
   
   // TODO: Use linalg::norm instead
-  for(size_t i{0}; i < size; i++){
-    sum += v(i)*v(i);
+  for (size_t i{0}; i < size; i++) {
+    sum += v(i) * v(i);
   }
   
-  return std::sqrt( sum / size );
+  return std::sqrt(sum / size);
 }
 
 /// Transform gradient from cartesian to internal redundant coordinates,
@@ -77,23 +79,23 @@ double rms(const Vector& v){
 /// \param B Wilson \f$\mathbf{B}\f$ matrix
 /// \param iG Pseudo inverse of the \f$\mathbf{G}\f$ matrix
 /// \return Gradient in internal redundant coordinates
-template <typename Vector, typename Matrix>
-Vector gradient_cartesian_to_irc(const Vector& grad_c,
-                                 const Matrix& B, const Matrix& iG ){
+template<typename Vector, typename Matrix>
+Vector gradient_cartesian_to_irc(const Vector &grad_c,
+                                 const Matrix &B, const Matrix &iG) {
   return iG * B * grad_c;
 }
 
-template <typename Vector3, typename Vector>
-Vector cartesian_to_irc(const Vector& x_c,
-       const std::vector<connectivity::Bond<Vector3>>& bonds,
-       const std::vector<connectivity::Angle<Vector3>>& angles,
-       const std::vector<connectivity::Dihedral<Vector3>>& dihedrals){
+template<typename Vector3, typename Vector>
+Vector cartesian_to_irc(const Vector &x_c,
+                        const std::vector<connectivity::Bond<Vector3>> &bonds,
+                        const std::vector<connectivity::Angle<Vector3>> &angles,
+                        const std::vector<connectivity::Dihedral<Vector3>> &dihedrals) {
   
   // Compute the number of internal redundant coordinates
-  size_t n_irc{ bonds.size() + angles.size() + dihedrals.size() };
+  size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
   
   // Allocate internal redundant coordinates
-  Vector q_irc{ linalg::zeros<Vector>(n_irc) };
+  Vector q_irc{linalg::zeros<Vector>(n_irc)};
   
   size_t idx1, idx2, idx3, idx4;
   
@@ -102,40 +104,40 @@ Vector cartesian_to_irc(const Vector& x_c,
   size_t offset{0};
   
   // Compute bonds
-  for(size_t i{0}; i < bonds.size(); i++){
+  for (size_t i{0}; i < bonds.size(); i++) {
     idx1 = bonds[i].i;
     idx2 = bonds[i].j;
     
-    p1 = { x_c(3*idx1), x_c(3*idx1+1), x_c(3*idx1+2) };
-    p2 = { x_c(3*idx2), x_c(3*idx2+1), x_c(3*idx2+2) };
+    p1 = {x_c(3 * idx1), x_c(3 * idx1 + 1), x_c(3 * idx1 + 2)};
+    p2 = {x_c(3 * idx2), x_c(3 * idx2 + 1), x_c(3 * idx2 + 2)};
     
     q_irc(i) = connectivity::distance(p1, p2);
   }
   
   offset = bonds.size();
-  for(size_t i{0}; i < angles.size(); i++){
+  for (size_t i{0}; i < angles.size(); i++) {
     idx1 = angles[i].i;
     idx2 = angles[i].j;
     idx3 = angles[i].k;
     
-    p1 = { x_c(3*idx1), x_c(3*idx1+1), x_c(3*idx1+2) };
-    p2 = { x_c(3*idx2), x_c(3*idx2+1), x_c(3*idx2+2) };
-    p3 = { x_c(3*idx3), x_c(3*idx3+1), x_c(3*idx3+2) };
+    p1 = {x_c(3 * idx1), x_c(3 * idx1 + 1), x_c(3 * idx1 + 2)};
+    p2 = {x_c(3 * idx2), x_c(3 * idx2 + 1), x_c(3 * idx2 + 2)};
+    p3 = {x_c(3 * idx3), x_c(3 * idx3 + 1), x_c(3 * idx3 + 2)};
     
     q_irc(i + offset) = connectivity::angle(p1, p2, p3);
   }
   
   offset = bonds.size() + angles.size();
-  for(size_t i{0}; i < dihedrals.size(); i++){
+  for (size_t i{0}; i < dihedrals.size(); i++) {
     idx1 = dihedrals[i].i;
     idx2 = dihedrals[i].j;
     idx3 = dihedrals[i].k;
     idx4 = dihedrals[i].l;
     
-    p1 = { x_c(3*idx1), x_c(3*idx1+1), x_c(3*idx1+2) };
-    p2 = { x_c(3*idx2), x_c(3*idx2+1), x_c(3*idx2+2) };
-    p3 = { x_c(3*idx3), x_c(3*idx3+1), x_c(3*idx3+2) };
-    p4 = { x_c(3*idx4), x_c(3*idx4+1), x_c(3*idx4+2) };
+    p1 = {x_c(3 * idx1), x_c(3 * idx1 + 1), x_c(3 * idx1 + 2)};
+    p2 = {x_c(3 * idx2), x_c(3 * idx2 + 1), x_c(3 * idx2 + 2)};
+    p3 = {x_c(3 * idx3), x_c(3 * idx3 + 1), x_c(3 * idx3 + 2)};
+    p4 = {x_c(3 * idx4), x_c(3 * idx4 + 1), x_c(3 * idx4 + 2)};
     
     q_irc(i + offset) = connectivity::dihedral(p1, p2, p3, p4);
   }
@@ -162,49 +164,49 @@ Vector cartesian_to_irc(const Vector& x_c,
 ///
 /// Since Cartesian coordinates are rectilinear and the internal coordinates are
 /// curvilinear, the transformation must be done iteratively.
-template <typename Vector3, typename Vector, typename Matrix>
-Vector irc_to_cartesian(const Vector& q_irc_old,
-           const Vector& dq_irc,
-           const Vector& x_c_old,
-           const std::vector<connectivity::Bond<Vector3>>& bonds,
-           const std::vector<connectivity::Angle<Vector3>>& angles,
-           const std::vector<connectivity::Dihedral<Vector3>>& dihedrals,
-           const Matrix& B,
-           const Matrix& iG,
-           size_t max_iters = 25,
-           double tolerance = 1e-6){
+template<typename Vector3, typename Vector, typename Matrix>
+Vector irc_to_cartesian(const Vector &q_irc_old,
+                        const Vector &dq_irc,
+                        const Vector &x_c_old,
+                        const std::vector<connectivity::Bond<Vector3>> &bonds,
+                        const std::vector<connectivity::Angle<Vector3>> &angles,
+                        const std::vector<connectivity::Dihedral<Vector3>> &dihedrals,
+                        const Matrix &B,
+                        const Matrix &iG,
+                        size_t max_iters = 25,
+                        double tolerance = 1e-6) {
   
   // Convergence flag
   bool converged{false};
   
   // Cartesian coordinates
-  Vector x_c{ x_c_old };
+  Vector x_c{x_c_old};
   
   // Store change in internal redundant coordinates
-  Vector dq{ dq_irc };
+  Vector dq{dq_irc};
   
-  Vector dq1{ dq_irc };
+  Vector dq1{dq_irc};
   
   // Old internal coordinates
-  Vector q_old{ q_irc_old };
+  Vector q_old{q_irc_old};
   
   // New internal coordinates
-  Vector q_new{ q_irc_old };
+  Vector q_new{q_irc_old};
   
   // Change in cartesian coordinates
-  Vector dx{ linalg::zeros<Vector>( linalg::size(x_c_old)) };
+  Vector dx{linalg::zeros<Vector>(linalg::size(x_c_old))};
   
   // Compute the transpose of B
-  Matrix Bt{ linalg::transpose(B) };
+  Matrix Bt{linalg::transpose(B)};
   
   // Start iterative search
-  for(size_t i{0}; i < max_iters; i ++){
+  for (size_t i{0}; i < max_iters; i++) {
     
     // Compute displacement in cartesian coordinates
     dx = Bt * iG * dq;
     
     // Check for convergence
-    if( rms<Vector>(dx) < tolerance ){
+    if (rms<Vector>(dx) < tolerance) {
       converged = true;
       break;
     }
@@ -214,7 +216,7 @@ Vector irc_to_cartesian(const Vector& q_irc_old,
     
     // Store old internal coordinates
     q_old = q_new;
-  
+    
     // TODO: Check change in angles and dihedrals
     // Compute new internal coordinates
     q_new = cartesian_to_irc(x_c, bonds, angles, dihedrals);
@@ -224,7 +226,7 @@ Vector irc_to_cartesian(const Vector& q_irc_old,
   }
   
   // If iteration does not converge, use first estimate
-  if( !converged ){
+  if (!converged) {
     x_c = x_c_old + linalg::transpose(B) * iG * dq_irc;
     
     // TODO: Something better?
@@ -234,6 +236,8 @@ Vector irc_to_cartesian(const Vector& q_irc_old,
   return x_c;
 }
 
-}
+} // namespace transformation
+
+} // namespace irc
 
 #endif //IRC_TRANSFORMATION_H

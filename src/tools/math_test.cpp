@@ -3,6 +3,8 @@
 
 #include "math.h"
 
+using namespace irc;
+
 TEST_CASE("Angle in the interval ]-pi,pi]"){
   
   using tools::constants::pi;

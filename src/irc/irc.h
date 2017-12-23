@@ -163,6 +163,6 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(
   
 }
 
-}
+} // namespace irc
 
 #endif //IRC_IRC_H

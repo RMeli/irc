@@ -6,10 +6,12 @@
 #include <iomanip>
 #include <iostream>
 
-using namespace periodic_table;
-using namespace std;
+using namespace irc;
 
 TEST_CASE("Test periodic table","[periodic_table]"){
+  
+  using namespace periodic_table;
+  using namespace std;
   
   // Check periodic table size for supported elements
   SECTION("size"){

@@ -20,6 +20,8 @@ using mat = arma::mat;
 #error
 #endif
 
+using namespace irc;
+
 TEST_CASE("Wilson B matrix","[wilson]"){
   
   using namespace std;

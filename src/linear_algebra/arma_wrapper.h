@@ -7,69 +7,73 @@
 
 #include <armadillo>
 
-namespace linalg{
+namespace irc {
+
+namespace linalg {
 
 template<typename T>
-size_t size(const T& a){
+size_t size(const T &a) {
   return a.size();
 }
 
-template <typename T>
-size_t n_rows(const T& a){
+template<typename T>
+size_t n_rows(const T &a) {
   return a.n_rows;
 }
 
-template <typename T>
-size_t n_cols(const T& a){
+template<typename T>
+size_t n_cols(const T &a) {
   return a.n_cols;
 }
 
 template<typename T>
-double norm(const T& a){
+double norm(const T &a) {
   return arma::norm(a);
 }
 
 template<typename T>
-double dot(const T& a, const T& b){
+double dot(const T &a, const T &b) {
   return arma::dot(a, b);
 }
 
-template <typename Vector3>
-Vector3 cross(const Vector3& a, const Vector3& b){
+template<typename Vector3>
+Vector3 cross(const Vector3 &a, const Vector3 &b) {
   return arma::cross(a, b);
 }
 
-template <typename Vector>
-Vector zeros(size_t nelements){
+template<typename Vector>
+Vector zeros(size_t nelements) {
   return arma::zeros<Vector>(nelements);
 }
 
-template <typename Matrix>
-Matrix zeros(size_t nrows, size_t ncols){
+template<typename Matrix>
+Matrix zeros(size_t nrows, size_t ncols) {
   return arma::zeros<Matrix>(nrows, ncols);
 }
 
-template <typename Matrix>
-Matrix identity(size_t n){
+template<typename Matrix>
+Matrix identity(size_t n) {
   return arma::eye(n, n);
 }
 
-template <typename Matrix>
-Matrix transpose(const Matrix& mat){
+template<typename Matrix>
+Matrix transpose(const Matrix &mat) {
   return arma::trans(mat);
 }
 
-template <typename Matrix>
-Matrix inv(const Matrix& mat){
+template<typename Matrix>
+Matrix inv(const Matrix &mat) {
   return arma::inv(mat);
 }
 
-template <typename Matrix>
-Matrix pseudo_inverse(const Matrix& mat){
+template<typename Matrix>
+Matrix pseudo_inverse(const Matrix &mat) {
   return arma::pinv(mat);
 }
 
 } // namespace linalg
+
+} // namespace irc
 
 #endif
 

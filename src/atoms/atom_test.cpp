@@ -18,6 +18,8 @@ using vec3 = Eigen::Vector3d;
 #error
 #endif
 
+using namespace irc;
+
 TEST_CASE("Test atom and periodic table lookup functions","[atom]"){
   
   using namespace atom;

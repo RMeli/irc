@@ -19,6 +19,7 @@
 #include <boost/graph/exterior_property.hpp>
 #include <boost/graph/graph_traits.hpp>
 
+namespace irc {
 
 namespace connectivity {
 
@@ -28,13 +29,13 @@ constexpr double vdw_bond_multiplier{0.9};
 using EdgeProperty = boost::property<boost::edge_weight_t, int>;
 
 using UGraph =
-  boost::adjacency_list<
-      boost::vecS, //
-      boost::vecS, //
-      boost::undirectedS, // Graph type
-      boost::no_property, // Vertex property
-      EdgeProperty // Edge property
-  >;
+boost::adjacency_list<
+    boost::vecS, //
+    boost::vecS, //
+    boost::undirectedS, // Graph type
+    boost::no_property, // Vertex property
+    EdgeProperty // Edge property
+>;
 
 using Vertex = boost::graph_traits<UGraph>::vertex_descriptor;
 using Edge = boost::graph_traits<UGraph>::edge_descriptor;
@@ -42,8 +43,8 @@ using Edge = boost::graph_traits<UGraph>::edge_descriptor;
 using DistanceProperty = boost::exterior_vertex_property<UGraph, int>;
 using DistanceMatrix = DistanceProperty::matrix_type;
 
-template <typename Vector3>
-struct Bond{
+template<typename Vector3>
+struct Bond {
   size_t i;
   size_t j;
   Vector3 p1;
@@ -51,8 +52,8 @@ struct Bond{
   double bond;
 };
 
-template <typename Vector3>
-struct Angle{
+template<typename Vector3>
+struct Angle {
   size_t i;
   size_t j;
   size_t k;
@@ -62,8 +63,8 @@ struct Angle{
   double angle;
 };
 
-template <typename Vector3>
-struct Dihedral{
+template<typename Vector3>
+struct Dihedral {
   size_t i;
   size_t j;
   size_t k;
@@ -75,48 +76,48 @@ struct Dihedral{
   double dihedral;
 };
 
-template <typename Vector3>
-double distance(const Vector3& v1, const Vector3& v2){
+template<typename Vector3>
+double distance(const Vector3 &v1, const Vector3 &v2) {
   return linalg::norm(v1 - v2);
 }
 
-template <typename Vector3>
-double angle(const Vector3& v1, const Vector3& v2, const Vector3& v3){
+template<typename Vector3>
+double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
   Vector3 r1{v1 - v2};
   Vector3 r2{v3 - v2};
   
-  double N{ linalg::norm(r1) * linalg::norm(r2) };
+  double N{linalg::norm(r1) * linalg::norm(r2)};
   
-  double angle{ std::acos( linalg::dot(r1, r2) / N ) };
+  double angle{std::acos(linalg::dot(r1, r2) / N)};
   
-  return angle * 180.0 /  tools::constants::pi;
+  return angle * 180.0 / tools::constants::pi;
 }
 
-template <typename Vector3>
-double dihedral(const Vector3& v1,
-                const Vector3& v2,
-                const Vector3& v3,
-                const Vector3& v4){
+template<typename Vector3>
+double dihedral(const Vector3 &v1,
+                const Vector3 &v2,
+                const Vector3 &v3,
+                const Vector3 &v4) {
   Vector3 b1{v1 - v2};
   Vector3 b2{v2 - v3};
   Vector3 b3{v3 - v4};
   
-  Vector3 n1{ linalg::cross(b1, b2) };
-  Vector3 n2{ linalg::cross(b2, b3) };
+  Vector3 n1{linalg::cross(b1, b2)};
+  Vector3 n2{linalg::cross(b2, b3)};
   
   n1 /= linalg::norm(n1);
   n2 /= linalg::norm(n2);
   
-  Vector3 m{ linalg::cross(n1, b2) / linalg::norm(b2) };
+  Vector3 m{linalg::cross(n1, b2) / linalg::norm(b2)};
   
-  double x{ linalg::dot(n1, n2) };
-  double y{ linalg::dot(m, n2) };
+  double x{linalg::dot(n1, n2)};
+  double y{linalg::dot(m, n2)};
   
   // Compute dihedral angle in radians (in the intervale [-pi,pi])
-  double angle{ std::atan2(y,x) };
+  double angle{std::atan2(y, x)};
   
   // Convert angle from radians to degrees
-  angle *= 180.0 /  tools::constants::pi;
+  angle *= 180.0 / tools::constants::pi;
   
   return angle;
 }
@@ -134,20 +135,20 @@ double dihedral(const Vector3& v1,
 /// \f]
 /// where the matrix element \f$D_{ij}\f$ is the distance between atom at
 /// position \f$\mathbf{r}_i\f$ and the atom at position \f$\mathbf{r}_j\f$.
-template <typename Vector3, typename Matrix>
-Matrix distances(const molecule::Molecule<Vector3>& molecule){
-  const size_t n_atoms{ molecule.size() };
+template<typename Vector3, typename Matrix>
+Matrix distances(const molecule::Molecule<Vector3> &molecule) {
+  const size_t n_atoms{molecule.size()};
   
-  Matrix distances_m{ linalg::zeros<Matrix>(n_atoms, n_atoms) };
+  Matrix distances_m{linalg::zeros<Matrix>(n_atoms, n_atoms)};
   
   double r{0.};
-  for(size_t i{0}; i < n_atoms; i++){
-    for(size_t j{0}; j < n_atoms; j++){
+  for (size_t i{0}; i < n_atoms; i++) {
+    for (size_t j{0}; j < n_atoms; j++) {
       
       r = distance(molecule[i].position, molecule[j].position);
-  
-      distances_m(i,j) = r;
-      distances_m(j,i) = r;
+      
+      distances_m(i, j) = r;
+      distances_m(j, i) = r;
     }
   }
   
@@ -166,12 +167,12 @@ Matrix distances(const molecule::Molecule<Vector3>& molecule){
 /// as implemented in the Boost Graph Library (BGL).
 /// The number of vertices corresponds to the number of atoms, while the
 /// number of edges is determined by covalent bonding.
-template <typename Vector3, typename Matrix>
-UGraph adjacency_matrix(const Matrix& distance_m,
-                        const molecule::Molecule<Vector3>& molecule){
+template<typename Vector3, typename Matrix>
+UGraph adjacency_matrix(const Matrix &distance_m,
+                        const molecule::Molecule<Vector3> &molecule) {
   
   // Extract number of atoms
-  const size_t n_atoms{ molecule.size() };
+  const size_t n_atoms{molecule.size()};
   
   // Define a undirected graph with n_atoms vertices
   UGraph ug(n_atoms);
@@ -179,29 +180,29 @@ UGraph adjacency_matrix(const Matrix& distance_m,
   double d{0.};
   double sum_covalent_radii{0.};
   double sum_vdw_radii{0.};
-  for(size_t j{0}; j < n_atoms; j++){
-    for(size_t i{j+1}; i < n_atoms; i++){
-  
+  for (size_t j{0}; j < n_atoms; j++) {
+    for (size_t i{j + 1}; i < n_atoms; i++) {
+      
       // Extract distance between atom i and atom j
-      d = distance_m(i,j);
+      d = distance_m(i, j);
       
       // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
                            atom::covalent_radius(molecule[j].atomic_number);
       
       // Determine if atoms i and j are bonded
-      if( d < covalent_bond_multiplier * sum_covalent_radii ){
+      if (d < covalent_bond_multiplier * sum_covalent_radii) {
         // Add edge to boost::adjacency_list between vertices i and j
         // The weights are set to 1 for all edges.
         boost::add_edge(i, j, 1, ug);
         
         // TODO: Better ways of doing this...
         // Search for H-bonds: XH...Y
-        if( (atom::is_NOFPSCl(molecule[i].atomic_number) and
+        if ((atom::is_NOFPSCl(molecule[i].atomic_number) and
              atom::is_H(molecule[j].atomic_number))
             or
             (atom::is_NOFPSCl(molecule[j].atomic_number) and
-             atom::is_H(molecule[i].atomic_number))){ // Possible H-bond
+             atom::is_H(molecule[i].atomic_number))) { // Possible H-bond
           
           size_t idx{0}; // X atom index
           size_t h_idx{0}; // Hydrogen bond index
@@ -209,41 +210,40 @@ UGraph adjacency_matrix(const Matrix& distance_m,
           double a{0}; // Angle between X, H and Y in XH...Y
           
           // Assign correct indices to X and H
-          if( atom::is_H(molecule[j].atomic_number) ){
+          if (atom::is_H(molecule[j].atomic_number)) {
             idx = i;
             h_idx = j;
-          }
-          else{
+          } else {
             idx = j;
             h_idx = i;
           }
           
           // Loop over all other atoms, excluding i and j, to find Y
-          for(size_t k{0}; k < n_atoms; k++){
-            if( atom::is_NOFPSCl(molecule[k].atomic_number) and
-                k != idx and k != h_idx ){
+          for (size_t k{0}; k < n_atoms; k++) {
+            if (atom::is_NOFPSCl(molecule[k].atomic_number) and
+                k != idx and k != h_idx) {
               
               // Load distance
-              d = distance_m(h_idx,k);
-  
+              d = distance_m(h_idx, k);
+              
               // Compute sum of Van der Waals radii
               sum_vdw_radii =
                   atom::vdw_radius(molecule[h_idx].atomic_number) +
                   atom::vdw_radius(molecule[k].atomic_number);
-  
+              
               // Compute sum of covalent radii
               sum_covalent_radii =
                   atom::covalent_radius(molecule[h_idx].atomic_number) +
                   atom::covalent_radius(molecule[k].atomic_number);
-  
+              
               a = angle(molecule[idx].position,
                         molecule[h_idx].position,
                         molecule[k].position);
-  
+              
               // Check H-bond properties
-              if( d > sum_covalent_radii and
+              if (d > sum_covalent_radii and
                   d < sum_vdw_radii * vdw_bond_multiplier and
-                  a > 90){
+                  a > 90) {
                 // Add hydrogen bond
                 boost::add_edge(h_idx, k, 1, ug);
               }
@@ -274,18 +274,18 @@ UGraph adjacency_matrix(const Matrix& distance_m,
 /// the index of the second to last vertex in the shortest path from i to j.
 /// This information allow to reconstruct the shortest path from i to j.
 template<typename Matrix>
-std::pair<Matrix,Matrix> distance_matrix(const UGraph& ug){
+std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
   
   using namespace boost;
-
+  
   // Store number of vertices (number of atoms)
-  const size_t n_vertices{ boost::num_vertices(ug) };
+  const size_t n_vertices{boost::num_vertices(ug)};
   
   // Allocate distance matrix
-  Matrix dist{ linalg::zeros<Matrix>(n_vertices, n_vertices) };
+  Matrix dist{linalg::zeros<Matrix>(n_vertices, n_vertices)};
   
   // Allocate predecessors matrix
-  Matrix predecessors{ linalg::zeros<Matrix>(n_vertices, n_vertices) };
+  Matrix predecessors{linalg::zeros<Matrix>(n_vertices, n_vertices)};
   
   // Allocate distance map for single-source problem
   std::vector<int> d_map(n_vertices, 0);
@@ -294,22 +294,21 @@ std::pair<Matrix,Matrix> distance_matrix(const UGraph& ug){
   std::vector<int> p_map(n_vertices, 0);
   
   // Loop over vetrices
-  for(size_t i{0}; i < n_vertices; i++){
+  for (size_t i{0}; i < n_vertices; i++) {
     // Solve single-source problem for every vertex
     dijkstra_shortest_paths(ug, i,
                             distance_map(&d_map[0]).predecessor_map(&p_map[0]));
     
     // Store distance and predecessors maps
-    for(size_t j{0}; j < n_vertices; j++){
+    for (size_t j{0}; j < n_vertices; j++) {
       // Fill distance matrix
-      dist(i,j) = d_map[j];
+      dist(i, j) = d_map[j];
       
       // Fill predecessors matrix
-      if(i != j){
-        predecessors(i,j) = p_map[j];
-      }
-      else{
-        predecessors(i,j) = -1;
+      if (i != j) {
+        predecessors(i, j) = p_map[j];
+      } else {
+        predecessors(i, j) = -1;
       }
     }
   }
@@ -327,21 +326,21 @@ std::pair<Matrix,Matrix> distance_matrix(const UGraph& ug){
 /// \return List of covalent bonds
 ///
 /// The bonds can be covalent bonds, hydrogen bonds or inter-fragment bonds.
-template <typename Vector3, typename Matrix>
-std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
-                                 const molecule::Molecule<Vector3>& molecule){
+template<typename Vector3, typename Matrix>
+std::vector<Bond<Vector3>> bonds(const Matrix &distance_m,
+                                 const molecule::Molecule<Vector3> &molecule) {
   
   // Extract number of atoms
-  const size_t n_atoms{ molecule.size() };
+  const size_t n_atoms{molecule.size()};
   
   // Declare bond list
   std::vector<Bond<Vector3>> b;
   
   double d{0};
-  for(size_t j{0}; j < n_atoms; j++){
-    for(size_t i{0}; i < j; i++){
+  for (size_t j{0}; j < n_atoms; j++) {
+    for (size_t i{0}; i < j; i++) {
       
-      if( distance_m(i,j) == 1 ){
+      if (distance_m(i, j) == 1) {
         // Compute distance between atom i and atom j
         d = distance(molecule[i].position, molecule[j].position);
         
@@ -367,24 +366,24 @@ std::vector<Bond<Vector3>> bonds(const Matrix& distance_m,
 /// \param predecessors_m Matrix of predecessors
 /// \param molecule Molecule
 /// \return List of angles
-template <typename Vector3, typename Matrix>
-std::vector<Angle<Vector3>> angles(const Matrix& distance_m,
-                                   const Matrix& predecessors_m,
-                                   const molecule::Molecule<Vector3>& molecule){
+template<typename Vector3, typename Matrix>
+std::vector<Angle<Vector3>> angles(const Matrix &distance_m,
+                                   const Matrix &predecessors_m,
+                                   const molecule::Molecule<Vector3> &molecule) {
   
   // Extract number of atoms
-  const size_t n_atoms{ molecule.size() };
+  const size_t n_atoms{molecule.size()};
   
   // Declare list of angles
   std::vector<Angle<Vector3>> ang;
   
   size_t k{0};
   double a{0.};
-  for(size_t j{0}; j < n_atoms; j++){
-    for(size_t i{0}; i < j; i++){
+  for (size_t j{0}; j < n_atoms; j++) {
+    for (size_t i{0}; i < j; i++) {
       
-      if( distance_m(i,j) == 2){
-        k = predecessors_m(i,j);
+      if (distance_m(i, j) == 2) {
+        k = predecessors_m(i, j);
         
         // Compute angle (i,k,j)
         a = angle(molecule[i].position,
@@ -392,10 +391,10 @@ std::vector<Angle<Vector3>> angles(const Matrix& distance_m,
                   molecule[j].position);
         
         // Store angle
-        ang.push_back( Angle<Vector3>{i, k, j,
-                                      molecule[i].position,
-                                      molecule[k].position,
-                                      molecule[j].position, a} );
+        ang.push_back(Angle<Vector3>{i, k, j,
+                                     molecule[i].position,
+                                     molecule[k].position,
+                                     molecule[j].position, a});
       }
     }
   }
@@ -404,26 +403,26 @@ std::vector<Angle<Vector3>> angles(const Matrix& distance_m,
   return ang;
 }
 
-template <typename Vector3, typename Matrix>
-std::vector<Dihedral<Vector3>> dihedrals(const Matrix& distance_m,
-                                         const Matrix& predecessors_m,
-                                         const molecule::Molecule<Vector3>&
-                                             molecule){
+template<typename Vector3, typename Matrix>
+std::vector<Dihedral<Vector3>> dihedrals(const Matrix &distance_m,
+                                         const Matrix &predecessors_m,
+                                         const molecule::Molecule<Vector3> &
+                                         molecule) {
   
   // Extract number of atoms
-  const size_t n_atoms{ molecule.size() };
+  const size_t n_atoms{molecule.size()};
   
   // Declare list of dihedrals
   std::vector<Dihedral<Vector3>> dih;
   
   size_t k{0}, l{0};
   double d{0.};
-  for(size_t j{0}; j < n_atoms; j++){
-    for(size_t i{0}; i < j; i++){
+  for (size_t j{0}; j < n_atoms; j++) {
+    for (size_t i{0}; i < j; i++) {
       
-      if( distance_m(i,j) == 3){
-        k = predecessors_m(i,j);
-        l = predecessors_m(i,k);
+      if (distance_m(i, j) == 3) {
+        k = predecessors_m(i, j);
+        l = predecessors_m(i, k);
         
         // Compute angle (i,k,j)
         d = dihedral(molecule[i].position,
@@ -432,11 +431,11 @@ std::vector<Dihedral<Vector3>> dihedrals(const Matrix& distance_m,
                      molecule[j].position);
         
         // Store angle
-        dih.push_back( Dihedral<Vector3>{i, l, k, j,
-                                         molecule[i].position,
-                                         molecule[l].position,
-                                         molecule[k].position,
-                                         molecule[j].position, d} );
+        dih.push_back(Dihedral<Vector3>{i, l, k, j,
+                                        molecule[i].position,
+                                        molecule[l].position,
+                                        molecule[k].position,
+                                        molecule[j].position, d});
       }
     }
   }
@@ -445,6 +444,8 @@ std::vector<Dihedral<Vector3>> dihedrals(const Matrix& distance_m,
   return dih;
 }
 
-}
+} // namespace connectivity
+
+} // namespace irc
 
 #endif //IRC_CONNECTIVITY_H

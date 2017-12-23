@@ -9,6 +9,8 @@
 #include <Eigen/Geometry>
 #include <Eigen/LU>
 
+namespace irc{
+
 namespace linalg{
 
 template<typename T>
@@ -72,6 +74,8 @@ Matrix pseudo_inverse(const Matrix& mat){
 }
 
 } // namespace linalg
+
+} // namespace irc
 
 #endif
 

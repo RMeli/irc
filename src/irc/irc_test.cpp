@@ -20,11 +20,12 @@ using Mat = arma::Mat<T>;
 #error
 #endif
 
+using namespace irc;
+
 TEST_CASE("Internal Redundant Coordinates"){
   using namespace std;
   using namespace tools::conversion;
   using namespace molecule;
-  using namespace irc;
   
   SECTION("Initial hessian"){
   

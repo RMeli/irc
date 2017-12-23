@@ -3,14 +3,18 @@
 
 #include <cmath>
 
-namespace tools{
+namespace irc {
 
-namespace constants{
+namespace tools {
 
-constexpr double pi{ M_PI };
+namespace constants {
 
-}
+constexpr double pi{M_PI};
 
-}
+} // namespace constants
+
+} // namespace tools
+
+} // namespace irc
 
 #endif //IRC_CONSTANTS_H

@@ -22,6 +22,8 @@ using Mat = arma::Mat<T>;
 #error
 #endif
 
+using namespace irc;
+
 TEST_CASE("Transformation"){
   SECTION("Cartesian to internal for ethanol"){
     using namespace molecule;

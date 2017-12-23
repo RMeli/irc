@@ -7,17 +7,20 @@
 #include <ostream>
 #include <string>
 
-namespace atom{
+namespace irc {
+
+namespace atom {
 
 /// Atomic number
 ///
 /// The \class AtomicNumber represents a valid atomic number, for which
 /// all the quantities accessible with dedicated functions are available
 /// in \headerfile periodic_table.h
-class AtomicNumber{
+class AtomicNumber {
  public:
   AtomicNumber(size_t an);
-  AtomicNumber(const std::string& symbol);
+  
+  AtomicNumber(const std::string &symbol);
   
   size_t atomic_number;
 };
@@ -26,37 +29,37 @@ class AtomicNumber{
 ///
 /// \param an \class AtomicNumber
 /// \return Atomic symbol corresponding to \class AtomicNumber
-std::string symbol(const AtomicNumber& an);
+std::string symbol(const AtomicNumber &an);
 
 /// Get atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Mass corresponding to \class AtomicNumber
-double mass(const AtomicNumber& an);
+double mass(const AtomicNumber &an);
 
 /// Get covalent radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Covalent radius corresponding to \class AtomicNumber
-double covalent_radius(const AtomicNumber& an);
+double covalent_radius(const AtomicNumber &an);
 
 /// Get Van der Waals radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Van der Waals radius corresponding to \class AtomicNumber
-double vdw_radius(const AtomicNumber& an);
+double vdw_radius(const AtomicNumber &an);
 
 /// Check if an atom is either N, O, F, P, S or Cl
 ///
 /// \param an Atomic number
 /// \return
-bool is_NOFPSCl(const AtomicNumber& an);
+bool is_NOFPSCl(const AtomicNumber &an);
 
 /// Check if an atom is an hydrogen atom
 ///
 /// \param an Atomic number
 /// \return
-bool is_H(const AtomicNumber& an);
+bool is_H(const AtomicNumber &an);
 
 
 /// Print \class AtomicNumber
@@ -64,7 +67,7 @@ bool is_H(const AtomicNumber& an);
 /// \param out Output stream
 /// \param an \class AtomicNumber
 /// \return Output stream
-std::ostream& operator<<(std::ostream& out, const AtomicNumber& an);
+std::ostream &operator<<(std::ostream &out, const AtomicNumber &an);
 
 /// Class representing an atom
 ///
@@ -78,13 +81,13 @@ struct Atom {
   ///
   /// \param an Atomic number
   /// \param pos Position (in 3D space)
-  Atom(const AtomicNumber& an, const Vector3& pos = {0., 0. , 0.});
+  Atom(const AtomicNumber &an, const Vector3 &pos = {0., 0., 0.});
   
   /// Constructor from atomic symbol
   ///
   /// \param symbol Atomic symbol
   /// \param pos Position (in 3D space)
-  Atom(const std::string& symbol, const Vector3& pos = {0., 0. , 0.});
+  Atom(const std::string &symbol, const Vector3 &pos = {0., 0., 0.});
   
   /// Atomic number
   AtomicNumber atomic_number;
@@ -95,14 +98,12 @@ struct Atom {
 };
 
 template<typename Vector3>
-Atom<Vector3>::Atom(const AtomicNumber& an, const Vector3& pos)
-    : atomic_number(an), position(pos)
-{}
+Atom<Vector3>::Atom(const AtomicNumber &an, const Vector3 &pos)
+    : atomic_number(an), position(pos) {}
 
 template<typename Vector3>
-Atom<Vector3>::Atom(const std::string& symbol, const Vector3& pos)
-    : atomic_number( symbol ), position(pos)
-{}
+Atom<Vector3>::Atom(const std::string &symbol, const Vector3 &pos)
+    : atomic_number(symbol), position(pos) {}
 
 /// Output operator for an atom
 ///
@@ -111,11 +112,11 @@ Atom<Vector3>::Atom(const std::string& symbol, const Vector3& pos)
 /// \param a \class Atom<T>
 /// \return Output stream
 template<typename Vector3>
-std::ostream& operator<<(std::ostream& out, const Atom<Vector3>& a){
+std::ostream &operator<<(std::ostream &out, const Atom<Vector3> &a) {
   // Print top line
   out << std::left << std::setw(15) << std::setfill('-') << '+';
-  out  << ' ';
-  out << std::left<< std::setw(2) << std::setfill(' ');
+  out << ' ';
+  out << std::left << std::setw(2) << std::setfill(' ');
   out << symbol(a.atomic_number) << ' ';
   out << std::right << std::setw(15) << std::setfill('-') << '+' << std::endl;
   
@@ -174,6 +175,8 @@ std::ostream& operator<<(std::ostream& out, const Atom<Vector3>& a){
   return out;
 }
 
-}
+} // namespace atom
+
+} // namespace irc
 
 #endif //IRC_ATOM_H

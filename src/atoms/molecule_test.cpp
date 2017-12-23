@@ -17,6 +17,8 @@ using arma::vec3;
 #error
 #endif
 
+using namespace irc;
+
 TEST_CASE("Molecule") {
   
   using namespace std;

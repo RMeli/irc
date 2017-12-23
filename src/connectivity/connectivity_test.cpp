@@ -23,6 +23,8 @@ using Mat = arma::Mat<T>;
 #error
 #endif
 
+using namespace irc;
+
 TEST_CASE("Distance, angle and dihedral"){
   using namespace connectivity;
   

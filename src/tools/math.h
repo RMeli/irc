@@ -3,8 +3,10 @@
 
 #include "constants.h"
 
+namespace irc {
 
 namespace tools {
+
 namespace math {
 
 /// Returns \param angle in the range \f$(-\pi,\pi]\f$
@@ -14,6 +16,9 @@ namespace math {
 double pirange(double angle);
 
 } // namespace math
+
 } // namespace tools
+
+} // namespace irc
 
 #endif //IRC_MATH_H
