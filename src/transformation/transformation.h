@@ -11,7 +11,7 @@ namespace irc {
 namespace transformation {
 
 /// Get current internal redundant coordinates for list of bonds, angles and
-/// dihedrals
+/// dihedral angles
 ///
 /// \tparam Vector3
 /// \tparam Vector
@@ -85,6 +85,16 @@ Vector gradient_cartesian_to_irc(const Vector &grad_c,
   return iG * B * grad_c;
 }
 
+/// Transform cartesian coordinates to internal redundant coordinates using
+/// information contained in the lists of bonds, angles and dihedrals
+///
+/// \tparam Vector3
+/// \tparam Vector
+/// \param x_c Cartesian coordinates
+/// \param bonds List of bonds
+/// \param angles List of angles
+/// \param dihedrals List of dihedral angles
+/// \return
 template<typename Vector3, typename Vector>
 Vector cartesian_to_irc(const Vector &x_c,
                         const std::vector<connectivity::Bond<Vector3>> &bonds,
@@ -97,10 +107,13 @@ Vector cartesian_to_irc(const Vector &x_c,
   // Allocate internal redundant coordinates
   Vector q_irc{linalg::zeros<Vector>(n_irc)};
   
+  // Temporary indices
   size_t idx1, idx2, idx3, idx4;
   
+  // Temporary positions
   Vector3 p1, p2, p3, p4;
   
+  // Offset for internal coordinates vector
   size_t offset{0};
   
   // Compute bonds
@@ -111,7 +124,7 @@ Vector cartesian_to_irc(const Vector &x_c,
     p1 = {x_c(3 * idx1), x_c(3 * idx1 + 1), x_c(3 * idx1 + 2)};
     p2 = {x_c(3 * idx2), x_c(3 * idx2 + 1), x_c(3 * idx2 + 2)};
     
-    q_irc(i) = connectivity::distance(p1, p2);
+    q_irc(i + offset) = connectivity::distance(p1, p2);
   }
   
   offset = bonds.size();
