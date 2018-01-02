@@ -37,17 +37,17 @@ Vector irc_from_bad(
   size_t offset{0};
   
   for (size_t i{0}; i < n_bonds; i++) {
-    q_irc(i) = bond(bonds[i], x_cartesian);
+    q_irc(i) = connectivity::bond(bonds[i], x_cartesian);
   }
   
   offset = n_bonds;
   for (size_t i{0}; i < n_angles; i++) {
-    q_irc(i + offset) = angle(angles[i], x_cartesian);
+    q_irc(i + offset) = connectivity::angle(angles[i], x_cartesian);
   }
   
   offset = n_bonds + n_angles;
   for (size_t i{0}; i < n_dihedrals; i++) {
-    q_irc(i + offset) = dihedral(dihedrals[i], x_cartesian);
+    q_irc(i + offset) = connectivity::dihedral(dihedrals[i], x_cartesian);
   }
   
   return q_irc;
@@ -59,7 +59,7 @@ Vector irc_from_bad(
 /// \param v Vector
 /// \return Root mean square value of \param v
 template<typename Vector>
-double rms(const Vector &v) {
+double rms(const Vector& v) {
   size_t size{linalg::size<Vector>(v)};
   
   double sum{0};
@@ -243,6 +243,9 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
                                                      bonds,
                                                      angles,
                                                      dihedrals);
+  
+    // Update transpose of the Wilson B matrix
+    Bt = linalg::transpose(B);
 
     // Update G matrices
     std::tie(G, iG) = wilson::G_matrices(B);
