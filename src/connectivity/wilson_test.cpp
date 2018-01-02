@@ -153,21 +153,25 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     // Allocate displacements in cartesian coordinates
     vec dx{ linalg::zeros<vec>(3 * molecule.size()) };
     
-    // Apply rotation to H1
+    // Compute transformation for H1 rotation
     vec3 v{ R * molecule[0].position - molecule[0].position};
     dx(0) = v(0);
     dx(1) = v(1);
     dx(2) = v(2);
     
-    // Compute dihedral variation
+    // Compute old dihedral (before rotation)
     double d_old{ connectivity::dihedral<vec3>( molecule[0].position,
                                                 molecule[1].position,
                                                 molecule[2].position,
                                                 molecule[3].position) };
+    
+    // Compute new dihedral angle (after rotation)
     double d_new{ connectivity::dihedral<vec3>( R * molecule[0].position,
                                                 molecule[1].position,
                                                 molecule[2].position,
                                                 molecule[3].position) };
+  
+    // Compute dihedral variation
     double d_diff{ d_new - d_old };
     
     // Compute interatomic distances

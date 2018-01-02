@@ -190,7 +190,7 @@ TEST_CASE("Transformation"){
     using namespace wilson;
     
     // Load molecule from file
-    Molecule<vec3> molecule{ load_xyz<vec3>("../test/water.xyz") };
+    Molecule<vec3> molecule{ load_xyz<vec3>("../../test/water.xyz") };
   
     // Transform molecular coordinates from angstrom to bohr
     multiply_positions(molecule, angstrom_to_bohr);
@@ -249,9 +249,9 @@ TEST_CASE("Transformation"){
     
     // Fill vector with cartesian positions
     for(size_t i{0}; i < molecule.size(); i++){
-      x_c_old(3 * i + 0) = molecule[i].position(0) ;
-      x_c_old(3 * i + 1) = molecule[i].position(1) ;
-      x_c_old(3 * i + 2) = molecule[i].position(2) ;
+      for(size_t j{0}; j < 3; j++){
+        x_c_old(3 * i + j) = molecule[i].position(j);
+      }
     }
     
     // Compute new cartesian coordinates

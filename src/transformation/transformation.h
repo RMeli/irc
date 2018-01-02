@@ -188,6 +188,8 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
                         const Matrix &iG,
                         size_t max_iters = 25,
                         double tolerance = 1e-6) {
+  // Number of internal redundant coordinates
+  size_t n_irc{ bonds.size() + angles.size() + dihedrals.size() };
   
   // Convergence flag
   bool converged{false};
@@ -198,8 +200,6 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   // Store change in internal redundant coordinates
   Vector dq{dq_irc};
   
-  Vector dq1{dq_irc};
-  
   // Old internal coordinates
   Vector q_old{q_irc_old};
   
@@ -207,10 +207,10 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   Vector q_new{q_irc_old};
   
   // Change in cartesian coordinates
-  Vector dx{linalg::zeros<Vector>(linalg::size(x_c_old))};
+  Vector dx{ linalg::zeros<Vector>(linalg::size(x_c_old)) };
   
   // Compute the transpose of B
-  Matrix Bt{linalg::transpose(B)};
+  Matrix Bt{ linalg::transpose(B) };
   
   // Start iterative search
   for (size_t i{0}; i < max_iters; i++) {
@@ -219,6 +219,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     dx = Bt * iG * dq;
     
     // Check for convergence
+    std::cout << rms<Vector>(dx) << std::endl;
     if (rms<Vector>(dx) < tolerance) {
       converged = true;
       break;
