@@ -86,8 +86,8 @@ TEST_CASE("Connectivity test for CH2O"){
   
   UGraph adj{ adjacency_matrix(dd, molecule) };
   
-  mat dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<mat>(adj) ;
+  Mat<int> dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
   
   // Distance matrix
   cout << "Distance matrix:" << endl;
@@ -109,20 +109,20 @@ TEST_CASE("Connectivity test for CH2O"){
     
     cout << "\nBonds:" << endl;
     for(size_t i{0}; i < B.size(); i++){
-      cout << B[i].bond * bohr_to_angstrom << endl;
+      cout << bond(B[i], molecule) * bohr_to_angstrom << endl;
       
       Approx target{ bb[i] };
       
       target.margin(1e-6);
       
-      REQUIRE( B[i].bond * bohr_to_angstrom == target );
+      REQUIRE( bond(B[i], molecule) * bohr_to_angstrom == target );
     }
   }
   
   std::vector<Angle<vec3>> A{angles(dist, predecessors, molecule)};
   cout << "\nAngles:" << endl;
   for(const auto& a : A){
-    cout << a.angle << endl;
+    cout << angle(a, molecule) << endl;
   }
   
   REQUIRE( A.size() == 3);
@@ -136,7 +136,7 @@ TEST_CASE("Connectivity test with molecule from input"){
   using namespace connectivity;
   
   // Load molecule from file
-  Molecule<vec3> molecule{ load_xyz<vec3>("../test/caffeine.xyz") };
+  Molecule<vec3> molecule{ load_xyz<vec3>("../../test/caffeine.xyz") };
   
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
@@ -146,8 +146,8 @@ TEST_CASE("Connectivity test with molecule from input"){
 
   UGraph adj{ adjacency_matrix(dd, molecule) };
   
-  mat dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+  Mat<int> dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
   
   // Compute bonds
   std::vector<Bond<vec3>> B{ bonds(dist, molecule) };
@@ -156,14 +156,14 @@ TEST_CASE("Connectivity test with molecule from input"){
   cout << '\n' << B.size() << " bonds:" << endl;
   for(const auto& b : B){
     cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-         << b.bond * bohr_to_angstrom << endl;
+         << bond(b, molecule) * bohr_to_angstrom << endl;
   }
   
   std::vector<Angle<vec3>> A{angles(dist, predecessors, molecule)};
   cout << '\n' << A.size() << " angles:" << endl;
   for(const auto& a : A){
     cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-         << a.angle << endl;
+         << angle(a, molecule) << endl;
   }
   
   std::vector<Dihedral<vec3>> D{dihedrals(dist, predecessors, molecule)};
@@ -171,6 +171,6 @@ TEST_CASE("Connectivity test with molecule from input"){
   for(const auto& d : D){
     cout << '(' << d.i + 1 << ',' << d.j + 1 << ','
          << d.k + 1 << ',' << d.l + 1 << ") "
-         << d.dihedral << endl;
+         << dihedral(d, molecule) << endl;
   }
 }

@@ -96,7 +96,7 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3>& molecule){
                                              bonds, angles, dihedrals);
   
   // Compute G and iG (generalized inverse)
-  std::tie(G, iG) = wilson::G_matirces(B);
+  std::tie(G, iG) = wilson::G_matrices(B);
   
   // Compute projector P
   P = wilson::projector(G, iG);

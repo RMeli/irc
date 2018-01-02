@@ -34,7 +34,7 @@ TEST_CASE("Transformation"){
     using namespace std;
     
     // Load molecule from file
-    Molecule<vec3> molecule{ load_xyz<vec3>("../test/ethanol.xyz") };
+    Molecule<vec3> molecule{ load_xyz<vec3>("../../test/ethanol.xyz") };
     
     // Transform molecular coordinates from angstrom to bohr
     multiply_positions(molecule, angstrom_to_bohr);
@@ -56,7 +56,7 @@ TEST_CASE("Transformation"){
     cout << '\n' << B.size() << " bonds (a.u.):" << endl;
     for(const auto& b : B){
       cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-           << b.bond << endl;
+           << connectivity::bond(b, molecule) << endl;
     }
     
     // Compute angles
@@ -66,7 +66,7 @@ TEST_CASE("Transformation"){
     cout << '\n' << A.size() << " angles (deg):" << endl;
     for(const auto& a : A){
       cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-           << a.angle << endl;
+           << connectivity::angle(a, molecule) << endl;
     }
     
     // Compute dihedral angles
@@ -77,7 +77,7 @@ TEST_CASE("Transformation"){
     for(const auto& d : D){
       cout << '(' << d.i + 1 << ',' << d.j + 1 << ','
            << d.k + 1 << ',' << d.l + 1 << ") "
-           << d.dihedral << endl;
+           << connectivity::dihedral(d, molecule) << endl;
     }
     
     // Compute number of cartesian coordinates
@@ -130,20 +130,23 @@ TEST_CASE("Transformation"){
     cout << '\n' << B.size() << " bonds (a.u.):" << endl;
     for(const auto& b : B){
       cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-           << b.bond << endl;
+           << connectivity::bond(b, molecule) << endl;
     }
   
     // Check number of bonds
     REQUIRE( B.size() == 1);
   
     // Wilson B matrix
-    mat W = wilson_matrix<vec3,mat>(molecule.size(), B);
+    mat W = wilson_matrix<vec3,vec,mat>(
+        molecule::to_cartesian<vec3,vec>(molecule), B);
     
     mat G, iG;
-    std::tie(G, iG) = G_matirces(W);
+    std::tie(G, iG) = G_matrices(W);
   
     // Allocate vector for internal reaction coordinates
-    vec q_irc{ irc_from_bad<vec3,vec>(B, {}, {}) };
+    vec q_irc{ irc_from_bad<vec3,vec>(
+        molecule::to_cartesian<vec3,vec>(molecule), B, {}, {})
+    };
     
     // Displacement in internal coordinates
     vec dq_irc{ 0.1 };
@@ -166,7 +169,7 @@ TEST_CASE("Transformation"){
     }
     
     // Compute new cartesian coordinates
-    vec x_c{ irc_to_cartesian(q_irc, dq_irc, x_c_old, B, {}, {}, W, iG) };
+    vec x_c{irc_to_cartesian<vec3,vec,mat>(q_irc, dq_irc, x_c_old, B, {}, {})};
     
     // Print cartesian coordinates
     cout << "\nNew cartesian coordinates (a.u.):\n " << x_c << endl;
@@ -212,7 +215,7 @@ TEST_CASE("Transformation"){
     cout << '\n' << B.size() << " bonds (a.u.):" << endl;
     for(const auto& b : B){
       cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-           << b.bond << endl;
+           << connectivity::bond(b, molecule) << endl;
     }
     
     // Check number of bonds
@@ -224,17 +227,21 @@ TEST_CASE("Transformation"){
     cout << '\n' << A.size() << " angles (deg):" << endl;
     for(const auto& a : A){
       cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-           << a.angle << endl;
+           << connectivity::angle(a, molecule) << endl;
     }
     
     // Wilson B matrix
-    mat W = wilson_matrix<vec3,mat>(molecule.size(), B, A);
+    mat W = wilson_matrix<vec3,vec,mat>(
+        molecule::to_cartesian<vec3,vec>(molecule), B, A);
     
     mat G, iG;
-    std::tie(G, iG) = G_matirces(W);
+    std::tie(G, iG) = G_matrices(W);
     
     // Allocate vector for internal reaction coordinates
-    vec q_irc_old{ irc_from_bad<vec3,vec>(B, A, {}) };
+    vec q_irc_old{
+        irc_from_bad<vec3,vec>(molecule::to_cartesian<vec3,vec>(molecule),
+                               B, A, {})
+    };
     
     // Displacement in internal coordinates
     vec dq_irc{ 0.0, 0.0, 0.1 };
@@ -255,7 +262,9 @@ TEST_CASE("Transformation"){
     }
     
     // Compute new cartesian coordinates
-    vec x_c{ irc_to_cartesian(q_irc_old, dq_irc, x_c_old, B, A, {}, W, iG) };
+    vec x_c{
+        irc_to_cartesian<vec3,vec,mat>(q_irc_old, dq_irc, x_c_old, B, A, {})
+    };
     
     // Print cartesian coordinates
     cout << "\nNew cartesian coordinates (a.u.):\n " << x_c << endl;

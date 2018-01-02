@@ -2,6 +2,7 @@
 #define IRC_MOLECULE_H
 
 #include "atom.h"
+#include "../linear_algebra/linalg.h"
 
 #include <ostream>
 #include <utility>
@@ -41,6 +42,21 @@ void multiply_positions(Molecule<Vector3> &molecule, T multiplier) {
   for (auto &atom : molecule) {
     atom.position = atom.position * multiplier;
   }
+}
+
+template<typename Vector3, typename Vector>
+Vector to_cartesian(const Molecule<Vector3>& molecule){
+  size_t n_atoms{ molecule.size() };
+  
+  Vector x_cartesian{ linalg::zeros<Vector>(3 * n_atoms) };
+  
+  for(size_t i{0}; i < n_atoms; i++){
+    for(size_t idx{0}; idx < 3; idx++){
+      x_cartesian(3 * i + idx) = molecule[i].position(idx);
+    }
+  }
+  
+  return x_cartesian;
 }
 
 /// Print a molecule

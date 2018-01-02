@@ -30,7 +30,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   SECTION("H2 stretching"){
     
     // Compute Wilson B matrix for H2
-    mat Bwilson = wilson_matrix<vec3, mat>({{1,{0.,0.,0.}},{1,{1.,0.,0.}}});
+    mat Bwilson = wilson_matrix<vec3,vec,mat>({{1,{0.,0.,0.}},{1,{1.,0.,0.}}});
   
     // H2 bond stretching
     double d{0.01};
@@ -97,7 +97,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     }
     
     // Compute Wilson's B matrix
-    mat Bwilson = wilson_matrix<vec3, mat>(molecule);
+    mat Bwilson = wilson_matrix<vec3,vec,mat>(molecule);
   
     // Print Wilson B matrix
     cout << "\nWilson B matrix:" << endl;
@@ -190,7 +190,8 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     // Print bonds
     cout << "\nBonds:" << endl;
     for(const auto& b : bonds){
-      cout << b.bond * tools::conversion::bohr_to_angstrom << endl;
+      cout << connectivity::bond(b, molecule) *
+          tools::conversion::bohr_to_angstrom << endl;
     }
   
     // Check number of bonds
@@ -203,7 +204,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     // Print angles
     cout << "\nAngles:" << endl;
     for(const auto& a : angles){
-      cout << a.angle << endl;
+      cout << connectivity::angle(a, molecule) << endl;
     }
   
     // Check number of angles
@@ -216,15 +217,16 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     // Print angles
     cout << "\nDihedrals:" << endl;
     for(const auto& d : dihedrals){
-      cout << d.dihedral << endl;
+      cout << connectivity::dihedral(d, molecule) << endl;
     }
   
     // Check number of dihedrals
     REQUIRE( dihedrals.size() == 1 );
   
     // Compute Wilson's B matrix
-    mat Bwilson = wilson_matrix<vec3, mat>(molecule.size(),
-                                           bonds, angles, dihedrals);
+    mat Bwilson = wilson_matrix<vec3,vec,mat>(
+        molecule::to_cartesian<vec3,vec>(molecule),
+        bonds, angles, dihedrals);
   
     // Print Wilson B matrix
     cout << "\nWilson B matrix:" << endl;

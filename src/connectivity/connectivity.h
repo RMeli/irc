@@ -47,9 +47,6 @@ template<typename Vector3>
 struct Bond {
   size_t i;
   size_t j;
-  Vector3 p1;
-  Vector3 p2;
-  double bond;
 };
 
 template<typename Vector3>
@@ -57,10 +54,6 @@ struct Angle {
   size_t i;
   size_t j;
   size_t k;
-  Vector3 p1;
-  Vector3 p2;
-  Vector3 p3;
-  double angle;
 };
 
 template<typename Vector3>
@@ -69,16 +62,32 @@ struct Dihedral {
   size_t j;
   size_t k;
   size_t l;
-  Vector3 p1;
-  Vector3 p2;
-  Vector3 p3;
-  Vector3 p4;
-  double dihedral;
 };
 
 template<typename Vector3>
 inline double distance(const Vector3 &v1, const Vector3 &v2) {
   return linalg::norm(v1 - v2);
+}
+
+template<typename Vector3, typename Vector>
+inline double bond(const Bond<Vector3>& b,
+                   const Vector& x_cartesian){
+  // Temporary positions
+  Vector b1, b2;
+  
+  b1 = {x_cartesian(3 * b.i + 0), x_cartesian(3 * b.i + 1), x_cartesian(3 * b.i + 2)};
+  b2 = {x_cartesian(3 * b.j + 0), x_cartesian(3 * b.j + 1), x_cartesian(3 * b.j + 2)};
+  
+  return distance(b1, b2);
+}
+
+template<typename Vector3>
+inline double bond(const Bond<Vector3>& b,
+                   const molecule::Molecule<Vector3>& molecule){
+  Vector3 b1{ molecule[b.i].position };
+  Vector3 b2{ molecule[b.j].position };
+  
+  return distance(b1, b2);
 }
 
 template<typename Vector3>
@@ -91,6 +100,29 @@ inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
   double angle{std::acos(linalg::dot(r1, r2) / N)};
   
   return angle * 180.0 / tools::constants::pi;
+}
+
+template<typename Vector3, typename Vector>
+inline double angle(const Angle<Vector3>& a,
+                    const Vector& x_cartesian){
+  // Temporary positions
+  Vector a1, a2, a3;
+  
+  a1 = {x_cartesian(3 * a.i + 0), x_cartesian(3 * a.i + 1), x_cartesian(3 * a.i + 2)};
+  a2 = {x_cartesian(3 * a.j + 0), x_cartesian(3 * a.j + 1), x_cartesian(3 * a.j + 2)};
+  a3 = {x_cartesian(3 * a.k + 0), x_cartesian(3 * a.k + 1), x_cartesian(3 * a.k + 2)};
+  
+  return angle(a1, a2, a3);
+}
+
+template<typename Vector3>
+inline double angle(const Angle<Vector3>& a,
+                    const molecule::Molecule<Vector3>& molecule){
+  Vector3 a1{ molecule[a.i].position };
+  Vector3 a2{ molecule[a.j].position };
+  Vector3 a3{ molecule[a.k].position };
+
+  return angle(a1, a2, a3);
 }
 
 template<typename Vector3>
@@ -120,6 +152,31 @@ inline double dihedral(const Vector3 &v1,
   angle *= 180.0 / tools::constants::pi;
   
   return angle;
+}
+
+template<typename Vector3, typename Vector>
+inline double dihedral(const Dihedral<Vector3>& d,
+                       const Vector& x_cartesian){
+  // Temporary positions
+  Vector d1, d2, d3, d4;
+  
+  d1 = {x_cartesian(3 * d.i + 0), x_cartesian(3 * d.i + 1), x_cartesian(3 * d.i + 2)};
+  d2 = {x_cartesian(3 * d.j + 0), x_cartesian(3 * d.j + 1), x_cartesian(3 * d.j + 2)};
+  d3 = {x_cartesian(3 * d.k + 0), x_cartesian(3 * d.k + 1), x_cartesian(3 * d.k + 2)};
+  d4 = {x_cartesian(3 * d.l + 0), x_cartesian(3 * d.l + 1), x_cartesian(3 * d.l + 2)};
+  
+  return dihedral(d1, d2, d3, d4);
+}
+
+template<typename Vector3>
+inline double dihedral(const Dihedral<Vector3>& d,
+                       const molecule::Molecule<Vector3>& molecule){
+  Vector3 d1{ molecule[d.i].position };
+  Vector3 d2{ molecule[d.j].position };
+  Vector3 d3{ molecule[d.k].position };
+  Vector3 d4{ molecule[d.l].position };
+  
+  return dihedral(d1, d2, d3, d4);
 }
 
 /// Compute the distance matrix for \param molecule
@@ -279,13 +336,13 @@ std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
   using namespace boost;
   
   // Store number of vertices (number of atoms)
-  const size_t n_vertices{boost::num_vertices(ug)};
+  const size_t n_vertices{ boost::num_vertices(ug) };
   
   // Allocate distance matrix
-  Matrix dist{linalg::zeros<Matrix>(n_vertices, n_vertices)};
+  Matrix dist{ linalg::zeros<Matrix>(n_vertices, n_vertices) };
   
   // Allocate predecessors matrix
-  Matrix predecessors{linalg::zeros<Matrix>(n_vertices, n_vertices)};
+  Matrix predecessors{ linalg::zeros<Matrix>(n_vertices, n_vertices) };
   
   // Allocate distance map for single-source problem
   std::vector<int> d_map(n_vertices, 0);
@@ -341,14 +398,8 @@ std::vector<Bond<Vector3>> bonds(const Matrix &distance_m,
     for (size_t i{0}; i < j; i++) {
       
       if (distance_m(i, j) == 1) {
-        // Compute distance between atom i and atom j
-        d = distance(molecule[i].position, molecule[j].position);
-        
         // Store bond informations between atom i and atom j
-        b.push_back(Bond<Vector3>{i, j,
-                                  molecule[i].position,
-                                  molecule[j].position,
-                                  d});
+        b.push_back(Bond<Vector3>{i, j});
       }
     }
   }
@@ -385,16 +436,8 @@ std::vector<Angle<Vector3>> angles(const Matrix &distance_m,
       if (distance_m(i, j) == 2) {
         k = predecessors_m(i, j);
         
-        // Compute angle (i,k,j)
-        a = angle(molecule[i].position,
-                  molecule[k].position,
-                  molecule[j].position);
-        
         // Store angle
-        ang.push_back(Angle<Vector3>{i, k, j,
-                                     molecule[i].position,
-                                     molecule[k].position,
-                                     molecule[j].position, a});
+        ang.push_back(Angle<Vector3>{i, k, j});
       }
     }
   }
@@ -424,18 +467,8 @@ std::vector<Dihedral<Vector3>> dihedrals(const Matrix &distance_m,
         k = predecessors_m(i, j);
         l = predecessors_m(i, k);
         
-        // Compute angle (i,k,j)
-        d = dihedral(molecule[i].position,
-                     molecule[l].position,
-                     molecule[k].position,
-                     molecule[j].position);
-        
         // Store angle
-        dih.push_back(Dihedral<Vector3>{i, l, k, j,
-                                        molecule[i].position,
-                                        molecule[l].position,
-                                        molecule[k].position,
-                                        molecule[j].position, d});
+        dih.push_back(Dihedral<Vector3>{i, l, k, j});
       }
     }
   }

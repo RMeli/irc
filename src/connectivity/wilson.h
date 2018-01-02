@@ -19,16 +19,21 @@ namespace wilson {
 
 template<typename Vector3>
 std::pair<Vector3, Vector3>
-bond_gradient(const connectivity::Bond <Vector3> &b) {
-  Vector3 v{(b.p1 - b.p2) / b.bond};
+bond_gradient(const Vector3& p1, const Vector3& p2) {
+  double bond{ connectivity::distance(p1, p2) };
+  
+  Vector3 v{(p1 - p2) / bond};
   
   return {v, -v};
 }
 
 template<typename Vector3>
-std::tuple<Vector3, Vector3, Vector3> angle_gradient(
-    const connectivity::Angle <Vector3> &a) {
-  double angle_rad{a.angle / 180. * tools::constants::pi};
+std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
+                                                     const Vector3& p2,
+                                                     const Vector3& p3) {
+  double angle{ connectivity::angle(p1, p2, p3) };
+  
+  double angle_rad{angle / 180. * tools::constants::pi};
   
   // TODO: Check pyberny for more robust implementation
   // https://github.com/azag0/pyberny
@@ -36,8 +41,8 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(
   double sin_angle{std::sin(angle_rad)};
   double cos_angle{std::cos(angle_rad)};
   
-  Vector3 b21{a.p1 - a.p2};
-  Vector3 b23{a.p3 - a.p2};
+  Vector3 b21{p1 - p2};
+  Vector3 b23{p3 - p2};
   
   double bond21{linalg::norm(b21)};
   double bond23{linalg::norm(b23)};
@@ -54,24 +59,27 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(
 
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
-    const connectivity::Dihedral <Vector3> &d) {
+    const Vector3& p1,
+    const Vector3& p2,
+    const Vector3& p3,
+    const Vector3& p4) {
   
   // TODO: Check pyberny for more robust implementation
   // https://github.com/azag0/pyberny
   
-  double angle123{connectivity::angle(d.p1, d.p2, d.p3)};
+  double angle123{ connectivity::angle(p1, p2, p3) };
   double angle123_rad{angle123 * tools::constants::pi / 180.};
   double sin_angle123{std::sin(angle123_rad)};
   double cos_angle123{std::cos(angle123_rad)};
   
-  double angle234{connectivity::angle(d.p2, d.p3, d.p4)};
+  double angle234{ connectivity::angle(p2, p3, p4) };
   double angle234_rad{angle234 * tools::constants::pi / 180.};
   double sin_angle234{std::sin(angle234_rad)};
   double cos_angle234{std::cos(angle234_rad)};
   
-  Vector3 b12{d.p2 - d.p1};
-  Vector3 b23{d.p3 - d.p2};
-  Vector3 b34{d.p4 - d.p3};
+  Vector3 b12{p2 - p1};
+  Vector3 b23{p3 - p2};
+  Vector3 b34{p4 - p3};
   
   double bond12{linalg::norm(b12)};
   double bond23{linalg::norm(b23)};
@@ -117,6 +125,7 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
 /// \param n_atoms Total number of atoms
 /// \param bonds Collection of bonds
 /// \param angles Collection of angles between bonded atoms
+/// \patam Atomic positions in cartesian coordinates
 /// \return Wilson's B matrix
 ///
 /// This function returns Wilson's \f$\mathbf{B}\f$ matrix given a collection
@@ -134,18 +143,23 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
 /// \f]
 ///
 /// More details can be found in Peng et al., J. Comp. Chem. 17, 49-56, 1996.
-template<typename Vector3, typename Matrix>
-Matrix wilson_matrix(size_t n_atoms,
-                     const std::vector<connectivity::Bond<Vector3>>& bonds,
-                     const std::vector<connectivity::Angle<Vector3>>&
-                        angles = {},
-                     const std::vector<connectivity::Dihedral<Vector3>>&
-                        dihedrals = {}){
+template<typename Vector3, typename Vector, typename Matrix>
+Matrix wilson_matrix(
+    const Vector& x_cartesian,
+    const std::vector<connectivity::Bond<Vector3>>& bonds,
+    const std::vector<connectivity::Angle<Vector3>>& angles = {},
+    const std::vector<connectivity::Dihedral<Vector3>>& dihedrals = {}){
+  // Get number of atoms
+  size_t n_atoms{ linalg::size<Vector>(x_cartesian) / 3 };
+
   // Get the total number of internal redundant coordinates
   size_t n_irc{ bonds.size() + angles.size() + dihedrals.size() };
 
   // Allocate Wilson's B matrix
   Matrix B{ linalg::zeros<Matrix>(n_irc, 3 * n_atoms) };
+
+  // Utility vectors for atomic positions
+  Vector3 p1, p2, p3, p4;
 
   // Utility vector for gradients storage
   Vector3 g1, g2, g3, g4;
@@ -154,11 +168,16 @@ Matrix wilson_matrix(size_t n_atoms,
   size_t offset{0};
 
   // Populate B matrix's rows corresponding to bonds
-  connectivity::Bond <Vector3> bond;
+  connectivity::Bond<Vector3> bond;
   for(size_t i{0}; i < bonds.size(); i++) {
     bond = bonds[i];
 
-    std::tie(g1, g2) = bond_gradient(bond);
+    for(size_t m{0}; m < 3; m++){
+      p1(m) = x_cartesian(3 * bond.i + m);
+      p2(m) = x_cartesian(3 * bond.j + m);
+    }
+
+    std::tie(g1, g2) = bond_gradient(p1, p2);
 
     for(size_t idx{0}; idx < 3; idx++) {
       B(i, 3 * bond.i + idx) = g1(idx);
@@ -172,7 +191,13 @@ Matrix wilson_matrix(size_t n_atoms,
   for(size_t i{0}; i < angles.size(); i++){
     angle = angles[i];
 
-    std::tie(g1, g2, g3) = angle_gradient(angle);
+    for(size_t m{0}; m < 3; m++){
+      p1(m) = x_cartesian(3 * angle.i + m);
+      p2(m) = x_cartesian(3 * angle.j + m);
+      p3(m) = x_cartesian(3 * angle.k + m);
+    }
+
+    std::tie(g1, g2, g3) = angle_gradient(p1, p2, p3);
 
     for(size_t idx{0}; idx < 3; idx++){
       B(i + offset, 3 * angle.i + idx) = g1(idx);
@@ -188,7 +213,14 @@ Matrix wilson_matrix(size_t n_atoms,
   for(size_t i{0}; i < dihedrals.size(); i++){
     dihedral = dihedrals[i];
 
-    std::tie(g1, g2, g3, g4) = dihedral_gradient(dihedral);
+    for(size_t m{0}; m < 3; m++){
+      p1(m) = x_cartesian(3 * dihedral.i + m);
+      p2(m) = x_cartesian(3 * dihedral.j + m);
+      p3(m) = x_cartesian(3 * dihedral.k + m);
+      p4(m) = x_cartesian(3 * dihedral.l + m);
+    }
+
+    std::tie(g1, g2, g3, g4) = dihedral_gradient(p1, p2, p3, p4);
 
     for(size_t idx{0}; idx < 3; idx++){
       B(i + offset, 3 * dihedral.i + idx) = g1(idx);
@@ -202,7 +234,7 @@ Matrix wilson_matrix(size_t n_atoms,
 }
 
 
-template<typename Vector3, typename Matrix>
+template<typename Vector3, typename Vector, typename Matrix>
 Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
   // Compute interatomic distances
   Matrix dd{connectivity::distances<Vector3, Matrix>(molecule)};
@@ -230,8 +262,9 @@ Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
       connectivity::dihedrals(dist, predecessors, molecule)};
   
   // Return Wilson's B matrix
-  return wilson_matrix<Vector3, Matrix>(molecule.size(),
-                                        bonds, angles, dihedrals);
+  return wilson_matrix<Vector3, Vector, Matrix>(
+      molecule::to_cartesian<Vector3, Vector>(molecule),
+      bonds, angles, dihedrals);
 }
 
 /*
@@ -247,7 +280,7 @@ Matrix wilson_matrix(
 */
 
 template<typename Matrix>
-std::pair<Matrix, Matrix> G_matirces(const Matrix &B) {
+std::pair<Matrix, Matrix> G_matrices(const Matrix &B) {
   Matrix G{B * linalg::transpose(B)};
   
   return std::make_pair(G, linalg::pseudo_inverse(G));
