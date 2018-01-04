@@ -185,7 +185,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     std::tie(dist, predecessors) = connectivity::distance_matrix<mat>(adj) ;
   
     // Compute bonds
-    vector<connectivity::Bond<vec3>> bonds{ connectivity::bonds(dist, molecule)};
+    vector<connectivity::Bond> bonds{ connectivity::bonds(dist, molecule)};
   
     // Print bonds
     cout << "\nBonds:" << endl;
@@ -198,7 +198,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     REQUIRE( bonds.size() == 3 );
   
     // Compute angles
-    vector<connectivity::Angle<vec3>> angles{
+    vector<connectivity::Angle> angles{
         connectivity::angles(dist, predecessors, molecule)};
   
     // Print angles
@@ -211,7 +211,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     REQUIRE( angles.size() == 2 );
   
     // Compute dihedrals
-    vector<connectivity::Dihedral<vec3>> dihedrals{
+    vector<connectivity::Dihedral> dihedrals{
         connectivity::dihedrals(dist, predecessors, molecule)};
   
     // Print angles

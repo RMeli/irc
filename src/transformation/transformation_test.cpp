@@ -50,7 +50,7 @@ TEST_CASE("Transformation"){
     std::tie(dist, predecessors) = distance_matrix<mat>(adj);
     
     // Compute bonds
-    std::vector<Bond<vec3>> B{ bonds(dist, molecule) };
+    std::vector<Bond> B{ bonds(dist, molecule) };
     
     // Print bonds
     cout << '\n' << B.size() << " bonds (a.u.):" << endl;
@@ -60,7 +60,7 @@ TEST_CASE("Transformation"){
     }
     
     // Compute angles
-    std::vector<Angle<vec3>> A{angles(dist, predecessors, molecule)};
+    std::vector<Angle> A{angles(dist, predecessors, molecule)};
     
     // Print angles
     cout << '\n' << A.size() << " angles (deg):" << endl;
@@ -70,7 +70,7 @@ TEST_CASE("Transformation"){
     }
     
     // Compute dihedral angles
-    std::vector<Dihedral<vec3>> D{dihedrals(dist, predecessors, molecule)};
+    std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
     
     // Print dihedral angles
     cout << '\n' << D.size() << " dihedrals (deg):" << endl;
@@ -98,7 +98,7 @@ TEST_CASE("Transformation"){
     
     // Compute and print internal redundant coordinates
     cout << "Internal redundant coordinates (a.u.):\n"
-         << cartesian_to_irc(x_c, B, A, D) << endl;
+         << cartesian_to_irc<vec3,vec>(x_c, B, A, D) << endl;
   }
   
   SECTION("Internal to cartesian for H2"){
@@ -124,7 +124,7 @@ TEST_CASE("Transformation"){
     std::tie(dist, predecessors) = distance_matrix<mat>(adj);
   
     // Compute bonds
-    std::vector<Bond<vec3>> B{ bonds(dist, molecule) };
+    std::vector<Bond> B{ bonds(dist, molecule) };
   
     // Print bonds
     cout << '\n' << B.size() << " bonds (a.u.):" << endl;
@@ -138,13 +138,14 @@ TEST_CASE("Transformation"){
   
     // Wilson B matrix
     mat W = wilson_matrix<vec3,vec,mat>(
-        molecule::to_cartesian<vec3,vec>(molecule), B);
+        molecule::to_cartesian<vec3,vec>(molecule), B
+    );
     
     mat G, iG;
     std::tie(G, iG) = G_matrices(W);
   
     // Allocate vector for internal reaction coordinates
-    vec q_irc{ irc_from_bad<vec3,vec>(
+    vec q_irc{ irc_from_bad<vec>(
         molecule::to_cartesian<vec3,vec>(molecule), B, {}, {})
     };
     
@@ -209,7 +210,7 @@ TEST_CASE("Transformation"){
     std::tie(dist, predecessors) = distance_matrix<mat>(adj);
     
     // Compute bonds
-    std::vector<Bond<vec3>> B{ bonds(dist, molecule) };
+    std::vector<Bond> B{ bonds(dist, molecule) };
     
     // Print bonds
     cout << '\n' << B.size() << " bonds (a.u.):" << endl;
@@ -222,7 +223,7 @@ TEST_CASE("Transformation"){
     REQUIRE( B.size() == 2);
   
     // Compute angle
-    std::vector<Angle<vec3>> A{ angles(dist, predecessors, molecule) };
+    std::vector<Angle> A{ angles(dist, predecessors, molecule) };
   
     cout << '\n' << A.size() << " angles (deg):" << endl;
     for(const auto& a : A){
@@ -239,8 +240,9 @@ TEST_CASE("Transformation"){
     
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{
-        irc_from_bad<vec3,vec>(molecule::to_cartesian<vec3,vec>(molecule),
-                               B, A, {})
+        irc_from_bad<vec>(
+            molecule::to_cartesian<vec3,vec>(molecule), B, A, {}
+        )
     };
     
     // Displacement in internal coordinates

@@ -37,13 +37,13 @@ class IRC {
   Matrix predecessors_m;
   
   /// List of bonds
-  std::vector<connectivity::Bond<Vector3>> bonds;
+  std::vector<connectivity::Bond> bonds;
   
   /// List of angles
-  std::vector<connectivity::Angle<Vector3>> angles;
+  std::vector<connectivity::Angle> angles;
   
   /// List of dihedral angles
-  std::vector<connectivity::Dihedral<Vector3>> dihedrals;
+  std::vector<connectivity::Dihedral> dihedrals;
   
   /// Number of internal coordinates
   size_t n_irc;

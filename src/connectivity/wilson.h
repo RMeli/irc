@@ -146,9 +146,9 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
 template<typename Vector3, typename Vector, typename Matrix>
 Matrix wilson_matrix(
     const Vector& x_cartesian,
-    const std::vector<connectivity::Bond<Vector3>>& bonds,
-    const std::vector<connectivity::Angle<Vector3>>& angles = {},
-    const std::vector<connectivity::Dihedral<Vector3>>& dihedrals = {}){
+    const std::vector<connectivity::Bond>& bonds,
+    const std::vector<connectivity::Angle>& angles = {},
+    const std::vector<connectivity::Dihedral>& dihedrals = {}){
   // Get number of atoms
   size_t n_atoms{ linalg::size<Vector>(x_cartesian) / 3 };
 
@@ -168,7 +168,7 @@ Matrix wilson_matrix(
   size_t offset{0};
 
   // Populate B matrix's rows corresponding to bonds
-  connectivity::Bond<Vector3> bond;
+  connectivity::Bond bond;
   for(size_t i{0}; i < bonds.size(); i++) {
     bond = bonds[i];
 
@@ -187,7 +187,7 @@ Matrix wilson_matrix(
 
   // Populate B matrix's rows corresponding to angles
   offset = bonds.size();
-  connectivity::Angle <Vector3> angle;
+  connectivity::Angle angle;
   for(size_t i{0}; i < angles.size(); i++){
     angle = angles[i];
 
@@ -209,7 +209,7 @@ Matrix wilson_matrix(
 
   // Populate B matrix's rows corresponding to dihedrals
   offset = bonds.size() + angles.size();
-  connectivity::Dihedral <Vector3> dihedral;
+  connectivity::Dihedral dihedral;
   for(size_t i{0}; i < dihedrals.size(); i++){
     dihedral = dihedrals[i];
 
@@ -247,17 +247,17 @@ Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
   std::tie(dist, predecessors) = connectivity::distance_matrix<Matrix>(adj);
   
   // Compute bonds
-  std::vector<connectivity::Bond < Vector3>>
+  std::vector<connectivity::Bond>
   bonds{
       connectivity::bonds(dist, molecule)};
   
   // Compute angles
-  std::vector<connectivity::Angle < Vector3>>
+  std::vector<connectivity::Angle>
   angles{
       connectivity::angles(dist, predecessors, molecule)};
   
   // Compute dihedrals
-  std::vector<connectivity::Dihedral < Vector3>>
+  std::vector<connectivity::Dihedral>
   dihedrals{
       connectivity::dihedrals(dist, predecessors, molecule)};
   

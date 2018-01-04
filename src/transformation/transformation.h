@@ -23,9 +23,9 @@ namespace transformation {
 template<typename Vector3, typename Vector>
 Vector irc_from_bad(
     const Vector& x_cartesian,
-    const std::vector<connectivity::Bond<Vector3>>& bonds,
-    const std::vector<connectivity::Angle<Vector3>>& angles,
-    const std::vector<connectivity::Dihedral<Vector3>>& dihedrals) {
+    const std::vector<connectivity::Bond>& bonds,
+    const std::vector<connectivity::Angle>& angles,
+    const std::vector<connectivity::Dihedral>& dihedrals) {
   size_t n_bonds{bonds.size()};
   size_t n_angles{angles.size()};
   size_t n_dihedrals{dihedrals.size()};
@@ -37,17 +37,19 @@ Vector irc_from_bad(
   size_t offset{0};
   
   for (size_t i{0}; i < n_bonds; i++) {
-    q_irc(i) = connectivity::bond(bonds[i], x_cartesian);
+    q_irc(i) = connectivity::bond<Vector3, Vector>(bonds[i], x_cartesian);
   }
   
   offset = n_bonds;
   for (size_t i{0}; i < n_angles; i++) {
-    q_irc(i + offset) = connectivity::angle(angles[i], x_cartesian);
+    q_irc(i + offset) =
+        connectivity::angle<Vector3, Vector>(angles[i], x_cartesian);
   }
   
   offset = n_bonds + n_angles;
   for (size_t i{0}; i < n_dihedrals; i++) {
-    q_irc(i + offset) = connectivity::dihedral(dihedrals[i], x_cartesian);
+    q_irc(i + offset) =
+        connectivity::dihedral<Vector3, Vector>(dihedrals[i], x_cartesian);
   }
   
   return q_irc;
@@ -99,9 +101,9 @@ Vector gradient_cartesian_to_irc(const Vector &grad_c,
 /// \return
 template<typename Vector3, typename Vector>
 Vector cartesian_to_irc(const Vector &x_c,
-                        const std::vector<connectivity::Bond<Vector3>> &bonds,
-                        const std::vector<connectivity::Angle<Vector3>> &angles,
-                        const std::vector<connectivity::Dihedral<Vector3>> &dihedrals) {
+                        const std::vector<connectivity::Bond> &bonds,
+                        const std::vector<connectivity::Angle> &angles,
+                        const std::vector<connectivity::Dihedral> &dihedrals) {
   
   // Compute the number of internal redundant coordinates
   size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
@@ -183,9 +185,9 @@ template<typename Vector3, typename Vector, typename Matrix>
 Vector irc_to_cartesian(const Vector &q_irc_old,
                         const Vector &dq_irc,
                         const Vector &x_c_old,
-                        const std::vector<connectivity::Bond<Vector3>> &bonds,
-                        const std::vector<connectivity::Angle<Vector3>> &angles,
-                        const std::vector<connectivity::Dihedral<Vector3>> &dihedrals,
+                        const std::vector<connectivity::Bond> &bonds,
+                        const std::vector<connectivity::Angle> &angles,
+                        const std::vector<connectivity::Dihedral> &dihedrals,
                         size_t max_iters = 25,
                         double tolerance = 1e-6) {
   // Number of internal redundant coordinates
@@ -210,10 +212,9 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   Vector dx{ linalg::zeros<Vector>(linalg::size(x_c_old)) };
 
   // Compute Wilson's B matrix
-  Matrix B{ wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c,
-                                                         bonds,
-                                                         angles,
-                                                         dihedrals) };
+  Matrix B{
+      wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c, bonds, angles, dihedrals)
+  };
 
   // Compute G matrices
   Matrix G, iG;
@@ -241,10 +242,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     x_c += dx;
 
     // Update Wilson B matrix
-    B = wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c,
-                                                     bonds,
-                                                     angles,
-                                                     dihedrals);
+    B = wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c, bonds, angles, dihedrals);
   
     // Update transpose of the Wilson B matrix
     Bt = linalg::transpose(B);
@@ -257,7 +255,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     
     // TODO: Check change in angles and dihedrals
     // Compute new internal coordinates
-    q_new = cartesian_to_irc(x_c, bonds, angles, dihedrals);
+    q_new = cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles, dihedrals);
     
     // New difference in internal coordinates
     dq = dq - (q_new - q_old);
