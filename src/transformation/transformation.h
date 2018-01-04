@@ -247,6 +247,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     // Update transpose of the Wilson B matrix
     Bt = linalg::transpose(B);
 
+    // TODO: Only one matrix needed
     // Update G matrices
     std::tie(G, iG) = wilson::G_matrices(B);
     

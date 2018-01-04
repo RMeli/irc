@@ -136,7 +136,7 @@ TEST_CASE("Connectivity test with molecule from input"){
   using namespace connectivity;
   
   // Load molecule from file
-  Molecule<vec3> molecule{ load_xyz<vec3>("../../test/caffeine.xyz") };
+  Molecule<vec3> molecule{ load_xyz<vec3>("../test/caffeine.xyz") };
   
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
