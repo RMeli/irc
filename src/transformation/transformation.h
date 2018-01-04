@@ -222,6 +222,8 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   // Compute the transpose of B
   Matrix Bt{ linalg::transpose(B) };
   
+  double RMS{0};
+  
   // Start iterative search
   for (size_t i{0}; i < max_iters; i++) {
     
@@ -229,8 +231,8 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     dx = Bt * iG * dq;
     
     // Check for convergence
-    std::cout << rms<Vector>(dx) << std::endl;
-    if (rms<Vector>(dx) < tolerance) {
+    RMS = rms<Vector>(dx);
+    if ( RMS < tolerance) {
       converged = true;
       break;
     }

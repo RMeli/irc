@@ -92,8 +92,10 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3>& molecule){
   n_irc = bonds.size() + angles.size() + dihedrals.size();
   
   // Store initial Wilson's B matrix
-  B = wilson::wilson_matrix<Vector3, Matrix>(molecule.size(),
-                                             bonds, angles, dihedrals);
+  B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
+      molecule::to_cartesian<Vector3, Vector>(molecule),
+      bonds, angles, dihedrals
+  );
   
   // Compute G and iG (generalized inverse)
   std::tie(G, iG) = wilson::G_matrices(B);
