@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # | DIRECTORIES |
 # + ----------- +
 
-set(IRC_MOLECULES_DIR ${CMAKE_SOURCE_DIR}/test/)
+set(IRC_MOLECULES_DIR ${CMAKE_SOURCE_DIR}/molecules/)
 
 configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
                 ${CMAKE_BINARY_DIR}/src/config.h)
