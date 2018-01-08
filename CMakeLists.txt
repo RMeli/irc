@@ -80,38 +80,47 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 enable_testing()
 
-add_executable( test_math src/tools/math_test.cpp )
+add_executable( test_math src/tools/math_test.cpp
+                          src/test.cpp )
 target_link_libraries( test_math libirc )
 add_test( UNITTEST_math bin/test_math )
 
-add_executable( test_periodic_table src/atoms/periodic_table_test.cpp )
+add_executable( test_periodic_table src/atoms/periodic_table_test.cpp
+                                    src/test.cpp)
 target_link_libraries( test_periodic_table libirc )
-add_test( UNITTEST_periodic_table bin/test_periodic_table )
+add_test( UNITTEST_periodic_table bin/test_periodic_table)
 
-add_executable( test_atom src/atoms/atom_test.cpp )
+add_executable( test_atom src/atoms/atom_test.cpp
+                          src/test.cpp)
 target_link_libraries( test_atom libirc )
 add_test( UNITTEST_atom bin/test_atom )
 
-add_executable( test_molecule src/atoms/molecule_test.cpp )
+add_executable( test_molecule src/atoms/molecule_test.cpp
+                              src/test.cpp)
 target_link_libraries( test_molecule libirc )
 add_test( UNITTEST_molecule bin/test_molecule )
 
-add_executable( test_io src/io/io_test.cpp )
+add_executable( test_io src/io/io_test.cpp
+                        src/test.cpp)
 target_link_libraries( test_io libirc )
 add_test( UNITTEST_io bin/test_io )
 
-add_executable( test_connectivity src/connectivity/connectivity_test.cpp )
+add_executable( test_connectivity src/connectivity/connectivity_test.cpp
+                                  src/test.cpp)
 target_link_libraries( test_connectivity libirc )
 add_test( UNITTEST_connectivity bin/test_connectivity )
 
-add_executable( test_wilson src/wilson/wilson_test.cpp)
+add_executable( test_wilson src/wilson/wilson_test.cpp
+                            src/test.cpp)
 target_link_libraries( test_wilson libirc )
 add_test( UNITTEST_wilson bin/test_wilson )
 
-add_executable( test_transformation src/transformation/transformation_test.cpp )
+add_executable( test_transformation src/transformation/transformation_test.cpp
+                                    src/test.cpp)
 target_link_libraries( test_transformation libirc )
 add_test( UNITTEST_transformation bin/test_transformation )
 
-add_executable( test_irc src/irc/irc_test.cpp )
+add_executable( test_irc src/irc/irc_test.cpp
+                         src/test.cpp)
 target_link_libraries( test_irc libirc )
 add_test( UNITTEST_irc bin/test_irc )
