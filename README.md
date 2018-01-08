@@ -10,6 +10,11 @@
 
 Any contribution to this open source project is very welcome. If you are considering contributing you may find beneficial to have a look at the [Open Source Guides](https://opensource.guide/).
 
+List of contributors:
+
+- Rocco Meli (University of Bristol)
+- Peter Bygrave (University of Bristol)
+
 ## Sources
 
 ### Internal Redoundant Coordinates
