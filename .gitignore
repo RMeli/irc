@@ -2,6 +2,8 @@
 build/
 build-debug/
 build-release/
+build_debug/
+build_release/
 
 # Vim
 *~

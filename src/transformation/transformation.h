@@ -231,12 +231,12 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
                                                    dihedrals)
   };
 
-  // Compute G matrices
-  Matrix G, iG;
-  std::tie(G, iG) = wilson::G_matrices(B);
-  
   // Compute the transpose of B
-  Matrix Bt{ linalg::transpose(B) };
+  Matrix iB{ linalg::pseudo_inverse(B) };
+
+  // Compute G matrices
+  //Matrix G, iG;
+  //std::tie(G, iG) = wilson::G_matrices(B);
   
   double RMS{0};
   
@@ -244,7 +244,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   for (size_t i{0}; i < max_iters; i++) {
     
     // Compute displacement in cartesian coordinates
-    dx = Bt * iG * dq;
+    dx = iB * dq;
     
     // Check for convergence
     RMS = rms<Vector>(dx);
@@ -263,16 +263,15 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
                                                      dihedrals);
   
     // Update transpose of the Wilson B matrix
-    Bt = linalg::transpose(B);
+    iB = linalg::pseudo_inverse(B);
 
-    // TODO: Only one matrix needed
+    // TODO: Only one matrix needed (G is useless)
     // Update G matrices
-    std::tie(G, iG) = wilson::G_matrices(B);
+    // std::tie(G, iG) = wilson::G_matrices(B);
     
     // Store old internal coordinates
-    q_old = q_new;
-    
-    // TODO: Check change in angles and dihedrals
+    //q_old = q_new;
+
     // Compute new internal coordinates
     q_new = cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles, dihedrals);
 
@@ -286,7 +285,8 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     // New difference in internal coordinates
     dq = dq - (q_new - q_old);
   }
-  
+
+  // TODO: Store first iteration to avoid computation
   // If iteration does not converge, use first estimate
   if (!converged) {
     // Re-compute original B matrix
@@ -296,10 +296,10 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
                                                      dihedrals);
 
     // Re compute original G matrices
-    std::tie(G, iG) = wilson::G_matrices(B);
+    //std::tie(G, iG) = wilson::G_matrices(B);
 
     // Compute first estimate
-    x_c = x_c_old + linalg::transpose(B) * iG * dq_irc;
+    x_c = x_c_old + linalg::pseudo_inverse(B) * dq_irc;
     
     // TODO: Something better?
     std::cerr << "WARNING: IRC_TO_CARTESIAN not converged." << std::endl;

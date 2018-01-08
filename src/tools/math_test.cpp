@@ -17,7 +17,7 @@ TEST_CASE("Angle in the interval ]-pi,pi]"){
     
     target.margin(1e-6);
     
-    REQUIRE( pirange(angle) == target );
+    REQUIRE( pirange_rad(angle) == target );
   }
   
   SECTION("Angle in ]pi,2*pi]"){
@@ -27,7 +27,7 @@ TEST_CASE("Angle in the interval ]-pi,pi]"){
     
     target.margin(1e-6);
     
-    REQUIRE( pirange(angle) == target );
+    REQUIRE( pirange_rad(angle) == target );
   }
   
   SECTION("Angle in ]-2*pi,-pi]"){
@@ -37,7 +37,7 @@ TEST_CASE("Angle in the interval ]-pi,pi]"){
     
     target.margin(1e-6);
     
-    REQUIRE( pirange(angle) == target );
+    REQUIRE( pirange_rad(angle) == target );
   }
   
   SECTION("Angle"){
@@ -47,7 +47,7 @@ TEST_CASE("Angle in the interval ]-pi,pi]"){
     
     target.margin(1e-6);
     
-    REQUIRE( pirange(angle) == target );
+    REQUIRE( pirange_rad(angle) == target );
   }
   
   SECTION("Angle"){
@@ -57,7 +57,7 @@ TEST_CASE("Angle in the interval ]-pi,pi]"){
     
     target.margin(1e-6);
     
-    REQUIRE( pirange(angle) == target );
+    REQUIRE( pirange_rad(angle) == target );
   }
   
 }

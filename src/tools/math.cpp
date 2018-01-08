@@ -17,13 +17,15 @@ double pirange_rad(double angle) {
 }
 
 double pirange_deg(double angle){
-  if (angle > 180.) {
-    return pirange_deg(angle - 360.);
-  } else if (angle <= -180.) {
-    return pirange_deg(angle + 360);
-  } else {
-    return angle;
-  }
+  return rad_to_deg( pirange_rad( deg_to_rad(angle) ) );
+}
+
+double deg_to_rad(double angle_deg){
+  return angle_deg / 180. * tools::constants::pi;
+}
+
+double rad_to_deg(double angle_rad){
+  return angle_rad * 180 / tools::constants::pi;
 }
 
 } // namespace math

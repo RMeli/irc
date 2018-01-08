@@ -21,6 +21,10 @@ double pirange_rad(double angle);
 /// \return
 double pirange_deg(double angle);
 
+double deg_to_rad(double angle);
+
+double rad_to_deg(double angle);
+
 } // namespace math
 
 } // namespace tools
