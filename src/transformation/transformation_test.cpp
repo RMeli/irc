@@ -7,7 +7,7 @@
 #include "config.h"
 #include "io/io.h"
 #include "tools/conversion.h"
-#include "connectivity/wilson.h"
+#include "wilson/wilson.h"
 
 #include <iostream>
 

@@ -1,7 +1,7 @@
 #ifndef IRC_WILSON_H
 #define IRC_WILSON_H
 
-#include "connectivity.h"
+#include "connectivity/connectivity.h"
 
 #include "atoms/molecule.h"
 #include "connectivity/connectivity.h"

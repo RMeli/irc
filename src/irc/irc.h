@@ -3,7 +3,7 @@
 
 #include "atoms/molecule.h"
 #include "connectivity/connectivity.h"
-#include "connectivity/wilson.h"
+#include "wilson/wilson.h"
 #include "linear_algebra/linalg.h"
 #include "transformation/transformation.h"
 

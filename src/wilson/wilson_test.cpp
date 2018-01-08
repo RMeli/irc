@@ -5,7 +5,7 @@
 
 #include "atoms/atom.h"
 #include "atoms/molecule.h"
-#include "connectivity.h"
+#include "connectivity/connectivity.h"
 #include "tools/conversion.h"
 
 #include <cmath>

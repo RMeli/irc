@@ -104,7 +104,7 @@ add_executable( test_connectivity src/connectivity/connectivity_test.cpp )
 target_link_libraries( test_connectivity libirc )
 add_test( UNITTEST_connectivity bin/test_connectivity )
 
-add_executable( test_wilson src/connectivity/wilson_test.cpp )
+add_executable( test_wilson src/wilson/wilson_test.cpp)
 target_link_libraries( test_wilson libirc )
 add_test( UNITTEST_wilson bin/test_wilson )
 
