@@ -13,7 +13,13 @@ namespace math {
 ///
 /// \param angle
 /// \return
-double pirange(double angle);
+double pirange_rad(double angle);
+
+/// Returns \param angle in the range \f$(-180,180]\f$
+///
+/// \param angle
+/// \return
+double pirange_deg(double angle);
 
 } // namespace math
 

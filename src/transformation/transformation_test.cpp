@@ -231,10 +231,11 @@ TEST_CASE("Transformation"){
            << connectivity::angle(a, molecule) << endl;
     }
     
-    // Wilson B matrix
+    // Compute Wilson B matrix
     mat W = wilson_matrix<vec3,vec,mat>(
         molecule::to_cartesian<vec3,vec>(molecule), B, A);
-    
+
+    // Compute G matrices
     mat G, iG;
     std::tie(G, iG) = G_matrices(W);
     
@@ -247,21 +248,18 @@ TEST_CASE("Transformation"){
     
     // Displacement in internal coordinates
     vec dq_irc{ 0.0, 0.0, 0.1 };
-    
+
+    // Compute new internal coordinates
     vec q_irc_new{ q_irc_old + dq_irc };
-    
+
+    // Print new internal coordinates
+    cout << "\nNew internal coordinates:\n " << q_irc_new << endl;
+
     // Compute number of cartesian coordinates
     size_t n_c{ 3 * molecule.size() };
     
     // Allocate vector for cartesian positions
-    vec x_c_old{ linalg::zeros<vec>(n_c) };
-    
-    // Fill vector with cartesian positions
-    for(size_t i{0}; i < molecule.size(); i++){
-      for(size_t j{0}; j < 3; j++){
-        x_c_old(3 * i + j) = molecule[i].position(j);
-      }
-    }
+    vec x_c_old{ to_cartesian<vec3,vec>(molecule) };
     
     // Compute new cartesian coordinates
     vec x_c{
@@ -270,7 +268,8 @@ TEST_CASE("Transformation"){
     
     // Print cartesian coordinates
     cout << "\nNew cartesian coordinates (a.u.):\n " << x_c << endl;
-    
+
+    // Reconstruct atomic positions (points in 3D space)
     vec3 p1{x_c(0), x_c(1), x_c(2)};
     vec3 p2{x_c(3), x_c(4), x_c(5)};
     vec3 p3{x_c(6), x_c(7), x_c(8)};

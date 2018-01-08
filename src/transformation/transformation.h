@@ -4,6 +4,7 @@
 #include "../connectivity/connectivity.h"
 #include "../linear_algebra/linalg.h"
 #include "../connectivity/wilson.h"
+#include "../tools/math.h"
 
 #include<iostream>
 
@@ -213,7 +214,10 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
 
   // Compute Wilson's B matrix
   Matrix B{
-      wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c, bonds, angles, dihedrals)
+      wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c,
+                                                   bonds,
+                                                   angles,
+                                                   dihedrals)
   };
 
   // Compute G matrices
@@ -242,7 +246,10 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     x_c += dx;
 
     // Update Wilson B matrix
-    B = wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c, bonds, angles, dihedrals);
+    B = wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c,
+                                                     bonds,
+                                                     angles,
+                                                     dihedrals);
   
     // Update transpose of the Wilson B matrix
     Bt = linalg::transpose(B);
@@ -257,6 +264,13 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     // TODO: Check change in angles and dihedrals
     // Compute new internal coordinates
     q_new = cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles, dihedrals);
+
+    // Check change in dihedral angles
+    size_t offset{ bonds.size() + angles.size() };
+    for(size_t i{offset}; i < n_irc; i++){
+      // Restrain dihedral angle on the interval [-180,180]
+      q_new(i) = tools::math::pirange_deg(q_new(i));
+    }
     
     // New difference in internal coordinates
     dq = dq - (q_new - q_old);
@@ -264,6 +278,16 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   
   // If iteration does not converge, use first estimate
   if (!converged) {
+    // Re-compute original B matrix
+    B = wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c,
+                                                     bonds,
+                                                     angles,
+                                                     dihedrals);
+
+    // Re compute original G matrices
+    std::tie(G, iG) = wilson::G_matrices(B);
+
+    // Compute first estimate
     x_c = x_c_old + linalg::transpose(B) * iG * dq_irc;
     
     // TODO: Something better?
