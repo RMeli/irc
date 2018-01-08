@@ -26,7 +26,7 @@ using namespace irc;
 
 TEST_CASE("Transformation"){
 
-  bool verbose{false};
+  bool verbose{true};
 
   SECTION("Cartesian to internal for ethanol"){
     using namespace molecule;
