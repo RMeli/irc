@@ -8,7 +8,7 @@ namespace atom {
 
 AtomicNumber::AtomicNumber(size_t an) {
   if (!periodic_table::valid_atomic_number(an)) {
-    throw std::logic_error("");
+    throw std::logic_error("Invalid atomic number.");
   }
   
   atomic_number = an;
