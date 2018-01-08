@@ -25,6 +25,9 @@ using Mat = arma::Mat<T>;
 using namespace irc;
 
 TEST_CASE("Transformation"){
+
+  bool verbose{false};
+
   SECTION("Cartesian to internal for ethanol"){
     using namespace molecule;
     using namespace connectivity;
@@ -51,33 +54,39 @@ TEST_CASE("Transformation"){
     
     // Compute bonds
     std::vector<Bond> B{ bonds(dist, molecule) };
-    
+
     // Print bonds
-    cout << '\n' << B.size() << " bonds (a.u.):" << endl;
-    for(const auto& b : B){
-      cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-           << connectivity::bond(b, molecule) << endl;
+    if(verbose){
+      cout << '\n' << B.size() << " bonds (a.u.):" << endl;
+      for(const auto& b : B){
+        cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
+             << connectivity::bond(b, molecule) << endl;
+      }
     }
-    
+
     // Compute angles
     std::vector<Angle> A{angles(dist, predecessors, molecule)};
-    
+
     // Print angles
-    cout << '\n' << A.size() << " angles (deg):" << endl;
-    for(const auto& a : A){
-      cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-           << connectivity::angle(a, molecule) << endl;
+    if(verbose){
+      cout << '\n' << A.size() << " angles (deg):" << endl;
+      for(const auto& a : A){
+        cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
+             << connectivity::angle(a, molecule) << endl;
+      }
     }
     
     // Compute dihedral angles
     std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
     
     // Print dihedral angles
-    cout << '\n' << D.size() << " dihedrals (deg):" << endl;
-    for(const auto& d : D){
-      cout << '(' << d.i + 1 << ',' << d.j + 1 << ','
-           << d.k + 1 << ',' << d.l + 1 << ") "
-           << connectivity::dihedral(d, molecule) << endl;
+    if(verbose){
+      cout << '\n' << D.size() << " dihedrals (deg):" << endl;
+      for(const auto& d : D){
+        cout << '(' << d.i + 1 << ',' << d.j + 1 << ','
+             << d.k + 1 << ',' << d.l + 1 << ") "
+             << connectivity::dihedral(d, molecule) << endl;
+      }
     }
     
     // Compute number of cartesian coordinates
@@ -92,13 +101,17 @@ TEST_CASE("Transformation"){
       x_c(3 * i + 1) = molecule[i].position(1) ;
       x_c(3 * i + 2) = molecule[i].position(2) ;
     }
-    
-    // Print cartesian coordinates
-    cout << "\nCartesian coordinates (a.u.):\n " << x_c << endl;
-    
-    // Compute and print internal redundant coordinates
-    cout << "Internal redundant coordinates (a.u.):\n"
-         << cartesian_to_irc<vec3,vec>(x_c, B, A, D) << endl;
+
+    if(verbose){
+      // Print cartesian coordinates
+      cout << "\nCartesian coordinates (a.u.):\n " << x_c << endl;
+    }
+
+    if(verbose){
+      // Compute and print internal redundant coordinates
+      cout << "Internal redundant coordinates (a.u.):\n"
+           << cartesian_to_irc<vec3,vec>(x_c, B, A, D) << endl;
+    }
   }
   
   SECTION("Internal to cartesian for H2"){
@@ -127,10 +140,12 @@ TEST_CASE("Transformation"){
     std::vector<Bond> B{ bonds(dist, molecule) };
   
     // Print bonds
-    cout << '\n' << B.size() << " bonds (a.u.):" << endl;
-    for(const auto& b : B){
-      cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-           << connectivity::bond(b, molecule) << endl;
+    if(verbose){
+      cout << '\n' << B.size() << " bonds (a.u.):" << endl;
+      for(const auto& b : B){
+        cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
+             << connectivity::bond(b, molecule) << endl;
+      }
     }
   
     // Check number of bonds
@@ -153,8 +168,11 @@ TEST_CASE("Transformation"){
     vec dq_irc{ 0.1 };
   
     // Print displacement in internal coordinates
-    cout << "\nDisplacement in internal coordinates (a.u.):\n "
-         << dq_irc << endl;
+    if(verbose){
+      cout << "\nDisplacement in internal coordinates (a.u.):\n "
+           << dq_irc << endl;
+    }
+
   
     // Compute number of cartesian coordinates
     size_t n_c{ 3 * molecule.size() };
@@ -173,7 +191,9 @@ TEST_CASE("Transformation"){
     vec x_c{irc_to_cartesian<vec3,vec,mat>(q_irc, dq_irc, x_c_old, B, {}, {})};
     
     // Print cartesian coordinates
-    cout << "\nNew cartesian coordinates (a.u.):\n " << x_c << endl;
+    if(verbose){
+      cout << "\nNew cartesian coordinates (a.u.):\n " << x_c << endl;
+    }
     
     vec3 p1{x_c(0), x_c(1), x_c(2)};
     vec3 p2{x_c(3), x_c(4), x_c(5)};
@@ -213,22 +233,27 @@ TEST_CASE("Transformation"){
     std::vector<Bond> B{ bonds(dist, molecule) };
     
     // Print bonds
-    cout << '\n' << B.size() << " bonds (a.u.):" << endl;
-    for(const auto& b : B){
-      cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-           << connectivity::bond(b, molecule) << endl;
+    if(verbose){
+      cout << '\n' << B.size() << " bonds (a.u.):" << endl;
+      for(const auto& b : B){
+        cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
+             << connectivity::bond(b, molecule) << endl;
+      }
     }
-    
+
     // Check number of bonds
     REQUIRE( B.size() == 2);
   
     // Compute angle
     std::vector<Angle> A{ angles(dist, predecessors, molecule) };
-  
-    cout << '\n' << A.size() << " angles (deg):" << endl;
-    for(const auto& a : A){
-      cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-           << connectivity::angle(a, molecule) << endl;
+
+    // Print angles
+    if(verbose){
+      cout << '\n' << A.size() << " angles (deg):" << endl;
+      for(const auto& a : A){
+        cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
+             << connectivity::angle(a, molecule) << endl;
+      }
     }
     
     // Compute Wilson B matrix
@@ -253,7 +278,9 @@ TEST_CASE("Transformation"){
     vec q_irc_new{ q_irc_old + dq_irc };
 
     // Print new internal coordinates
-    cout << "\nNew internal coordinates:\n " << q_irc_new << endl;
+    if(verbose){
+      cout << "\nNew internal coordinates:\n " << q_irc_new << endl;
+    }
 
     // Compute number of cartesian coordinates
     size_t n_c{ 3 * molecule.size() };
@@ -267,7 +294,9 @@ TEST_CASE("Transformation"){
     };
     
     // Print cartesian coordinates
-    cout << "\nNew cartesian coordinates (a.u.):\n " << x_c << endl;
+    if(verbose){
+      cout << "\nNew cartesian coordinates (a.u.):\n " << x_c << endl;
+    }
 
     // Reconstruct atomic positions (points in 3D space)
     vec3 p1{x_c(0), x_c(1), x_c(2)};
