@@ -1,12 +1,13 @@
 #define CATCH_CONFIG_MAIN
-#include "../catch/catch.hpp"
+#include "catch/catch.hpp"
 
 #include "transformation.h"
 
-#include "../atoms/molecule.h"
-#include "../io/io.h"
-#include "../tools/conversion.h"
-#include "../connectivity/wilson.h"
+#include "atoms/molecule.h"
+#include "config.h"
+#include "io/io.h"
+#include "tools/conversion.h"
+#include "connectivity/wilson.h"
 
 #include <iostream>
 
@@ -37,7 +38,7 @@ TEST_CASE("Transformation"){
     using namespace std;
     
     // Load molecule from file
-    Molecule<vec3> molecule{ load_xyz<vec3>("../../test/ethanol.xyz") };
+    Molecule<vec3> molecule{ load_xyz<vec3>(config::molecules_dir + "ethanol.xyz") };
     
     // Transform molecular coordinates from angstrom to bohr
     multiply_positions(molecule, angstrom_to_bohr);
@@ -214,7 +215,7 @@ TEST_CASE("Transformation"){
     using namespace wilson;
     
     // Load molecule from file
-    Molecule<vec3> molecule{ load_xyz<vec3>("../../test/water.xyz") };
+    Molecule<vec3> molecule{ load_xyz<vec3>(config::molecules_dir + "water.xyz") };
   
     // Transform molecular coordinates from angstrom to bohr
     multiply_positions(molecule, angstrom_to_bohr);
@@ -332,7 +333,7 @@ TEST_CASE("Transformation"){
     using namespace wilson;
 
     // Load molecule from file
-    Molecule<vec3> molecule{load_xyz<vec3>("../../test/hydrogen_peroxide.xyz")};
+    Molecule<vec3> molecule{load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz")};
 
     // Transform molecular coordinates from angstrom to bohr
     multiply_positions(molecule, angstrom_to_bohr);

@@ -1,0 +1,16 @@
+#ifndef IRC_CONFIG_H
+#define IRC_CONFIG_H
+
+#include <string>
+
+namespace irc{
+
+namespace config{
+
+const std::string molecules_dir{"@IRC_MOLECULES_DIR@"};
+
+} // namespace config
+
+} // namespace irc
+
+#endif //IRC_CONFIG_H

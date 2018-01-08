@@ -3,10 +3,10 @@
 
 #include "connectivity.h"
 
-#include "../atoms/molecule.h"
-#include "../connectivity/connectivity.h"
-#include "../tools/constants.h"
-#include "../tools/math.h"
+#include "atoms/molecule.h"
+#include "connectivity/connectivity.h"
+#include "tools/constants.h"
+#include "tools/math.h"
 
 #include <cmath>
 #include <iostream>

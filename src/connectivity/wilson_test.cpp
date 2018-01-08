@@ -1,12 +1,12 @@
 #define CATCH_CONFIG_MAIN
-#include "../catch/catch.hpp"
+#include "catch/catch.hpp"
 
 #include "wilson.h"
 
-#include "../atoms/atom.h"
-#include "../atoms/molecule.h"
+#include "atoms/atom.h"
+#include "atoms/molecule.h"
 #include "connectivity.h"
-#include "../tools/conversion.h"
+#include "tools/conversion.h"
 
 #include <cmath>
 #include <iostream>

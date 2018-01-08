@@ -1,9 +1,29 @@
 cmake_minimum_required(VERSION 3.8)
 project(irc)
 
+# + ----------------- +
+# | LANGUAGE SETTINGS |
+# + ----------------- +
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# + ----------- +
+# | DIRECTORIES |
+# + ----------- +
+
+set(IRC_MOLECULES_DIR ${CMAKE_SOURCE_DIR}/test/)
+
+configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
+                ${CMAKE_BINARY_DIR}/src/config.h)
+
+include_directories( src )
+include_directories( ${CMAKE_BINARY_DIR}/src)
+
+# + ----------- +
+# | IRC LIBRARY |
+# + ----------- +
 
 add_library( libirc SHARED
                     src/atoms/atom.cpp
@@ -11,12 +31,16 @@ add_library( libirc SHARED
                     src/atoms/periodic_table.cpp
                     src/tools/math.cpp
         )
+
 set_target_properties(libirc PROPERTIES OUTPUT_NAME "irc")
 set_target_properties(libirc PROPERTIES LINKER_LANGUAGE CXX)
 
-
 add_executable(irc src/main.cpp)
 target_link_libraries( irc libirc )
+
+# + ----------------------- +
+# | FIND EXTERNAL LIBRARIES |
+# + ----------------------- +
 
 find_package(
         Boost
@@ -51,9 +75,13 @@ endif()
 #        message("-- Eigen3 version: " ${EIGEN3_VERSION})
 #endif()
 
-enable_testing()
+# + ------- +
+# | TESTING |
+# + ------- +
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+enable_testing()
 
 add_executable( test_math src/tools/math_test.cpp )
 target_link_libraries( test_math libirc )

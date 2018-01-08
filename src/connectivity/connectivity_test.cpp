@@ -1,12 +1,13 @@
 #define CATCH_CONFIG_MAIN
-#include "../catch/catch.hpp"
+#include "catch/catch.hpp"
 
 #include "connectivity.h"
 
-#include "../atoms/atom.h"
-#include "../atoms/molecule.h"
-#include "../io/io.h"
-#include "../tools/conversion.h"
+#include "atoms/atom.h"
+#include "atoms/molecule.h"
+#include "config.h"
+#include "io/io.h"
+#include "tools/conversion.h"
 
 
 #include <iostream>
@@ -136,7 +137,7 @@ TEST_CASE("Connectivity test with molecule from input"){
   using namespace connectivity;
   
   // Load molecule from file
-  Molecule<vec3> molecule{ load_xyz<vec3>("../test/caffeine.xyz") };
+  Molecule<vec3> molecule{ load_xyz<vec3>(config::molecules_dir + "caffeine.xyz") };
   
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);

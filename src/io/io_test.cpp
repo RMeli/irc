@@ -1,9 +1,10 @@
 #define CATCH_CONFIG_MAIN
-#include "../catch/catch.hpp"
+#include "catch/catch.hpp"
 
 #include "io.h"
 
-#include "../atoms/molecule.h"
+#include "atoms/molecule.h"
+#include "config.h"
 
 #include <iostream>
 
@@ -22,7 +23,7 @@ TEST_CASE("Loading XYZ file"){
   using namespace molecule;
   
   // TODO: Filename independent of building directory
-  Molecule<vec3> mol{ load_xyz<vec3>("../test/caffeine.xyz") };
+  Molecule<vec3> mol{ load_xyz<vec3>(config::molecules_dir + "caffeine.xyz") };
   
   std::cout << mol << std::endl;
 }

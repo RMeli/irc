@@ -1,9 +1,9 @@
 #define CATCH_CONFIG_MAIN
-#include "../catch/catch.hpp"
+#include "catch/catch.hpp"
 
 #include "molecule.h"
 
-#include "../atoms/periodic_table.h"
+#include "atoms/periodic_table.h"
 
 #include <cassert>
 #include <iostream>

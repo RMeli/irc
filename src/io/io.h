@@ -1,7 +1,7 @@
 #ifndef IRC_IO_H
 #define IRC_IO_H
 
-#include "../atoms/molecule.h"
+#include "atoms/molecule.h"
 
 #include <istream>
 #include <stdexcept>

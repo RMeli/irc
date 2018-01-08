@@ -1,10 +1,10 @@
 #define CATCH_CONFIG_MAIN
-#include "../catch/catch.hpp"
+#include "catch/catch.hpp"
 
 #include "irc.h"
 
-#include "../atoms/molecule.h"
-#include "../tools/conversion.h"
+#include "atoms/molecule.h"
+#include "tools/conversion.h"
 
 #include <iostream>
 
