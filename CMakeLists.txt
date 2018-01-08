@@ -2,9 +2,18 @@ cmake_minimum_required(VERSION 3.8)
 project(irc)
 
 # + ----------------- +
+# | BUILDING SETTINGS |
+# + ----------------- +
+
+if(NOT CMAKE_BUILD_TYPE)
+        set(CMAKE_BUILD_TYPE Release)
+endif(NOT CMAKE_BUILD_TYPE)
+
+# + ----------------- +
 # | LANGUAGE SETTINGS |
 # + ----------------- +
 
+# C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -80,46 +89,55 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 enable_testing()
 
+# math
 add_executable( test_math src/tools/math_test.cpp
                           src/test.cpp )
 target_link_libraries( test_math libirc )
 add_test( UNITTEST_math bin/test_math )
 
+# periodic_table
 add_executable( test_periodic_table src/atoms/periodic_table_test.cpp
                                     src/test.cpp)
 target_link_libraries( test_periodic_table libirc )
 add_test( UNITTEST_periodic_table bin/test_periodic_table)
 
+# atom
 add_executable( test_atom src/atoms/atom_test.cpp
                           src/test.cpp)
 target_link_libraries( test_atom libirc )
 add_test( UNITTEST_atom bin/test_atom )
 
+# molecule
 add_executable( test_molecule src/atoms/molecule_test.cpp
                               src/test.cpp)
 target_link_libraries( test_molecule libirc )
 add_test( UNITTEST_molecule bin/test_molecule )
 
+# io
 add_executable( test_io src/io/io_test.cpp
                         src/test.cpp)
 target_link_libraries( test_io libirc )
 add_test( UNITTEST_io bin/test_io )
 
+# connectivity
 add_executable( test_connectivity src/connectivity/connectivity_test.cpp
                                   src/test.cpp)
 target_link_libraries( test_connectivity libirc )
 add_test( UNITTEST_connectivity bin/test_connectivity )
 
+# wilson
 add_executable( test_wilson src/wilson/wilson_test.cpp
                             src/test.cpp)
 target_link_libraries( test_wilson libirc )
 add_test( UNITTEST_wilson bin/test_wilson )
 
+# transformation
 add_executable( test_transformation src/transformation/transformation_test.cpp
                                     src/test.cpp)
 target_link_libraries( test_transformation libirc )
 add_test( UNITTEST_transformation bin/test_transformation )
 
+# irc
 add_executable( test_irc src/irc/irc_test.cpp
                          src/test.cpp)
 target_link_libraries( test_irc libirc )
