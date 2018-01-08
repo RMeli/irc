@@ -52,6 +52,11 @@ Matrix zeros(size_t nrows, size_t ncols) {
 }
 
 template<typename Matrix>
+Matrix ones(size_t nrows, size_t ncols){
+  return arma::ones<Matrix>(nrows, ncols);
+}
+
+template<typename Matrix>
 Matrix identity(size_t n) {
   return arma::eye(n, n);
 }

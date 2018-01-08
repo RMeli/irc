@@ -316,7 +316,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
   size_t num_fragments{ boost::connected_components (ug, &fragments[0])};
   
   if(num_fragments > 1){
-    for(size_t idx : fragments){
+    for(size_t idx : fragments) {
       std::cout << idx << ' ';
     }
     std::cout << std::endl;
