@@ -13,8 +13,8 @@
 #include <utility>
 #include <vector>
 
-#include <boost/array.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/connected_components.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/exterior_property.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -308,7 +308,21 @@ UGraph adjacency_matrix(const Matrix &distance_m,
   }
   
   // TODO: Look for disconnected fragments
-  // Look at boost::connected_components
+  // Allocate storage for fragment indices
+  std::vector<size_t> fragments( boost::num_vertices(ug));
+  
+  // Fill component std::vector and return number of different fragments
+  // If num_fragments > 1 there are at least two fragments
+  size_t num_fragments{ boost::connected_components (ug, &fragments[0])};
+  
+  if(num_fragments > 1){
+    for(size_t idx : fragments){
+      std::cout << idx << ' ';
+    }
+    std::cout << std::endl;
+    
+    throw std::logic_error("Fragment recognition not implemented.");
+  }
   
   return ug;
 }

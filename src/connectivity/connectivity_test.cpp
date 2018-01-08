@@ -130,6 +130,7 @@ TEST_CASE("Connectivity test for CH2O"){
 
 TEST_CASE("Connectivity test with molecule from input"){
   using namespace std;
+  
   using namespace io;
   using namespace tools::conversion;
   using namespace molecule;
@@ -173,4 +174,30 @@ TEST_CASE("Connectivity test with molecule from input"){
          << d.k + 1 << ',' << d.l + 1 << ") "
          << dihedral(d, molecule) << endl;
   }
+}
+
+TEST_CASE("Fragment recognition"){
+  using namespace std;
+  
+  using namespace io;
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  // Load molecule from file
+  Molecule<vec3> molecule{ load_xyz<vec3>(config::molecules_dir + "benzene_dimer.xyz") };
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Compute interatomic distance for formaldehyde molecule
+  mat dd{ distances<vec3, mat>(molecule) };
+  
+  try{
+    UGraph adj{ adjacency_matrix(dd, molecule) };
+  }
+  catch(const std::logic_error& le){
+    cerr << le.what() << endl;
+  }
+  
 }
