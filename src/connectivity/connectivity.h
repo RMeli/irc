@@ -175,14 +175,14 @@ inline double dihedral(const Dihedral& d,
   return dihedral(d1, d2, d3, d4);
 }
 
-/// Compute the distance matrix for \param molecule
+/// Compute all distances between atoms in \param molecule
 ///
 /// \tparam Vector3 3D vector
 /// \tparam Matrix Matrix
 /// \param molecule Molecule (collection of atoms)
-/// \return Distance matrix
+/// \return Distances
 ///
-/// The distance matrix \f$\mathbf{D}\f$ for \param molecule is given by
+/// The distances \f$\mathbf{D}\f$ for atoms in \param molecule is given by
 /// \f[
 ///   D_{ij} = |\mathbf{r}_i - \mathbf{r}_j|,
 /// \f]
@@ -219,7 +219,7 @@ Matrix distances(const molecule::Molecule<Vector3> &molecule) {
 /// The adjacency matrix is represented here by a boost::adjacency_list object
 /// as implemented in the Boost Graph Library (BGL).
 /// The number of vertices corresponds to the number of atoms, while the
-/// number of edges is determined by covalent bonding.
+/// number of edges is determined by bonding.
 template<typename Vector3, typename Matrix>
 UGraph adjacency_matrix(const Matrix &distance_m,
                         const molecule::Molecule<Vector3> &molecule) {
@@ -307,20 +307,21 @@ UGraph adjacency_matrix(const Matrix &distance_m,
     }
   }
   
-  // TODO: Look for disconnected fragments
   // Allocate storage for fragment indices
-  std::vector<size_t> fragments( boost::num_vertices(ug));
+  std::vector<size_t> fragments( boost::num_vertices(ug) );
   
   // Fill component std::vector and return number of different fragments
-  // If num_fragments > 1 there are at least two fragments
+  // If num_fragments == 1 the graph is connected
   size_t num_fragments{ boost::connected_components (ug, &fragments[0])};
   
   if(num_fragments > 1){
+    // Print fragments
     for(size_t idx : fragments) {
       std::cout << idx << ' ';
     }
     std::cout << std::endl;
     
+    // TODO: Support fragments
     throw std::logic_error("Fragment recognition not implemented.");
   }
   
@@ -333,13 +334,13 @@ UGraph adjacency_matrix(const Matrix &distance_m,
 /// \return Distance and predecessors matrices
 ///
 /// The element \f$(i,j)\f$ of the distance matrix is an integer indicating
-/// how many bonds are between atom \f$i\f$ and atom \f$j\f$, since the
-/// weight of each edge is set to 1 in \function adjacency_matrix. This allow
-/// to easily determine if two atoms are connected via one bond, two bonds
-/// (they form an angle) or three bonds (they form a dihedral).
-/// The element \f$(i,j)\f% of the predecessors matrix is an integer indicating
-/// the index of the second to last vertex in the shortest path from i to j.
-/// This information allow to reconstruct the shortest path from i to j.
+/// how many bonds (along the shortest path) are between atom \f$i\f$ and atom
+/// \f$j\f$, since the weight of each edge is set to 1 in \function
+/// adjacency_matrix. This allow to easily determine if two atoms are connected
+/// via one bond, two bonds (they form an angle) or three bonds (they form a
+/// dihedral). The element \f$(i,j)\f% of the predecessors matrix is an integer
+/// indicating the index of the second to last vertex in the shortest path from
+/// i to j. This information allow to reconstruct the shortest path from i to j.
 template<typename Matrix>
 std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
   
@@ -386,11 +387,11 @@ std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
 
 /// Returns the bonds in \param molecule
 ///
-/// \tparam Vector3 3D vevtor
-/// \tparam Matrix Matrix
+/// \tparam Vector3
+/// \tparam Matrix
 /// \param distance_m Distance matrix
 /// \param molecule Molecule
-/// \return List of covalent bonds
+/// \return List of bonds
 ///
 /// The bonds can be covalent bonds, hydrogen bonds or inter-fragment bonds.
 template<typename Vector3, typename Matrix>
@@ -418,11 +419,10 @@ std::vector<Bond> bonds(const Matrix &distance_m,
   return b;
 }
 
-/// Returns the angles between atoms bonded via a covalent bond in \param
-/// molecule
+/// Returns the angles between bonded atoms in \param molecule
 ///
-/// \tparam Vector3 3D vector
-/// \tparam Matrix Matrix
+/// \tparam Vector3
+/// \tparam Matrix
 /// \param distance_m Distance matrix
 /// \param predecessors_m Matrix of predecessors
 /// \param molecule Molecule
@@ -456,6 +456,14 @@ std::vector<Angle> angles(const Matrix &distance_m,
   return ang;
 }
 
+/// Returns the dihedral angles between bonded atoms in \param molecule
+///
+/// \tparam Vector3
+/// \tparam Matrix
+/// \param distance_m Distance matrix
+/// \param predecessors_m Matrix of predecessors
+/// \param molecule Molecule
+/// \return List of dihedral angles
 template<typename Vector3, typename Matrix>
 std::vector<Dihedral> dihedrals(const Matrix &distance_m,
                                 const Matrix &predecessors_m,
