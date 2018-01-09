@@ -43,9 +43,15 @@ TEST_CASE("Internal Redundant Coordinates"){
     IRC<vec3, vec, mat> irc(molecule);
     
     // Compute initial hessian
-    mat H0{ irc.projected_initial_hessian_inv() };
+    mat iH0{ irc.projected_initial_hessian_inv() };
     
     // Print initial hessian
-    cout << "H0 =\n" << H0 << endl;
+    cout << "iH0 =\n" << iH0 << endl;
+
+    // Project Hessian again (should not change)
+    mat iH{ irc.projected_hessian_inv(iH0) };
+
+    // Print initial hessian
+    cout << "iH0 =\n" << iH0 << endl;
   }
 }

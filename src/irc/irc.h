@@ -18,7 +18,7 @@ class IRC {
   
   Matrix projected_initial_hessian_inv(double alpha = 1000) const;
 
-  Matrix projected_hessian(const Matrix& H) const;
+  Matrix projected_hessian_inv(const Matrix& H) const;
   
   Vector grad_cartesian_to_projected_irc(const Vector& grad_c) const;
   
@@ -103,24 +103,24 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
   size_t offset{0};
   
   for(size_t i{0}; i < bonds.size(); i++){
-    H0(i,i) = 0.5;
+    H0(i,i) = 1 / 0.5;
   }
   
   offset = bonds.size();
   for(size_t i{0}; i < angles.size(); i++){
-    H0(i + offset, i + offset) = 0.2;
+    H0(i + offset, i + offset) = 1 / 0.2;
   }
   
   offset = bonds.size() + angles.size();
   for(size_t i{0}; i < dihedrals.size(); i++){
-    H0(i + offset, i + offset) = 0.1;
+    H0(i + offset, i + offset) = 1 / 0.1;
   }
   
   return linalg::inv<Matrix>( P * H0 * P );
 }
 
 template <typename Vector3, typename Vector, typename Matrix>
-Matrix IRC<Vector3, Vector, Matrix>::projected_hessian(const Matrix& H) const{
+Matrix IRC<Vector3, Vector, Matrix>::projected_hessian_inv(const Matrix& H) const{
   return P * H * P;
 }
 
