@@ -20,22 +20,13 @@ class IRC {
   
   Vector grad_cartesian_to_projected_irc(const Vector& grad_c) const;
   
-  Vector irc_to_cartesian(const Vector& dq_irc,
-                          const Vector& x_c_old,
-                          size_t max_iters = 25);
+  Vector projected_irc_to_cartesian(const Vector& q_irc_old,
+                                    const Vector& dq_irc,
+                                    const Vector& x_c_old,
+                                    size_t max_iters = 25,
+                                    double tolerance = 1e-6);
   
  private:
-  /// Distance matrix
-  ///
-  /// Contains information about connectivity and shortest paths within
-  /// the initial molecule
-  Matrix distance_m;
-  
-  /// Predecessor matrix
-  ///
-  /// Contains information to build the shortest path between atoms
-  Matrix predecessors_m;
-  
   /// List of bonds
   std::vector<connectivity::Bond> bonds;
   
@@ -76,6 +67,7 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3>& molecule){
   connectivity::UGraph adj{ connectivity::adjacency_matrix(dd, molecule) };
   
   // Compute distance matrix and predecessor matrix
+  Matrix distance_m, predecessors_m;
   std::tie(distance_m, predecessors_m) =
       connectivity::distance_matrix<Matrix>(adj) ;
   
@@ -158,11 +150,38 @@ Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
 }
 
 template <typename Vector3, typename Vector, typename Matrix>
-Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(
+Vector IRC<Vector3, Vector, Matrix>::projected_irc_to_cartesian(
+    const Vector& q_irc_old,
     const Vector& dq_irc,
     const Vector& x_c_old,
-    size_t max_iters){
-  
+    size_t max_iters,
+    double tolerance){
+
+  Vector x_c_new{
+      transformation::irc_to_cartesian<Vector3,Vector,Matrix>(q_irc_old,
+                                                              dq_irc,
+                                                              x_c_old,
+                                                              bonds,
+                                                              angles,
+                                                              dihedrals,
+                                                              max_iters,
+                                                              tolerance)
+  };
+
+  // TODO: This computation can be avoided since B is computed in irc_to_cartesian
+  // Update Wilson's B matrix
+  B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
+      x_c_new,  bonds, angles, dihedrals
+  );
+
+  // Update G and iG
+  std::tie(G, iG) = wilson::G_matrices(B);
+
+  // Update projector P
+  P = wilson::projector(G, iG);
+
+  // Return new cartesian coordinates
+  return x_c_new;
 }
 
 } // namespace irc

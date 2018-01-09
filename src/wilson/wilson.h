@@ -234,7 +234,7 @@ Matrix wilson_matrix(
   return B;
 }
 
-
+// TODO: Remove this function
 template<typename Vector3, typename Vector, typename Matrix>
 Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
   // Compute interatomic distances
@@ -268,22 +268,10 @@ Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
       bonds, angles, dihedrals);
 }
 
-/*
-template <typename Vector3, typename Matrix>
-Matrix wilson_matrix(
-    const std::vector<std::tuple<size_t, double, double, double>>& atoms) {
-  molecule::Molecule<Vector3> molecule{
-      molecule::make_molecule<Vector3>(atoms)
-  };
-  
-  return wilson_matrix<Vector3, Matrix>(molecule);
-}
-*/
-
 template<typename Matrix>
 std::pair<Matrix, Matrix> G_matrices(const Matrix &B) {
   Matrix G{B * linalg::transpose(B)};
-  
+
   return std::make_pair(G, linalg::pseudo_inverse(G));
 }
 
