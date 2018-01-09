@@ -155,9 +155,6 @@ TEST_CASE("Transformation"){
     mat W = wilson_matrix<vec3,vec,mat>(
         molecule::to_cartesian<vec3,vec>(molecule), B
     );
-    
-    mat G, iG;
-    std::tie(G, iG) = G_matrices(W);
   
     // Allocate vector for internal reaction coordinates
     vec q_irc{ irc_from_bad<vec>(
@@ -260,10 +257,6 @@ TEST_CASE("Transformation"){
     mat W = wilson_matrix<vec3,vec,mat>(
         molecule::to_cartesian<vec3,vec>(molecule), B, A);
 
-    // Compute G matrices
-    mat G, iG;
-    std::tie(G, iG) = G_matrices(W);
-    
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{
         irc_from_bad<vec>(
@@ -396,10 +389,6 @@ TEST_CASE("Transformation"){
     // Compute Wilson B matrix
     mat W = wilson_matrix<vec3,vec,mat>(
         molecule::to_cartesian<vec3,vec>(molecule), B, A, D);
-
-    // Compute G matrices
-    mat G, iG;
-    std::tie(G, iG) = G_matrices(W);
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{

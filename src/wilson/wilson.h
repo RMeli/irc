@@ -269,15 +269,9 @@ Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
 }
 
 template<typename Matrix>
-std::pair<Matrix, Matrix> G_matrices(const Matrix &B) {
-  Matrix G{B * linalg::transpose(B)};
-
-  return std::make_pair(G, linalg::pseudo_inverse(G));
-}
-
-template<typename Matrix>
-Matrix projector(const Matrix &G, const Matrix &iG) {
-  return G * iG;
+Matrix projector(const Matrix &B) {
+  // TODO: Pass iB instead of computing it
+  return B * linalg::pseudo_inverse(B);
 }
 
 } // namespace wilson

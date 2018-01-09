@@ -17,6 +17,8 @@ class IRC {
   IRC(const molecule::Molecule<Vector3>& molecule);
   
   Matrix projected_initial_hessian_inv(double alpha = 1000) const;
+
+  Matrix projected_hessian(const Matrix& H) const;
   
   Vector grad_cartesian_to_projected_irc(const Vector& grad_c) const;
   
@@ -44,12 +46,6 @@ class IRC {
   
   /// Wilson B matrix
   Matrix B;
-  
-  /// G matrix
-  Matrix G;
-  
-  /// Generalized inverse of the G matrix
-  Matrix iG;
   
   /// Projector
   Matrix P;
@@ -89,11 +85,8 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3>& molecule){
       bonds, angles, dihedrals
   );
   
-  // Compute G and iG (generalized inverse)
-  std::tie(G, iG) = wilson::G_matrices(B);
-  
   // Compute projector P
-  P = wilson::projector(G, iG);
+  P = wilson::projector(B);
 }
 
 /// Initial estimate of the Hessian in internal redundant coordinates
@@ -123,7 +116,12 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
     H0(i + offset, i + offset) = 0.1;
   }
   
-  return linalg::inv<Matrix>( P * H0 * P + alpha * (I - P) );
+  return linalg::inv<Matrix>( P * H0 * P );
+}
+
+template <typename Vector3, typename Vector, typename Matrix>
+Matrix IRC<Vector3, Vector, Matrix>::projected_hessian(const Matrix& H) const{
+  return P * H * P;
 }
 
 /// Transform gradient in cartesian coordinates to gradient in internal
@@ -146,7 +144,7 @@ template <typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
     const Vector& grad_c) const{
   return P *
-      transformation::gradient_cartesian_to_irc<Vector,Matrix>(grad_c, B, iG);
+      transformation::gradient_cartesian_to_irc<Vector,Matrix>(grad_c, B);
 }
 
 template <typename Vector3, typename Vector, typename Matrix>
@@ -174,11 +172,8 @@ Vector IRC<Vector3, Vector, Matrix>::projected_irc_to_cartesian(
       x_c_new,  bonds, angles, dihedrals
   );
 
-  // Update G and iG
-  std::tie(G, iG) = wilson::G_matrices(B);
-
   // Update projector P
-  P = wilson::projector(G, iG);
+  P = wilson::projector(B);
 
   // Return new cartesian coordinates
   return x_c_new;

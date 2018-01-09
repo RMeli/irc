@@ -95,8 +95,8 @@ double rms(const Vector& v) {
 /// \return Gradient in internal redundant coordinates
 template<typename Vector, typename Matrix>
 Vector gradient_cartesian_to_irc(const Vector &grad_c,
-                                 const Matrix &B, const Matrix &iG) {
-  return iG * B * grad_c;
+                                 const Matrix &B) {
+  return linalg::pseudo_inverse(linalg::transpose(B)) * grad_c;
 }
 
 /// Transform cartesian coordinates to internal redundant coordinates using
@@ -243,10 +243,6 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
 
   // Compute the transpose of B
   Matrix iB{ linalg::pseudo_inverse(B) };
-
-  // Compute G matrices
-  //Matrix G, iG;
-  //std::tie(G, iG) = wilson::G_matrices(B);
   
   double RMS{0};
   
@@ -275,13 +271,6 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     // Update transpose of the Wilson B matrix
     iB = linalg::pseudo_inverse(B);
 
-    // TODO: Only one matrix needed (G is useless)
-    // Update G matrices
-    // std::tie(G, iG) = wilson::G_matrices(B);
-    
-    // Store old internal coordinates
-    //q_old = q_new;
-
     // Compute new internal coordinates
     q_new = cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles, dihedrals);
 
@@ -309,9 +298,6 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
                                                      bonds,
                                                      angles,
                                                      dihedrals);
-
-    // Re compute original G matrices
-    //std::tie(G, iG) = wilson::G_matrices(B);
 
     // Compute first estimate
     x_c = x_c_old + linalg::pseudo_inverse(B) * dq_irc;
