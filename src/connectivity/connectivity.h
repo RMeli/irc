@@ -61,11 +61,27 @@ struct Dihedral {
   size_t l;
 };
 
+/// Compute the distance between two points
+///
+/// \tparam Vector3
+/// \param v1 Point 1
+/// \param v2 Poin 2
+/// \return Distance between point  1 and point 2
 template<typename Vector3>
 inline double distance(const Vector3 &v1, const Vector3 &v2) {
   return linalg::norm(v1 - v2);
 }
 
+/// Bond length
+///
+/// \tparam Vector3
+/// \tparam Vector
+/// \param b Bond
+/// \param x_cartesian Atomic cartesian coordinates
+/// \return Bond length
+///
+/// Given a (linear) vector of cartesian atomic coordinates \param x_cartesian
+/// and a bond \param b, the corresponding bond length is computed
 template<typename Vector3, typename Vector>
 inline double bond(const Bond& b, const Vector& x_cartesian){
   // Temporary positions
@@ -484,7 +500,7 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
         k = predecessors_m(i, j);
         l = predecessors_m(i, k);
         
-        // Store angle
+        // Store dihedral angle
         dih.push_back(Dihedral{i, l, k, j});
       }
     }
