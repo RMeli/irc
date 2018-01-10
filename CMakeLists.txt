@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(irc)
+project(libirc)
 
 # + ----------------- +
 # | BUILDING SETTINGS |
@@ -41,7 +41,6 @@ add_library( libirc SHARED
                     src/tools/math.cpp
         )
 
-set_target_properties(libirc PROPERTIES OUTPUT_NAME "irc")
 set_target_properties(libirc PROPERTIES LINKER_LANGUAGE CXX)
 
 # + ----------------------- +
