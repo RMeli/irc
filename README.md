@@ -6,30 +6,32 @@
 
 ## Usage
 
-## Theory
+### Building
+Debug:
+```
+  mkdir build && cd build
+  cmake -CMAKE_BUILD_TYPE=Debug ..
+  make -j
+```
 
-### Internal Redundant Coordinates
+Release:
+```
+  mkdir build && cd build
+  cmake ..
+  make -j
+```
 
-## Contributions
+### Testing
 
-Any contribution to this open source project is very welcome. If you are considering contributing you may find beneficial to have a look at the [Open Source Guides](https://opensource.guide/).
+```
+  make -j test
+```
 
-List of contributors:
+### Building and testing
 
-- Rocco Meli (University of Bristol)
-- Peter Bygrave (University of Bristol)
-
-## Sources
-
-### Internal Redoundant Coordinates
-
-- P. Puly and G. Fogarasi, *Geometry optimization in redundant internal coordinates*, J. Chem. Phys. **96** 2856 (1992).
-
-- C. Peng, P. Y. Ayala and H. B. Schlegel, *Using Redundant Internal Coordinates to Optimize Equilibrium Geometries and Transition States*, J. Comp. Chem. **17**, 49-56 (1996).
-
-- V. Bakken and T. Helgaker, *The efficient optimization of molecular geometries using redundant internal coordinates*, J. Chem. Phys. **117**, 9160 (2002).
-
-- E. Bright Wilson Jr., J. C. Decius and P. C. Cross, *Molecular Vibrations: The Theory of Infrared and Raman Vibrational Spectra*, Dover Publications Inc. (2003).
+```
+  bash build.sh
+```
 
 ## Test suite
 
@@ -51,3 +53,28 @@ Branch | Status
 -------|-------
 `master` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
 `travis-ci` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=travis-ci)](https://travis-ci.org/RMeli/irc)
+
+## Contributions
+
+Any contribution to this open source project is very welcome. If you are considering contributing you may find beneficial to have a look at the [Open Source Guides](https://opensource.guide/).
+
+### List of contributors
+
+Contributor | Affiliation
+------------|------------
+Rocco Meli | University of Bristol
+Dr. Peter Bygrave | University of Bristol
+
+## Sources
+
+### Papers
+
+- P. Puly and G. Fogarasi, *Geometry optimization in redundant internal coordinates*, J. Chem. Phys. **96** 2856 (1992).
+
+- C. Peng, P. Y. Ayala and H. B. Schlegel, *Using Redundant Internal Coordinates to Optimize Equilibrium Geometries and Transition States*, J. Comp. Chem. **17**, 49-56 (1996).
+
+- V. Bakken and T. Helgaker, *The efficient optimization of molecular geometries using redundant internal coordinates*, J. Chem. Phys. **117**, 9160 (2002).
+
+### Books
+
+- E. Bright Wilson Jr., J. C. Decius and P. C. Cross, *Molecular Vibrations: The Theory of Infrared and Raman Vibrational Spectra*, Dover Publications Inc. (2003).
