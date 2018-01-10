@@ -1,19 +1,24 @@
 language: cpp
 
 compiler:
-    - clang
+  - clang
 
-os: osx
+os:
+  - osx
 
-osx_image: xcode9
+osx_image:
+  - xcode9
 
 before_install:
-    - rm /usr/local/include/c++
-    - brew update
-    - brew upgrade boost
+  - rm /usr/local/include/c++
+  - brew update
+  - brew upgrade boost
 
 install:
-    - brew install armadillo
+  - brew install armadillo
 
 script:
-    - bash build.sh
+  - bash build.sh
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
