@@ -86,6 +86,7 @@ endif()
 install(DIRECTORY include/libirc DESTINATION include)
 install(FILES include/libirc.h DESTINATION include)
 install(FILES "${CMAKE_BINARY_DIR}/src/config.h" DESTINATION include/libirc)
+install(TARGETS irc DESTINATION lib)
 
 # + ------- +
 # | TESTING |
