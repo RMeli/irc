@@ -1,12 +1,12 @@
 #include "../../include/catch/catch.hpp"
 
-#include "../../include/transformation.h"
+#include "libirc/transformation.h"
 
-#include "../../include/molecule.h"
+#include "libirc/molecule.h"
 #include "config.h"
-#include "../../include/io.h"
-#include "../../include/conversion.h"
-#include "../../include/wilson.h"
+#include "libirc/io.h"
+#include "libirc/conversion.h"
+#include "libirc/wilson.h"
 
 #include <iostream>
 

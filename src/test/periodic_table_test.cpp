@@ -1,6 +1,6 @@
 #include "../../include/catch/catch.hpp"
 
-#include "../../include/periodic_table.h"
+#include "libirc/periodic_table.h"
 
 #include <iomanip>
 #include <iostream>

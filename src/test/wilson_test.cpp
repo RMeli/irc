@@ -1,11 +1,11 @@
 #include "../../include/catch/catch.hpp"
 
-#include "../../include/wilson.h"
+#include "libirc/wilson.h"
 
-#include "../../include/atom.h"
-#include "../../include/molecule.h"
-#include "../../include/connectivity.h"
-#include "../../include/conversion.h"
+#include "libirc/atom.h"
+#include "libirc/molecule.h"
+#include "libirc/connectivity.h"
+#include "libirc/conversion.h"
 
 #include <cmath>
 #include <iostream>

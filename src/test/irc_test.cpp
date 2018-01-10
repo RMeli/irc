@@ -1,9 +1,9 @@
 #include "../../include/catch/catch.hpp"
 
-#include "../../include/irc.h"
+#include "libirc/irc.h"
 
-#include "../../include/molecule.h"
-#include "../../include/conversion.h"
+#include "libirc/molecule.h"
+#include "libirc/conversion.h"
 
 #include <iostream>
 

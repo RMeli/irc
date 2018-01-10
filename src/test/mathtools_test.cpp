@@ -1,6 +1,6 @@
 #include "../../include/catch/catch.hpp"
 
-#include "mathtools.h"
+#include "libirc/mathtools.h"
 
 using namespace irc;
 

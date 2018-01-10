@@ -1,8 +1,8 @@
 #include "../../include/catch/catch.hpp"
 
-#include "../../include/molecule.h"
+#include "libirc/molecule.h"
 
-#include "../../include/periodic_table.h"
+#include "libirc/periodic_table.h"
 
 #include <cassert>
 #include <iostream>
