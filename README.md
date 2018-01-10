@@ -39,7 +39,9 @@ The IRC library is tested using the multi-paradigm test framework [Catch2](https
 ### CTest
 Tests are run using the CTest testing tool distributed as a part of CMake.
 
+```
   make -j test
+```
   
 ### Travis-CI
 [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
