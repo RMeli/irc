@@ -1,12 +1,12 @@
-#include "catch/catch.hpp"
+#include "../../include/catch/catch.hpp"
 
-#include "transformation.h"
+#include "../../include/transformation.h"
 
-#include "atoms/molecule.h"
+#include "../../include/molecule.h"
 #include "config.h"
-#include "io/io.h"
-#include "tools/conversion.h"
-#include "wilson/wilson.h"
+#include "../../include/io.h"
+#include "../../include/conversion.h"
+#include "../../include/wilson.h"
 
 #include <iostream>
 

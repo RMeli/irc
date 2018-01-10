@@ -2,7 +2,7 @@
 #define IRC_MOLECULE_H
 
 #include "atom.h"
-#include "linear_algebra/linalg.h"
+#include "linalg.h"
 
 #include <ostream>
 #include <utility>

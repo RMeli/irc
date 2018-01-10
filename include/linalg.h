@@ -2,7 +2,7 @@
 #define IRC_LINALG_H
 
 // Armadillo wrapper
-#include "arma_wrapper.h"
+#include "wrapper/arma_wrapper.h"
 
 namespace irc {
 

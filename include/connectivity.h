@@ -1,10 +1,10 @@
 #ifndef IRC_CONNECTIVITY_H
 #define IRC_CONNECTIVITY_H
 
-#include "atoms/atom.h"
-#include "atoms/molecule.h"
-#include "linear_algebra/linalg.h"
-#include "tools/constants.h"
+#include "atom.h"
+#include "molecule.h"
+#include "linalg.h"
+#include "constants.h"
 
 #include <cmath>
 #include <iostream>

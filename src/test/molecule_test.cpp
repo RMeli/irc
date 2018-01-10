@@ -1,8 +1,8 @@
-#include "catch/catch.hpp"
+#include "../../include/catch/catch.hpp"
 
-#include "molecule.h"
+#include "../../include/molecule.h"
 
-#include "atoms/periodic_table.h"
+#include "../../include/periodic_table.h"
 
 #include <cassert>
 #include <iostream>

@@ -1,8 +1,8 @@
-#include "catch/catch.hpp"
+#include "../../include/catch/catch.hpp"
 
-#include "io.h"
+#include "../../include/io.h"
 
-#include "atoms/molecule.h"
+#include "../../include/molecule.h"
 #include "config.h"
 
 #include <iostream>

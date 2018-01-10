@@ -1,12 +1,12 @@
-#include "catch/catch.hpp"
+#include "../../include/catch/catch.hpp"
 
-#include "connectivity.h"
+#include "../../include/connectivity.h"
 
-#include "atoms/atom.h"
-#include "atoms/molecule.h"
+#include "../../include/atom.h"
+#include "../../include/molecule.h"
 #include "config.h"
-#include "io/io.h"
-#include "tools/conversion.h"
+#include "../../include/io.h"
+#include "../../include/conversion.h"
 
 
 #include <iostream>
