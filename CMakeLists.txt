@@ -34,13 +34,13 @@ include_directories( ${CMAKE_BINARY_DIR}/src)
 # | IRC LIBRARY |
 # + ----------- +
 
-add_library( libirc SHARED
-                    src/atoms/atom.cpp
-                    src/atoms/periodic_table.cpp
-                    src/tools/mathtools.cpp
+add_library( irc SHARED
+                 src/atoms/atom.cpp
+                 src/atoms/periodic_table.cpp
+                 src/tools/mathtools.cpp
         )
 
-set_target_properties(libirc PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(irc PROPERTIES LINKER_LANGUAGE CXX)
 
 # + ----------------------- +
 # | FIND EXTERNAL LIBRARIES |
@@ -52,7 +52,7 @@ find_package(
         REQUIRED
         )
 include_directories(${Boost_INCLUDE_DIRS})
-target_link_libraries(libirc ${Boost_LIBRARIES})
+target_link_libraries(irc ${Boost_LIBRARIES})
 
 find_package(
         Armadillo
@@ -61,7 +61,7 @@ find_package(
         )
 if( ${ARMADILLO_FOUND})
         include_directories(${ARMADILLO_INCLUDE_DIRS})
-        target_link_libraries(libirc ${ARMADILLO_LIBRARIES})
+        target_link_libraries(irc ${ARMADILLO_LIBRARIES})
         add_definitions(-DHAVE_ARMA)
 
         message("-- Armadillo version: " ${ARMADILLO_VERSION_STRING})
