@@ -6,7 +6,7 @@
 
 ## Usage
 
-### Building
+### Build
 Debug:
 ```
   mkdir build && cd build
@@ -21,26 +21,29 @@ Release:
   make -j
 ```
 
-### Testing
+### Test
 
 ```
   make -j test
 ```
 
-### Building and testing
+### Build and test
 
 ```
   bash build.sh
 ```
 
+### Install
+
 ## Test suite
 
 ### Catch2
-The IRC library is tested using the multi-paradigm test framework [Catch2](https://github.com/catchorg/Catch2), included as a single header file.
+Tests are written using the multi-paradigm test framework [Catch2](https://github.com/catchorg/Catch2). Catch2 is included as a single header file in `include/catch`.
 
 ### CTest
 Tests are run using the CTest testing tool distributed as a part of CMake.
 
+Run tests:
 ```
   make -j test
 ```
@@ -56,7 +59,9 @@ Branch | Status
 
 ## Contributions
 
-Any contribution to this open source project is very welcome. If you are considering contributing you may find beneficial to have a look at the [Open Source Guides](https://opensource.guide/).
+Any contribution to this open-source project is very welcome. If you are considering contributing don't hesitate to contact the main constributors. 
+
+You may find beneficial to have a look at the [Open Source Guides](https://opensource.guide/).
 
 ### List of contributors
 
