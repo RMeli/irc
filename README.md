@@ -44,6 +44,10 @@ Tests are run using the CTest testing tool distributed as a part of CMake.
 ```
   
 ### Travis-CI
-[![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
 
 Continuous integration (CI) is implemented using [Travis-CI](https://travis-ci.org/) The test suite is run for every commit on the branches `master` and `travis-ci` and at least once a day for the `master` branch.
+
+Branch | Status
+-------|-------
+`master` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
+`travis-ci` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=travis-ci)](https://travis-ci.org/RMeli/irc)
