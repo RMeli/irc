@@ -25,5 +25,5 @@ install:
 script:
   - bash build.sh
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+#after_success:
+#  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov failed to upload'
