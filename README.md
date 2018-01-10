@@ -1,6 +1,6 @@
 # Internal Redundant Coordinates
 
-[![Build Status](https://travis-ci.com/RMeli/irc.svg?token=EifNcegf8usjx9yAqxnK&branch=master)](https://travis-ci.com/RMeli/irc)
+[![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
 [![codecov](https://codecov.io/gh/RMeli/irc/branch/master/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
 [![License: MIT](https://img.shields.io/packagist/l/doctrine/orm.svg)](https://opensource.org/licenses/MIT)
 
