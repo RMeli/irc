@@ -1,6 +1,7 @@
 # Internal Redundant Coordinates
 
 [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
+[![codecov](https://codecov.io/gh/RMeli/irc/branch/master/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
 [![License: MIT](https://img.shields.io/packagist/l/doctrine/orm.svg)](https://opensource.org/licenses/MIT)
 
 ## Usage
@@ -34,3 +35,19 @@ List of contributors:
 
 ### Catch2
 The IRC library is tested using the multi-paradigm test framework [Catch2](https://github.com/catchorg/Catch2), included as a single header file.
+
+### CTest
+Tests are run using the CTest testing tool distributed as a part of CMake.
+
+```
+  make -j test
+```
+  
+### Travis-CI
+
+Continuous integration (CI) is implemented using [Travis-CI](https://travis-ci.org/) The test suite is run for every commit on the branches `master` and `travis-ci` and at least once a day for the `master` branch.
+
+Branch | Status
+-------|-------
+`master` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
+`travis-ci` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=travis-ci)](https://travis-ci.org/RMeli/irc)

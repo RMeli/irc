@@ -1,9 +1,9 @@
-#include "catch/catch.hpp"
+#include "../../include/catch/catch.hpp"
 
-#include "irc.h"
+#include "../../include/irc.h"
 
-#include "atoms/molecule.h"
-#include "tools/conversion.h"
+#include "../../include/molecule.h"
+#include "../../include/conversion.h"
 
 #include <iostream>
 

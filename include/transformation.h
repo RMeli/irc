@@ -1,10 +1,10 @@
 #ifndef IRC_TRANSFORMATION_H
 #define IRC_TRANSFORMATION_H
 
-#include "connectivity/connectivity.h"
-#include "linear_algebra/linalg.h"
-#include "wilson/wilson.h"
-#include "tools/math.h"
+#include "connectivity.h"
+#include "linalg.h"
+#include "wilson.h"
+#include "mathtools.h"
 
 #include<iostream>
 

@@ -1,4 +1,4 @@
-#include "atom.h"
+#include "../../include/atom.h"
 
 #include <stdexcept>
 

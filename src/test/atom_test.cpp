@@ -1,8 +1,8 @@
-#include "catch/catch.hpp"
+#include "../../include/catch/catch.hpp"
 
-#include "atom.h"
+#include "../../include/atom.h"
 
-#include "periodic_table.h"
+#include "../../include/periodic_table.h"
 
 #include <cassert>
 #include <iostream>

@@ -1,12 +1,12 @@
 #ifndef IRC_WILSON_H
 #define IRC_WILSON_H
 
-#include "connectivity/connectivity.h"
+#include "connectivity.h"
 
-#include "atoms/molecule.h"
-#include "connectivity/connectivity.h"
-#include "tools/constants.h"
-#include "tools/math.h"
+#include "molecule.h"
+#include "connectivity.h"
+#include "constants.h"
+#include "mathtools.h"
 
 #include <cmath>
 #include <iostream>
