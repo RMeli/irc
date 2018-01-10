@@ -1,7 +1,7 @@
 # Internal Redundant Coordinates
 
 [![Build Status](https://travis-ci.com/RMeli/irc.svg?token=EifNcegf8usjx9yAqxnK&branch=master)](https://travis-ci.com/RMeli/irc)
-[![MIT License][license-badge]](LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Usage
 
