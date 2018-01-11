@@ -4,6 +4,9 @@
 // Armadillo wrapper
 #include "libirc/wrapper/arma_wrapper.h"
 
+// Eigen wrapper
+#include "libirc/wrapper/eigen_wrapper.h"
+
 namespace irc {
 
 namespace linalg {
