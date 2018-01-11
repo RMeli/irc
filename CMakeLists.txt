@@ -31,7 +31,8 @@ configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
                 ${CMAKE_BINARY_DIR}/src/config.h)
 
 include_directories( include )
-include_directories( include/wrapper )
+include_directories( include/libirc )
+include_directories( include/libirc/wrapper )
 include_directories( ${CMAKE_BINARY_DIR}/src)
 
 # + ----------- +
