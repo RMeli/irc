@@ -18,6 +18,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Flags
+set(CMAKE_CXX_FLAGS -Wall)
+
 # + ----------- +
 # | DIRECTORIES |
 # + ----------- +
@@ -28,6 +31,7 @@ configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
                 ${CMAKE_BINARY_DIR}/src/config.h)
 
 include_directories( include )
+include_directories( include/wrapper )
 include_directories( ${CMAKE_BINARY_DIR}/src)
 
 # + ----------- +
