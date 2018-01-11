@@ -24,11 +24,11 @@ class IRC {
 
   Vector cartesian_to_irc(const Vector& x_c) const;
 
-  Vector projected_irc_to_cartesian(const Vector& q_irc_old,
-                                    const Vector& dq_irc,
-                                    const Vector& x_c_old,
-                                    size_t max_iters = 25,
-                                    double tolerance = 1e-6);
+  Vector irc_to_cartesian(const Vector& q_irc_old,
+                          const Vector& dq_irc,
+                          const Vector& x_c_old,
+                          size_t max_iters = 25,
+                          double tolerance = 1e-6);
   
  private:
   /// List of bonds
@@ -151,11 +151,14 @@ Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
 
 template <typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const{
-  return transformation::cartesian_to_irc(x_c, bonds, angles, dihedrals);
+  return transformation::cartesian_to_irc<Vector3,Vector>(x_c,
+                                                          bonds,
+                                                          angles,
+                                                          dihedrals);
 }
 
 template <typename Vector3, typename Vector, typename Matrix>
-Vector IRC<Vector3, Vector, Matrix>::projected_irc_to_cartesian(
+Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(
     const Vector& q_irc_old,
     const Vector& dq_irc,
     const Vector& x_c_old,
