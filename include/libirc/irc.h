@@ -21,7 +21,9 @@ class IRC {
   Matrix projected_hessian_inv(const Matrix& H) const;
   
   Vector grad_cartesian_to_projected_irc(const Vector& grad_c) const;
-  
+
+  Vector cartesian_to_irc(const Vector& x_c) const;
+
   Vector projected_irc_to_cartesian(const Vector& q_irc_old,
                                     const Vector& dq_irc,
                                     const Vector& x_c_old,
@@ -145,6 +147,11 @@ Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
     const Vector& grad_c) const{
   return P *
       transformation::gradient_cartesian_to_irc<Vector,Matrix>(grad_c, B);
+}
+
+template <typename Vector3, typename Vector, typename Matrix>
+Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const{
+  return transformation::cartesian_to_irc(x_c, bonds, angles, dihedrals);
 }
 
 template <typename Vector3, typename Vector, typename Matrix>
