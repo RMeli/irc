@@ -65,11 +65,6 @@ You may find beneficial to have a look at the [Open Source Guides](https://opens
 
 ### List of contributors
 
-Contributor | Affiliation
-------------|------------
-Rocco Meli | University of Bristol
-Dr. Peter Bygrave | University of Bristol
-
 ## Sources
 
 ### Papers
