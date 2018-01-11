@@ -1,8 +1,8 @@
 #include "../../include/catch/catch.hpp"
 
-#include "../../include/io.h"
+#include "libirc/io.h"
 
-#include "../../include/molecule.h"
+#include "libirc/molecule.h"
 #include "config.h"
 
 #include <iostream>

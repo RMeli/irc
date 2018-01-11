@@ -419,8 +419,7 @@ std::vector<Bond> bonds(const Matrix &distance_m,
   
   // Declare bond list
   std::vector<Bond> b;
-  
-  double d{0};
+
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
       
@@ -455,7 +454,6 @@ std::vector<Angle> angles(const Matrix &distance_m,
   std::vector<Angle> ang;
   
   size_t k{0};
-  double a{0.};
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
       
@@ -492,7 +490,6 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   std::vector<Dihedral> dih;
   
   size_t k{0}, l{0};
-  double d{0.};
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
       

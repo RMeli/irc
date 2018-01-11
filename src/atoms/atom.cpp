@@ -1,4 +1,4 @@
-#include "../../include/atom.h"
+#include "libirc/atom.h"
 
 #include <stdexcept>
 

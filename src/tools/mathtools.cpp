@@ -1,4 +1,4 @@
-#include "mathtools.h"
+#include "libirc/mathtools.h"
 
 namespace irc {
 
