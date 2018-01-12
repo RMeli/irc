@@ -35,6 +35,8 @@ Release:
 
 ### Install
 
+### Include in a CMake project
+
 ## Test suite
 
 ### Catch2
