@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.3)
 project(libirc)
 
 # + ----------------- +
@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Flags
-add_compile_options(-W -Wall -Werror)
+add_compile_options(-W -Wall -Werror) # DON'T USE
 
 # + ----------- +
 # | DIRECTORIES |
@@ -59,7 +59,7 @@ find_package(
         1.65.0
         REQUIRED
         )
-include_directories(irc ${Boost_INCLUDE_DIRS})
+include_directories(irc ${Boost_INCLUDE_DIRS}) # DON'T USE
 target_link_libraries(irc ${Boost_LIBRARIES})
 
 find_package(
@@ -68,7 +68,7 @@ find_package(
         REQUIRED
         )
 if( ${ARMADILLO_FOUND})
-        include_directories(irc ${ARMADILLO_INCLUDE_DIRS})
+        include_directories(irc ${ARMADILLO_INCLUDE_DIRS}) # DON'T USE
         target_link_libraries(irc ${ARMADILLO_LIBRARIES})
         add_definitions(-DHAVE_ARMA)
 
@@ -91,10 +91,11 @@ endif()
 # | INSTALL |
 # + ------- +
 
-install(DIRECTORY include/libirc DESTINATION include)
-install(FILES include/libirc.h DESTINATION include)
-install(FILES "${CMAKE_BINARY_DIR}/src/config.h" DESTINATION include/libirc)
-install(TARGETS irc DESTINATION lib)
+install(TARGETS irc EXPORT ${Boost_LIBRARIES} ${ARMADILLO_LIBRARIES}
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include)
 
 # + ------- +
 # | TESTING |
