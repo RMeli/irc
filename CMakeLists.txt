@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.3)
 project(libirc)
 
 # + ----------------- +
@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Flags
-set(CMAKE_CXX_FLAGS -Wall)
+add_compile_options(-W -Wall -Werror) # DON'T USE
 
 # + ----------- +
 # | DIRECTORIES |
@@ -27,16 +27,12 @@ set(CMAKE_CXX_FLAGS -Wall)
 
 set(IRC_MOLECULES_DIR ${CMAKE_SOURCE_DIR}/molecules/)
 
-configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
-                ${CMAKE_BINARY_DIR}/src/config.h)
-
-include_directories( include )
-include_directories( include/wrapper )
-include_directories( ${CMAKE_BINARY_DIR}/src)
-
 # + ----------- +
 # | IRC LIBRARY |
 # + ----------- +
+
+configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
+                ${CMAKE_BINARY_DIR}/src/config.h)
 
 add_library( irc SHARED
                  src/atoms/atom.cpp
@@ -45,6 +41,14 @@ add_library( irc SHARED
         )
 
 set_target_properties(irc PROPERTIES LINKER_LANGUAGE CXX)
+
+# + -------- +
+# | INCLUDES |
+# + -------- +
+
+target_include_directories( irc PUBLIC include )
+target_include_directories( irc PUBLIC include/libirc )
+target_include_directories( irc PUBLIC ${CMAKE_BINARY_DIR}/src)
 
 # + ----------------------- +
 # | FIND EXTERNAL LIBRARIES |
@@ -55,7 +59,7 @@ find_package(
         1.65.0
         REQUIRED
         )
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(irc ${Boost_INCLUDE_DIRS}) # DON'T USE
 target_link_libraries(irc ${Boost_LIBRARIES})
 
 find_package(
@@ -64,7 +68,7 @@ find_package(
         REQUIRED
         )
 if( ${ARMADILLO_FOUND})
-        include_directories(${ARMADILLO_INCLUDE_DIRS})
+        include_directories(irc ${ARMADILLO_INCLUDE_DIRS}) # DON'T USE
         target_link_libraries(irc ${ARMADILLO_LIBRARIES})
         add_definitions(-DHAVE_ARMA)
 
@@ -87,10 +91,11 @@ endif()
 # | INSTALL |
 # + ------- +
 
-install(DIRECTORY include/libirc DESTINATION include)
-install(FILES include/libirc.h DESTINATION include)
-install(FILES "${CMAKE_BINARY_DIR}/src/config.h" DESTINATION include/libirc)
-install(TARGETS irc DESTINATION lib)
+install(TARGETS irc EXPORT ${Boost_LIBRARIES} ${ARMADILLO_LIBRARIES}
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include)
 
 # + ------- +
 # | TESTING |

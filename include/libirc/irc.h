@@ -16,17 +16,19 @@ class IRC {
  public:
   IRC(const molecule::Molecule<Vector3>& molecule);
   
-  Matrix projected_initial_hessian_inv(double alpha = 1000) const;
+  Matrix projected_initial_hessian_inv() const;
 
   Matrix projected_hessian_inv(const Matrix& H) const;
   
   Vector grad_cartesian_to_projected_irc(const Vector& grad_c) const;
-  
-  Vector projected_irc_to_cartesian(const Vector& q_irc_old,
-                                    const Vector& dq_irc,
-                                    const Vector& x_c_old,
-                                    size_t max_iters = 25,
-                                    double tolerance = 1e-6);
+
+  Vector cartesian_to_irc(const Vector& x_c) const;
+
+  Vector irc_to_cartesian(const Vector& q_irc_old,
+                          const Vector& dq_irc,
+                          const Vector& x_c_old,
+                          size_t max_iters = 25,
+                          double tolerance = 1e-6);
   
  private:
   /// List of bonds
@@ -95,8 +97,7 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3>& molecule){
 ///
 /// V. Bakken and T. Helgaker, J. Chem. Phys 117, 9160 (2002).
 template <typename Vector3, typename Vector, typename Matrix>
-Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
-    double alpha) const {
+Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
   Matrix H0( linalg::zeros<Matrix>(n_irc, n_irc) );
   Matrix I( linalg::identity<Matrix>(n_irc) );
   
@@ -148,7 +149,15 @@ Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
 }
 
 template <typename Vector3, typename Vector, typename Matrix>
-Vector IRC<Vector3, Vector, Matrix>::projected_irc_to_cartesian(
+Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const{
+  return transformation::cartesian_to_irc<Vector3,Vector>(x_c,
+                                                          bonds,
+                                                          angles,
+                                                          dihedrals);
+}
+
+template <typename Vector3, typename Vector, typename Matrix>
+Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(
     const Vector& q_irc_old,
     const Vector& dq_irc,
     const Vector& x_c_old,
