@@ -34,7 +34,7 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
                                                      const Vector3& p3) {
   double angle{ connectivity::angle(p1, p2, p3) };
   
-  double angle_rad{ tools::math::deg_to_rad(angle) };
+  double angle_rad{ tools::conversion::deg_to_rad * angle };
   
   // TODO: Check pyberny for more robust implementation
   // https://github.com/azag0/pyberny
@@ -69,12 +69,12 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
   // https://github.com/azag0/pyberny
   
   double angle123{ connectivity::angle(p1, p2, p3) };
-  double angle123_rad{tools::math::deg_to_rad(angle123)};
+  double angle123_rad{tools::conversion::deg_to_rad * angle123};
   double sin_angle123{std::sin(angle123_rad)};
   double cos_angle123{std::cos(angle123_rad)};
   
   double angle234{ connectivity::angle(p2, p3, p4) };
-  double angle234_rad{tools::math::deg_to_rad(angle234)};
+  double angle234_rad{tools::conversion::deg_to_rad * angle234};
   double sin_angle234{std::sin(angle234_rad)};
   double cos_angle234{std::cos(angle234_rad)};
   

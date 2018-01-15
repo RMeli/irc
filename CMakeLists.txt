@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Flags
-add_compile_options(-W -Wall) # DON'T USE
+add_compile_options(-Wall) # DON'T USE
 
 # + ----------- +
 # | DIRECTORIES |
