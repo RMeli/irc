@@ -43,17 +43,27 @@ using Edge = boost::graph_traits<UGraph>::edge_descriptor;
 using DistanceProperty = boost::exterior_vertex_property<UGraph, int>;
 using DistanceMatrix = DistanceProperty::matrix_type;
 
+/// Couple of atoms forming a bond
+/// Triplet of atoms forming an angle
+///
+/// Atoms are represented by their index in a list of coordinates.
 struct Bond {
   size_t i;
   size_t j;
 };
 
+/// Triplet of atoms forming an angle
+///
+/// Atoms are represented by their index in a list of coordinates.
 struct Angle {
   size_t i;
   size_t j;
   size_t k;
 };
 
+/// Quadruplet of atoms forming an angle
+///
+/// Atoms are represented by their index in a list of coordinates.
 struct Dihedral {
   size_t i;
   size_t j;
@@ -72,7 +82,7 @@ inline double distance(const Vector3 &v1, const Vector3 &v2) {
   return linalg::norm(v1 - v2);
 }
 
-/// Bond length
+/// Compute bond length
 ///
 /// \tparam Vector3
 /// \tparam Vector
@@ -81,7 +91,7 @@ inline double distance(const Vector3 &v1, const Vector3 &v2) {
 /// \return Bond length
 ///
 /// Given a (linear) vector of cartesian atomic coordinates \param x_cartesian
-/// and a bond \param b, the corresponding bond length is computed
+/// and a bond \param b, the corresponding bond length is computed.
 template<typename Vector3, typename Vector>
 inline double bond(const Bond& b, const Vector& x_cartesian){
   // Temporary positions
@@ -94,6 +104,12 @@ inline double bond(const Bond& b, const Vector& x_cartesian){
   return distance(b1, b2);
 }
 
+/// Compute bond length
+///
+/// \tparam Vector3
+/// \param b Bond
+/// \param molecule Molecule
+/// \return Bond length
 template<typename Vector3>
 inline double bond(const Bond& b, const molecule::Molecule<Vector3>& molecule){
   Vector3 b1{ molecule[b.i].position };
@@ -102,6 +118,13 @@ inline double bond(const Bond& b, const molecule::Molecule<Vector3>& molecule){
   return distance(b1, b2);
 }
 
+/// Compute angle formed by three points
+///
+/// \tparam Vector3
+/// \param v1 Point 1
+/// \param v2 Point 2
+/// \param v3 Point 3
+/// \return Angle between points 1, 2 and 3
 template<typename Vector3>
 inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
   Vector3 r1{v1 - v2};
@@ -114,6 +137,16 @@ inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
   return angle * 180.0 / tools::constants::pi;
 }
 
+/// Compute angle
+///
+/// \tparam Vector3
+/// \tparam Vector
+/// \param a Angle
+/// \param x_cartesian Atomic cartesian coordinates
+/// \return Angle
+///
+/// Given a (linear) vector of cartesian atomic coordinates \param x_cartesian
+/// and a bond \param b, the corresponding bond length is computed.
 template<typename Vector3, typename Vector>
 inline double angle(const Angle& a, const Vector& x_cartesian){
   // Temporary positions
@@ -127,6 +160,12 @@ inline double angle(const Angle& a, const Vector& x_cartesian){
   return angle(a1, a2, a3);
 }
 
+/// Compute angle
+///
+/// \tparam Vector3
+/// \param a Angle
+/// \param molecule Molecule
+/// \return Angle
 template<typename Vector3>
 inline double angle(const Angle& a,
                     const molecule::Molecule<Vector3>& molecule){
@@ -137,6 +176,14 @@ inline double angle(const Angle& a,
   return angle(a1, a2, a3);
 }
 
+/// Compute dihedral angle formed by four points
+///
+/// \tparam Vector3
+/// \param v1 Point 1
+/// \param v2 Point 2
+/// \param v3 Point 3
+/// \param v4 Point 4
+/// \return Dihedral angle
 template<typename Vector3>
 inline double dihedral(const Vector3 &v1,
                        const Vector3 &v2,
@@ -166,6 +213,16 @@ inline double dihedral(const Vector3 &v1,
   return angle;
 }
 
+/// Compute dihedral angle \param d, given cartesian coordinates
+///
+/// \tparam Vector3
+/// \tparam Vector
+/// \param d Dihedral
+/// \param x_cartesian Atomic cartesian coordinates
+/// \return Dihedral angle
+///
+/// Given a (linear) vector of cartesian atomic coordinates \param x_cartesian
+/// and a bond \param b, the corresponding bond length is computed.
 template<typename Vector3, typename Vector>
 inline double dihedral(const Dihedral& d, const Vector& x_cartesian){
   // Temporary positions
@@ -180,6 +237,12 @@ inline double dihedral(const Dihedral& d, const Vector& x_cartesian){
   return dihedral(d1, d2, d3, d4);
 }
 
+/// Compute dihedral angle \param d, given a molecule
+///
+/// \tparam Vector3
+/// \param d Dihedral
+/// \param molecule Molecule
+/// \return Dihedral angle
 template<typename Vector3>
 inline double dihedral(const Dihedral& d,
                        const molecule::Molecule<Vector3>& molecule){
