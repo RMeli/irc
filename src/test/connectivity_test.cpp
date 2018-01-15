@@ -193,6 +193,8 @@ TEST_CASE("Fragment recognition"){
   // Compute interatomic distance for formaldehyde molecule
   mat dd{ distances<vec3, mat>(molecule) };
   
+  std::cout << "Distance matrix:" << std::endl << dd << std::endl;
+  
   try{
     UGraph adj{ adjacency_matrix(dd, molecule) };
   }
