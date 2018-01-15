@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Flags
-add_compile_options(-W -Wall -Werror) # DON'T USE
+add_compile_options(-W -Wall) # DON'T USE
 
 # + ----------- +
 # | DIRECTORIES |
@@ -34,11 +34,27 @@ set(IRC_MOLECULES_DIR ${CMAKE_SOURCE_DIR}/molecules/)
 configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
                 ${CMAKE_BINARY_DIR}/src/config.h)
 
-add_library( irc SHARED
-                 src/atoms/atom.cpp
-                 src/atoms/periodic_table.cpp
-                 src/tools/mathtools.cpp
-        )
+set(IRC_HEADERS
+        include/libirc.h
+        include/libirc/atom.h
+        include/libirc/connectivity.h
+        include/libirc/constants.h
+        include/libirc/conversion.h
+        include/libirc/io.h
+        include/libirc/irc.h
+        include/libirc/linalg.h
+        include/libirc/mathtools.h
+        include/libirc/molecule.h
+        include/libirc/periodic_table.h
+        include/libirc/transformation.h
+        include/libirc/wilson.h)
+
+set(IRC_SOURCES
+        src/atoms/atom.cpp
+        src/atoms/periodic_table.cpp
+        src/tools/mathtools.cpp)
+
+add_library( irc SHARED ${IRC_HEADERS} ${IRC_SOURCES})
 
 set_target_properties(irc PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -91,11 +107,13 @@ endif()
 # | INSTALL |
 # + ------- +
 
-install(TARGETS irc EXPORT ${Boost_LIBRARIES} ${ARMADILLO_LIBRARIES}
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+install (TARGETS irc
         RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include)
+        LIBRARY DESTINATION lib)
+
+install(DIRECTORY include/
+        DESTINATION include/${PROJECT_NAME}
+        FILES_MATCHING PATTERN "*.h*")
 
 # + ------- +
 # | TESTING |
