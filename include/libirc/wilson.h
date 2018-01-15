@@ -18,6 +18,14 @@ namespace irc {
 
 namespace wilson {
 
+/// Compute bond gradients
+///
+/// \tparam Vector3
+/// \param p1 Point 1
+/// \param p2 Point 2
+/// \return Bond gradients
+///
+/// TODO: ADD MATHEMATICAL DEFINITIONS
 template<typename Vector3>
 std::pair<Vector3, Vector3>
 bond_gradient(const Vector3& p1, const Vector3& p2) {
@@ -28,6 +36,15 @@ bond_gradient(const Vector3& p1, const Vector3& p2) {
   return {v, -v};
 }
 
+/// Compute angle gradients
+///
+/// \tparam Vector3
+/// \param p1 Point 1
+/// \param p2 Point 2
+/// \param p3 Point 3
+/// \return Angle gradients
+///
+/// TODO: ADD MATHEMATICAL DEFINITIONS
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
                                                      const Vector3& p2,
@@ -58,6 +75,16 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
   return std::make_tuple(v1, v2, v3);
 }
 
+/// Compute dihedral angle gradients
+///
+/// \tparam Vector3
+/// \param p1 Point 1
+/// \param p2 Point 2
+/// \param p3 Point 3
+/// \param p3 Point 4
+/// \return Dihedral angle gradients
+///
+/// TODO: ADD MATHEMATICAL DEFINITIONS
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
     const Vector3& p1,
@@ -268,6 +295,10 @@ Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
       bonds, angles, dihedrals);
 }
 
+/// Compute projector from the \param B matrix
+/// \tparam Matrix
+/// \param B Wilson's B matrix
+/// \return Projector
 template<typename Matrix>
 Matrix projector(const Matrix &B) {
   // TODO: Pass iB instead of computing it
