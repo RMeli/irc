@@ -137,7 +137,7 @@ TEST_CASE("Connectivity test with molecule from input"){
   using namespace connectivity;
   
   // Load molecule from file
-  Molecule<vec3> molecule{ load_xyz<vec3>(config::molecules_dir + "caffeine.xyz") };
+  Molecule<vec3> molecule{ load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz") };
   
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
@@ -149,6 +149,10 @@ TEST_CASE("Connectivity test with molecule from input"){
   
   Mat<int> dist, predecessors;
   std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  
+  std::cout << "\nPredecessor matrix:\n" << predecessors << std::endl;
+  
+  std::cout << "\nDistance matrix:\n" << dist << std::endl;
   
   // Compute bonds
   std::vector<Bond> B{ bonds(dist, molecule) };
@@ -193,7 +197,7 @@ TEST_CASE("Fragment recognition"){
   // Compute interatomic distance for formaldehyde molecule
   mat dd{ distances<vec3, mat>(molecule) };
   
-  std::cout << "Distance matrix:" << std::endl << dd << std::endl;
+  std::cout << "\nDistance matrix:\n" << dd << std::endl;
   
   try{
     UGraph adj{ adjacency_matrix(dd, molecule) };
