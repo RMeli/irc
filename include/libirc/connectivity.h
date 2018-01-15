@@ -224,6 +224,33 @@ Matrix distances(const molecule::Molecule<Vector3> &molecule) {
   return distances_m;
 }
 
+// TODO: Improve algorithm
+template<typename Matrix>
+double min_interfragment_distance(size_t i,
+                                  size_t j,
+                                  const std::vector<size_t>& fragments,
+                                  const Matrix& distances){
+  size_t n_atoms{fragments.size()};
+  
+  double distance{0};
+  double min_distance{std::numeric_limits<double>::max()};
+  
+  for(size_t k{0}; k < n_atoms; k++){
+    for(size_t l{0}; l < n_atoms; l++){
+      if( k != l and fragments[k] == i and fragments[l] == j){
+        
+        distance = distances(k,l);
+        
+        if( distance < min_distance ){
+          min_distance = distance;
+        }
+      }
+    }
+  }
+  
+  return min_distance;
+}
+
 /// Compute adjacency matrix for \param molecule
 ///
 /// \tparam Vector3 3D vector
@@ -336,6 +363,19 @@ UGraph adjacency_matrix(const Matrix &distance_m,
       std::cout << idx << ' ';
     }
     std::cout << std::endl;
+    
+    // Print minimal distances
+    for(size_t i{0}; i < num_fragments; i++){
+      for(size_t j{i+1}; j < num_fragments; j++){
+        if(i != j){
+          std::cout << "min(" << i << ',' << j << "): "
+                    << min_interfragment_distance<Matrix>(i, j,
+                                                          fragments,
+                                                          distance_m)
+                    << std::endl;
+        }
+      }
+    }
     
     // TODO: Support fragments
     throw std::logic_error("Fragment recognition not implemented.");
