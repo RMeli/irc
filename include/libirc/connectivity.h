@@ -395,6 +395,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
   
   if(num_fragments > 1){
     // Print fragments
+    std::cout << "\nFragments: " << std::endl;
     for(size_t idx : fragments) {
       std::cout << idx << ' ';
     }
