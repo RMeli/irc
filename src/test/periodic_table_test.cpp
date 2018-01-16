@@ -25,21 +25,10 @@ TEST_CASE("Test periodic table","[periodic_table]"){
       valid = valid_atomic_number(i);
     
       if(valid){
-        if(verbose){
-          cout << std::setw(3) << i;
-          cout << " is a valid atomic number corresponding to element ";
-          cout << pt_symbols[i] << ".\n";
-        }
-  
         REQUIRE( i > 0);
         REQUIRE( i < pt_size);
       }
       else{
-        if(verbose){
-          cout << std::setw(3) << i;
-          cout << " is not a valid atomic number.\n";
-        }
-      
         REQUIRE( (i == 0 or i == pt_size) );
       }
     }
