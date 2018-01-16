@@ -55,10 +55,12 @@ Run tests:
 Continuous integration (CI) is implemented using [Travis-CI](https://travis-ci.org/). The test suite is run for every commit on all the branches and at least once a day for the `master` branch.
 
 <center>
+  
 Branch | Status
 -------|-------
 `master` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
 `travis-ci` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=travis-ci)](https://travis-ci.org/RMeli/irc)
+
 </center>
 
 ## Contributions
@@ -69,9 +71,11 @@ You may find beneficial to have a look at the [Open Source Guides](https://opens
 
 ### List of contributors
 <center>
+  
 Contributor | Affiliation
 ------------|-------------
 Rocco Meli | University of Bristol
+
 </center>
 
 ## Sources
