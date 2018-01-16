@@ -335,83 +335,28 @@ UGraph adjacency_matrix(const Matrix &distance_m,
   
   // Define a undirected graph with n_atoms vertices
   UGraph ug(n_atoms);
-  
+
+  // Search for regular bonds
   double d{0.};
   double sum_covalent_radii{0.};
-  double sum_vdw_radii{0.};
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{j + 1}; i < n_atoms; i++) {
-      
+
       // Extract distance between atom i and atom j
       d = distance_m(i, j);
-      
+
       // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
                            atom::covalent_radius(molecule[j].atomic_number);
-      
+
       // Determine if atoms i and j are bonded
       if (d < covalent_bond_multiplier * sum_covalent_radii) {
         // Add edge to boost::adjacency_list between vertices i and j
         // The weights are set to 1 for all edges.
         boost::add_edge(i, j, 1, ug);
-        
-        // TODO: Better ways of doing this...
-        // Search for H-bonds: XH...Y
-        if ((atom::is_NOFPSCl(molecule[i].atomic_number) and
-             atom::is_H(molecule[j].atomic_number))
-            or
-            (atom::is_NOFPSCl(molecule[j].atomic_number) and
-             atom::is_H(molecule[i].atomic_number))) { // Possible H-bond
-          
-          size_t idx{0}; // X atom index
-          size_t h_idx{0}; // Hydrogen bond index
-          
-          double a{0}; // Angle between X, H and Y in XH...Y
-          
-          // Assign correct indices to X and H
-          if (atom::is_H(molecule[j].atomic_number)) {
-            idx = i;
-            h_idx = j;
-          } else {
-            idx = j;
-            h_idx = i;
-          }
-          
-          // Loop over all other atoms, excluding i and j, to find Y
-          for (size_t k{0}; k < n_atoms; k++) {
-            if (atom::is_NOFPSCl(molecule[k].atomic_number) and
-                k != idx and k != h_idx) {
-              
-              // Load distance
-              d = distance_m(h_idx, k);
-              
-              // Compute sum of Van der Waals radii
-              sum_vdw_radii =
-                  atom::vdw_radius(molecule[h_idx].atomic_number) +
-                  atom::vdw_radius(molecule[k].atomic_number);
-              
-              // Compute sum of covalent radii
-              sum_covalent_radii =
-                  atom::covalent_radius(molecule[h_idx].atomic_number) +
-                  atom::covalent_radius(molecule[k].atomic_number);
-              
-              a = angle(molecule[idx].position,
-                        molecule[h_idx].position,
-                        molecule[k].position);
-              
-              // Check H-bond properties
-              if (d > sum_covalent_radii and
-                  d < sum_vdw_radii * vdw_bond_multiplier and
-                  a > 90) {
-                // Add hydrogen bond
-                boost::add_edge(h_idx, k, 1, ug);
-              }
-            }
-          } // End H-bond search
-        }
       }
     }
-  }
+  } // End search for regular bonds
   
   // Allocate storage for fragment indices
   std::vector<size_t> fragments( boost::num_vertices(ug) );
@@ -444,7 +389,82 @@ UGraph adjacency_matrix(const Matrix &distance_m,
     // TODO: Support fragments
     throw std::logic_error("Fragment recognition not implemented.");
   }
-  
+
+  // Search for hydrogen bonds
+  double sum_vdw_radii{0.};
+  for (size_t j{0}; j < n_atoms; j++) {
+    for (size_t i{j + 1}; i < n_atoms; i++) {
+
+      // Extract distance between atom i and atom j
+      d = distance_m(i, j);
+
+      // Compute sum of covalent radii for atoms i and j
+      sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
+                           atom::covalent_radius(molecule[j].atomic_number);
+
+      // Determine if atoms i and j are bonded
+      if (d < covalent_bond_multiplier * sum_covalent_radii) {
+
+        // TODO: Better ways of doing this...
+        // Search for H-bonds: XH...Y
+        if ((atom::is_NOFPSCl(molecule[i].atomic_number) and
+             atom::is_H(molecule[j].atomic_number))
+            or
+            (atom::is_NOFPSCl(molecule[j].atomic_number) and
+             atom::is_H(molecule[i].atomic_number))) { // Possible H-bond
+
+          size_t idx{0}; // X atom index
+          size_t h_idx{0}; // Hydrogen bond index
+
+          double a{0}; // Angle between X, H and Y in XH...Y
+
+          // Assign correct indices to X and H
+          if (atom::is_H(molecule[j].atomic_number)) {
+            idx = i;
+            h_idx = j;
+          } else {
+            idx = j;
+            h_idx = i;
+          }
+
+          // Loop over all other atoms, excluding i and j, to find Y
+          for (size_t k{0}; k < n_atoms; k++) {
+            if (atom::is_NOFPSCl(molecule[k].atomic_number) and
+                k != idx and k != h_idx) {
+
+              // Load distance
+              d = distance_m(h_idx, k);
+
+              // Compute sum of Van der Waals radii
+              sum_vdw_radii =
+                  atom::vdw_radius(molecule[h_idx].atomic_number) +
+                  atom::vdw_radius(molecule[k].atomic_number);
+
+              // Compute sum of covalent radii
+              sum_covalent_radii =
+                  atom::covalent_radius(molecule[h_idx].atomic_number) +
+                  atom::covalent_radius(molecule[k].atomic_number);
+
+              a = angle(molecule[idx].position,
+                        molecule[h_idx].position,
+                        molecule[k].position);
+
+              // Check H-bond properties
+              if (d > sum_covalent_radii and
+                  d < sum_vdw_radii * vdw_bond_multiplier and
+                  a > 90) {
+                // Add hydrogen bond
+                boost::add_edge(h_idx, k, 1, ug);
+              }
+            }
+          }
+        }
+      }
+    }
+  } // End search for hydrogen bonds
+
+  // TODO: Extra redundant coordinates?
+
   return ug;
 }
 
