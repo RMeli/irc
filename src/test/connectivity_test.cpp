@@ -60,6 +60,65 @@ TEST_CASE("Distance, angle and dihedral"){
   
 }
 
+TEST_CASE("Connectivity test for H2"){
+  using namespace std;
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+
+  // Define H2 bond
+  double bb{1.5};
+
+  // Define hydrogen molecule (H2)
+  Molecule<vec3> molecule{
+      {"H", {0.0, 0.0, 0.0}},
+      {"H", {0.0, 0.0, bb }},
+  };
+
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+
+  // Compute interatomic distance for H2
+  mat dd{ distances<vec3, mat>(molecule) };
+
+  // Print interatomic distances for H2
+  cout << "Distances" << endl;
+  cout << dd * bohr_to_angstrom << endl;
+
+  // Compute adjacency graph
+  UGraph adj{ adjacency_matrix(dd, molecule) };
+
+  Mat<int> dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+
+  // Distance matrix
+  cout << "Distance matrix:" << endl;
+  cout << dist << endl;
+
+  // Predecessors matrix
+  cout << "Predecessors matrix:" << endl;
+  cout << predecessors << endl;
+
+  SECTION("Bonds"){
+    // Compute bonds
+    std::vector<Bond> B{ bonds(dist, molecule) };
+
+    // Check number of bonds
+    REQUIRE( B.size() == 1);
+
+    cout << "\nBonds:" << endl;
+    for(size_t i{0}; i < B.size(); i++){
+      cout << bond(B[i], molecule) * bohr_to_angstrom << endl;
+
+      Approx target{ bb };
+
+      target.margin(1e-6);
+
+      REQUIRE( bond(B[i], molecule) * bohr_to_angstrom == target );
+    }
+  }
+}
+
 TEST_CASE("Connectivity test for CH2O"){
   using namespace std;
   using namespace tools::conversion;

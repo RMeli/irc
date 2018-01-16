@@ -289,15 +289,22 @@ Matrix distances(const molecule::Molecule<Vector3> &molecule) {
 
 // TODO: Improve algorithm
 template<typename Matrix>
-double min_interfragment_distance(size_t i,
-                                  size_t j,
-                                  const std::vector<size_t>& fragments,
-                                  const Matrix& distances){
+std::tuple<size_t,size_t,double> min_interfragment_distance(
+    size_t i,
+    size_t j,
+    const std::vector<size_t>& fragments,
+    const Matrix& distances){
+
+  // Number of atoms
   size_t n_atoms{fragments.size()};
-  
+
+  // Interfragment distance
   double distance{0};
+
+  // Minimal interfragment distance
   double min_distance{std::numeric_limits<double>::max()};
-  
+
+  size_t k_min{0}, l_min{0};
   for(size_t k{0}; k < n_atoms; k++){
     for(size_t l{0}; l < n_atoms; l++){
       if( k != l and fragments[k] == i and fragments[l] == j){
@@ -306,12 +313,14 @@ double min_interfragment_distance(size_t i,
         
         if( distance < min_distance ){
           min_distance = distance;
+          k_min = k;
+          l_min = l;
         }
       }
     }
   }
   
-  return min_distance;
+  return std::make_tuple(k_min,l_min,min_distance);
 }
 
 /// Compute adjacency matrix for \param molecule
@@ -329,7 +338,6 @@ double min_interfragment_distance(size_t i,
 template<typename Vector3, typename Matrix>
 UGraph adjacency_matrix(const Matrix &distance_m,
                         const molecule::Molecule<Vector3> &molecule) {
-  
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
   
@@ -364,7 +372,8 @@ UGraph adjacency_matrix(const Matrix &distance_m,
   // Fill component std::vector and return number of different fragments
   // If num_fragments == 1 the graph is connected
   size_t num_fragments{ boost::connected_components (ug, &fragments[0])};
-  
+
+  // The system if made up of multiple fragments
   if(num_fragments > 1){
     // Print fragments
     std::cout << "\nFragments: " << std::endl;
@@ -373,21 +382,24 @@ UGraph adjacency_matrix(const Matrix &distance_m,
     }
     std::cout << std::endl;
     
-    // Print minimal distances
+    // Intefragment minimal distance
+    size_t i_min{0}, j_min{0};
+    double min_d{0};
     for(size_t i{0}; i < num_fragments; i++){
       for(size_t j{i+1}; j < num_fragments; j++){
-        if(i != j){
-          std::cout << "min(" << i << ',' << j << "): "
-                    << min_interfragment_distance<Matrix>(i, j,
-                                                          fragments,
-                                                          distance_m)
-                    << std::endl;
-        }
+        std::tie(i_min,j_min,min_d)
+            = min_interfragment_distance<Matrix>(i, j, fragments, distance_m);
+
+        // Add shortest interfragment bond
+        boost::add_edge(i_min, j_min, 1, ug);
+
+        std::cout << "min(" << i << ',' << j << "): " << min_d << std::endl;
       }
     }
     
     // TODO: Support fragments
-    throw std::logic_error("Fragment recognition not implemented.");
+    std::cerr << "WARNING: Fragments not yet fully supported!" << std::endl;
+    //throw std::logic_error("Fragment recognition not implemented.");
   }
 
   // Search for hydrogen bonds
@@ -412,6 +424,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
             or
             (atom::is_NOFPSCl(molecule[j].atomic_number) and
              atom::is_H(molecule[i].atomic_number))) { // Possible H-bond
+          // On atom is H, while the other is either N, O, F, P, S or Cl
 
           size_t idx{0}; // X atom index
           size_t h_idx{0}; // Hydrogen bond index
