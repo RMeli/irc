@@ -17,9 +17,9 @@ namespace linalg {
 
 /// Size of a given container
 ///
-/// \tparam T Container type
+/// \tparam T
 /// \param a Container
-/// \return Container size
+/// \return Size of \param a
 template<typename T>
 size_t size(const T &a){
   return a.size();
@@ -27,9 +27,9 @@ size_t size(const T &a){
 
 /// Number of rows of a given matrix
 ///
-/// \tparam T Matrix type
+/// \tparam T
 /// \param a Matrix
-/// \return Number of rows
+/// \return Number of rows of \param a
 template<typename T>
 size_t n_rows(const T &a){
 #ifdef HAVE_ARMA
@@ -43,9 +43,9 @@ size_t n_rows(const T &a){
 
 /// Number of columns of a given matrix
 ///
-/// \tparam T Matrix type
+/// \tparam T
 /// \param a Matrix
-/// \return Number of columns
+/// \return Number of columns of \param a
 template<typename T>
 size_t n_cols(const T &a){
 #ifdef HAVE_ARMA
@@ -59,8 +59,8 @@ size_t n_cols(const T &a){
 
 /// Norm of a given vector or matrix
 ///
-/// \tparam T Vector or matrix type
-/// \return Norm
+/// \tparam T
+/// \return Norm of \param a
 template<typename T>
 double norm(const T &a){
 #ifdef HAVE_ARMA
@@ -74,10 +74,10 @@ double norm(const T &a){
 
 /// Dot product between two vectors
 ///
-/// \tparam T Vector type
+/// \tparam T
 /// \param a Vector
 /// \param b Vector
-/// \return Dot product
+/// \return Dot product between \param a and \param b
 template<typename T>
 double dot(const T &a, const T &b){
 #ifdef HAVE_ARMA
@@ -89,6 +89,12 @@ double dot(const T &a, const T &b){
 #endif
 }
 
+/// Cross product between two vectors
+///
+/// \tparam Vector3
+/// \param a Vector
+/// \param b Vector
+/// \return Cross product between \param a and \param b
 template<typename Vector3>
 Vector3 cross(const Vector3 &a, const Vector3 &b){
 #ifdef HAVE_ARMA
@@ -100,6 +106,11 @@ Vector3 cross(const Vector3 &a, const Vector3 &b){
 #endif
 }
 
+/// Allocate column vector of zeros
+///
+/// \tparam Vector
+/// \param nelements Vector size
+/// \return Column vector full of zeros
 template<typename Vector>
 Vector zeros(size_t nelements){
 #ifdef HAVE_ARMA
@@ -111,6 +122,12 @@ Vector zeros(size_t nelements){
 #endif
 }
 
+/// Allocate matrix of zeros
+///
+/// \tparam Matrix
+/// \param nrows Number of rows
+/// \param ncols Number of columns
+/// \return Matrix full of zeros
 template<typename Matrix>
 Matrix zeros(size_t nrows, size_t ncols){
 #ifdef HAVE_ARMA
@@ -122,6 +139,11 @@ Matrix zeros(size_t nrows, size_t ncols){
 #endif
 }
 
+/// Allocate matrix of ones
+/// \tparam Matrix
+/// \param nrows Number of rows
+/// \param ncols Number of columns
+/// \return Matrix full of ones
 template<typename Matrix>
 Matrix ones(size_t nrows, size_t ncols){
 #ifdef HAVE_ARMA
@@ -133,6 +155,11 @@ Matrix ones(size_t nrows, size_t ncols){
 #endif
 }
 
+/// Allocate identity matrix
+///
+/// \tparam Matrix
+/// \param n Linear size of the identity matrix
+/// \return Identity matrix
 template<typename Matrix>
 Matrix identity(size_t n){
 #ifdef HAVE_ARMA
@@ -144,6 +171,11 @@ Matrix identity(size_t n){
 #endif
 }
 
+/// Matrix transpose
+///
+/// \tparam Matrix
+/// \param mat Matrix
+/// \return Transpose of \param mat
 template<typename Matrix>
 Matrix transpose(const Matrix &mat){
 #ifdef HAVE_ARMA
@@ -155,6 +187,11 @@ Matrix transpose(const Matrix &mat){
 #endif
 }
 
+/// Inverse matrix
+///
+/// \tparam Matrix
+/// \param mat Matrix
+/// \return Inverse of \param mat
 template<typename Matrix>
 Matrix inv(const Matrix &mat){
 #ifdef HAVE_ARMA
@@ -166,6 +203,11 @@ Matrix inv(const Matrix &mat){
 #endif
 }
 
+/// Pseudo-inverse matrix
+///
+/// \tparam Matrix
+/// \param mat Matrix
+/// \return Pseudo-inverse of \param mat
 template<typename Matrix>
 Matrix pseudo_inverse(const Matrix &mat){
 #ifdef HAVE_ARMA
@@ -176,7 +218,6 @@ Matrix pseudo_inverse(const Matrix &mat){
 #error
 #endif
 }
-
 
 } // namespace linalg
 

@@ -44,6 +44,15 @@ void multiply_positions(Molecule<Vector3> &molecule, T multiplier) {
   }
 }
 
+/// Get cartesian coordinates of all atoms in \param molecule
+///
+/// \tparam Vector3
+/// \tparam Vector
+/// \param molecule Molecule
+/// \return Cartesian coordinates of all atoms in \param molecule
+///
+/// The cartesian coordinates are stored in a linear vector so that the first
+/// three entries are the (x,y,z) coordinates of the first atom and so on.
 template<typename Vector3, typename Vector>
 Vector to_cartesian(const Molecule<Vector3>& molecule){
   size_t n_atoms{ molecule.size() };

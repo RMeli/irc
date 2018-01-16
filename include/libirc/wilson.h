@@ -18,6 +18,14 @@ namespace irc {
 
 namespace wilson {
 
+/// Compute bond gradients
+///
+/// \tparam Vector3
+/// \param p1 Point 1
+/// \param p2 Point 2
+/// \return Bond gradients
+///
+/// TODO: ADD MATHEMATICAL DEFINITIONS
 template<typename Vector3>
 std::pair<Vector3, Vector3>
 bond_gradient(const Vector3& p1, const Vector3& p2) {
@@ -28,13 +36,22 @@ bond_gradient(const Vector3& p1, const Vector3& p2) {
   return {v, -v};
 }
 
+/// Compute angle gradients
+///
+/// \tparam Vector3
+/// \param p1 Point 1
+/// \param p2 Point 2
+/// \param p3 Point 3
+/// \return Angle gradients
+///
+/// TODO: ADD MATHEMATICAL DEFINITIONS
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
                                                      const Vector3& p2,
                                                      const Vector3& p3) {
   double angle{ connectivity::angle(p1, p2, p3) };
   
-  double angle_rad{ tools::math::deg_to_rad(angle) };
+  double angle_rad{ tools::conversion::deg_to_rad * angle };
   
   // TODO: Check pyberny for more robust implementation
   // https://github.com/azag0/pyberny
@@ -58,6 +75,16 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
   return std::make_tuple(v1, v2, v3);
 }
 
+/// Compute dihedral angle gradients
+///
+/// \tparam Vector3
+/// \param p1 Point 1
+/// \param p2 Point 2
+/// \param p3 Point 3
+/// \param p3 Point 4
+/// \return Dihedral angle gradients
+///
+/// TODO: ADD MATHEMATICAL DEFINITIONS
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
     const Vector3& p1,
@@ -69,12 +96,12 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
   // https://github.com/azag0/pyberny
   
   double angle123{ connectivity::angle(p1, p2, p3) };
-  double angle123_rad{tools::math::deg_to_rad(angle123)};
+  double angle123_rad{tools::conversion::deg_to_rad * angle123};
   double sin_angle123{std::sin(angle123_rad)};
   double cos_angle123{std::cos(angle123_rad)};
   
   double angle234{ connectivity::angle(p2, p3, p4) };
-  double angle234_rad{tools::math::deg_to_rad(angle234)};
+  double angle234_rad{tools::conversion::deg_to_rad * angle234};
   double sin_angle234{std::sin(angle234_rad)};
   double cos_angle234{std::cos(angle234_rad)};
   
@@ -268,6 +295,10 @@ Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
       bonds, angles, dihedrals);
 }
 
+/// Compute projector from the \param B matrix
+/// \tparam Matrix
+/// \param B Wilson's B matrix
+/// \return Projector
 template<typename Matrix>
 Matrix projector(const Matrix &B) {
   // TODO: Pass iB instead of computing it

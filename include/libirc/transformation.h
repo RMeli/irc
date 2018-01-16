@@ -216,7 +216,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
 
   // Transform IRC displacement from degrees to radians
   for(size_t i{bonds.size()}; i < n_irc; i++){
-    dq(i) = tools::math::deg_to_rad(dq(i));
+    dq(i) = tools::conversion::deg_to_rad * dq(i);
   }
   
   // Old internal coordinates
@@ -224,7 +224,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
 
   // Transform initial IRC from degrees to radians
   for(size_t i{bonds.size()}; i < n_irc; i++){
-    q_0(i) = tools::math::deg_to_rad(q_0(i));
+    q_0(i) = tools::conversion::deg_to_rad * q_0(i);
   }
   
   // New internal coordinates
@@ -276,7 +276,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
 
     // Transform new IRC from fegrees to radians
     for(size_t i{bonds.size()}; i < n_irc; i++){
-      q_new(i) = tools::math::deg_to_rad(q_new(i));
+      q_new(i) = tools::conversion::deg_to_rad * q_new(i);
     }
 
     // Check change in dihedral angles (in radians)

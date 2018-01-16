@@ -9,6 +9,7 @@ namespace tools {
 
 namespace constants {
 
+/// \f$\pi\f$
 constexpr double pi{M_PI};
 
 } // namespace constants

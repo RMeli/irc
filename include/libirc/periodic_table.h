@@ -11,8 +11,10 @@ namespace irc {
 
 namespace periodic_table {
 
+/// Number of atomic species in the periodic table
 constexpr size_t pt_size{96};
 
+/// Atomic symbols
 constexpr std::array<char[3], pt_size> pt_symbols = {{
     "",
     "H", "He",
@@ -31,6 +33,7 @@ constexpr std::array<char[3], pt_size> pt_symbols = {{
     "Ac", "Th", "Pa", "U", "Np", "Pu", "Am"
 }};
 
+/// Atomic masses
 constexpr std::array<double, pt_size> pt_masses = {{
     0.0000,  //   Ghost Atom      X       0
     1.0079,  //   Hydrogen        H       1
@@ -132,6 +135,8 @@ constexpr std::array<double, pt_size> pt_masses = {{
 
 using tools::conversion::angstrom_to_bohr;
 
+/// Covalent radii
+///
 /// J. C. Slater, "Atomic Radii in Crystals",
 /// J. Phys. Chem. 41, 3199-3204 (1964)
 constexpr std::array<double, pt_size> pt_covalent_radii = {{
@@ -233,6 +238,8 @@ constexpr std::array<double, pt_size> pt_covalent_radii = {{
     1.75 * angstrom_to_bohr,  //   Americium       Am      95
 }};
 
+/// Van der Waals radii
+///
 /// S. S. Batsanov, "Van der Waals Radii of Elements",
 /// Inorganic Materials 37, 871-855 (2001)
 constexpr std::array<double, pt_size> pt_vdv_radii = {{
