@@ -289,15 +289,19 @@ Matrix distances(const molecule::Molecule<Vector3> &molecule) {
 
 // TODO: Improve algorithm
 template<typename Matrix>
-double min_interfragment_distance(size_t i,
-                                  size_t j,
-                                  const std::vector<size_t>& fragments,
-                                  const Matrix& distances){
+std::tuple<size_t,size_t,double> min_interfragment_distance(
+    size_t i,
+    size_t j,
+    const std::vector<size_t>& fragments,
+    const Matrix& distances){
+  
+  // Number of atoms
   size_t n_atoms{fragments.size()};
   
   double distance{0};
   double min_distance{std::numeric_limits<double>::max()};
   
+  size_t k_min{0}, l_min{0};
   for(size_t k{0}; k < n_atoms; k++){
     for(size_t l{0}; l < n_atoms; l++){
       if( k != l and fragments[k] == i and fragments[l] == j){
@@ -306,12 +310,14 @@ double min_interfragment_distance(size_t i,
         
         if( distance < min_distance ){
           min_distance = distance;
+          k_min = k;
+          l_min = l;
         }
       }
     }
   }
   
-  return min_distance;
+  return std::make_tuple(k_min, l_min, min_distance);
 }
 
 /// Compute adjacency matrix for \param molecule
@@ -428,21 +434,26 @@ UGraph adjacency_matrix(const Matrix &distance_m,
     }
     std::cout << std::endl;
     
-    // Print minimal distances
+    // Add minimum distances to graph
+    size_t min_i{0}, min_j{0};
+    double d_min{0};
     for(size_t i{0}; i < num_fragments; i++){
       for(size_t j{i+1}; j < num_fragments; j++){
         if(i != j){
-          std::cout << "min(" << i << ',' << j << "): "
-                    << min_interfragment_distance<Matrix>(i, j,
-                                                          fragments,
-                                                          distance_m)
-                    << std::endl;
+          std::tie(min_i,min_j,d_min) =
+              min_interfragment_distance<Matrix>(i, j, fragments, distance_m);
+  
+          // Add shortest interfragment bond
+          boost::add_edge(min_i, min_j, 1, ug);
+          
+          std::cout << "min(" << i << ',' << j << "): " << d_min << std::endl;
         }
       }
     }
     
     // TODO: Support fragments
-    throw std::logic_error("Fragment recognition not implemented.");
+    std::cerr << "WARNING: Fragments not fully supported!" << std::endl;
+    //throw std::logic_error("Fragment recognition not implemented.");
   }
   
   return ug;
@@ -609,6 +620,57 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   
   // Return list of dihedral angles
   return dih;
+}
+
+/// Get current internal redundant coordinates for list of bonds, angles and
+/// dihedral angles
+///
+/// \tparam Vector3
+/// \tparam Vector
+/// \param bonds List of bonds
+/// \param angles List of angles
+/// \param dihedrals List of dihedrals
+/// \return Current internal redundant coordinates
+template<typename Vector3, typename Vector>
+Vector irc_from_bad(
+    const Vector& x_cartesian,
+    const std::vector<Bond>& bonds,
+    const std::vector<Angle>& angles,
+    const std::vector<Dihedral>& dihedrals) {
+  
+  // Get number of bonds, angles and dihedrals
+  size_t n_bonds{bonds.size()};
+  size_t n_angles{angles.size()};
+  size_t n_dihedrals{dihedrals.size()};
+  
+  // Compute number of internal redundant coordinates
+  size_t n_irc{n_bonds + n_angles + n_dihedrals};
+  
+  // Allocate vector for internal redundant coordinates
+  Vector q_irc{linalg::zeros<Vector>(n_irc)};
+  
+  // Offset
+  size_t offset{0};
+  
+  // Compute bonds
+  for (size_t i{0}; i < n_bonds; i++) {
+    q_irc(i) = bond<Vector3, Vector>(bonds[i], x_cartesian);
+  }
+  
+  // Compute angles
+  offset = n_bonds;
+  for (size_t i{0}; i < n_angles; i++) {
+    q_irc(i + offset) = angle<Vector3, Vector>(angles[i], x_cartesian);
+  }
+  
+  // Compute dihedrals
+  offset = n_bonds + n_angles;
+  for (size_t i{0}; i < n_dihedrals; i++) {
+    q_irc(i + offset) = dihedral<Vector3, Vector>(dihedrals[i], x_cartesian);
+  }
+  
+  // Return internal redundant coordinates
+  return q_irc;
 }
 
 } // namespace connectivity

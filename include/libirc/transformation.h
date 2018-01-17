@@ -12,59 +12,6 @@ namespace irc {
 
 namespace transformation {
 
-/// Get current internal redundant coordinates for list of bonds, angles and
-/// dihedral angles
-///
-/// \tparam Vector3
-/// \tparam Vector
-/// \param bonds List of bonds
-/// \param angles List of angles
-/// \param dihedrals List of dihedrals
-/// \return Current internal redundant coordinates
-template<typename Vector3, typename Vector>
-Vector irc_from_bad(
-    const Vector& x_cartesian,
-    const std::vector<connectivity::Bond>& bonds,
-    const std::vector<connectivity::Angle>& angles,
-    const std::vector<connectivity::Dihedral>& dihedrals) {
-
-  // Get number of bonds, angles and dihedrals
-  size_t n_bonds{bonds.size()};
-  size_t n_angles{angles.size()};
-  size_t n_dihedrals{dihedrals.size()};
-
-  // Compute number of internal redundant coordinates
-  size_t n_irc{n_bonds + n_angles + n_dihedrals};
-
-  // Allocate vector for internal redundant coordinates
-  Vector q_irc{linalg::zeros<Vector>(n_irc)};
-
-  // Offset
-  size_t offset{0};
-
-  // Compute bonds
-  for (size_t i{0}; i < n_bonds; i++) {
-    q_irc(i) = connectivity::bond<Vector3, Vector>(bonds[i], x_cartesian);
-  }
-
-  // Compute angles
-  offset = n_bonds;
-  for (size_t i{0}; i < n_angles; i++) {
-    q_irc(i + offset) =
-        connectivity::angle<Vector3, Vector>(angles[i], x_cartesian);
-  }
-
-  // Compute dihedrals
-  offset = n_bonds + n_angles;
-  for (size_t i{0}; i < n_dihedrals; i++) {
-    q_irc(i + offset) =
-        connectivity::dihedral<Vector3, Vector>(dihedrals[i], x_cartesian);
-  }
-
-  // Return internal redundant coordinates
-  return q_irc;
-}
-
 /// Compute the root mean square value of \param v
 ///
 /// \tparam Vector Vector

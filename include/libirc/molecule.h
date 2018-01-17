@@ -31,7 +31,7 @@ double mass(const Molecule<Vector3> &molecule) {
   return m;
 }
 
-// TODO: Define operator*?
+// TODO: Avoid modification to the molecule and define operator*
 /// Multiply all atomic positions within a molecule by a given \param multiplier
 ///
 /// \tparam T 3D vector

@@ -60,6 +60,104 @@ TEST_CASE("Distance, angle and dihedral"){
   
 }
 
+TEST_CASE("Connectivity for compressed H2"){
+  using namespace std;
+  
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  double d{0.5};
+  
+  // Define compressed H2 molecule
+  Molecule<vec3> molecule{
+      {"H", {0.0, 0.0, d  }},
+      {"H", {0.0, 0.0, 0.0}}
+  };
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Compute interatomic distance for compressed H2
+  mat dd{ distances<vec3, mat>(molecule) };
+  
+  // Compute adjacency graph for compressed H2
+  UGraph adj{ adjacency_matrix(dd, molecule) };
+  
+  // Compute distance and predecessor matrices for compressed H2
+  Mat<int> dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  
+  SECTION("Bond"){
+    // Compute bond
+    std::vector<Bond> B{ bonds(dist, molecule) };
+    
+    // Check number of bonds
+    REQUIRE( B.size() == 1);
+    
+    // Compute IRC
+    vec q{irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(molecule), B, {}, {})};
+    
+    // Check number of IRC
+    REQUIRE( linalg::size<vec>(q) == 1);
+    
+    // Check bond length
+    Approx bb(d * angstrom_to_bohr);
+    bb.margin(1e-12);
+    REQUIRE( q(0) == bb );
+  }
+  
+}
+
+TEST_CASE("Connectivity for stretched H2"){
+  using namespace std;
+  
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  double d{2.5};
+  
+  // Define compressed H2 molecule
+  Molecule<vec3> molecule{
+      {"H", {0.0, 0.0, d  }},
+      {"H", {0.0, 0.0, 0.0}}
+  };
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Compute interatomic distance for compressed H2
+  mat dd{ distances<vec3, mat>(molecule) };
+  
+  // Compute adjacency graph for compressed H2
+  UGraph adj{ adjacency_matrix(dd, molecule) };
+  
+  // Compute distance and predecessor matrices for compressed H2
+  Mat<int> dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  
+  SECTION("Bond"){
+    // Compute bond
+    std::vector<Bond> B{ bonds(dist, molecule) };
+    
+    // Check number of bonds
+    REQUIRE( B.size() == 1);
+    
+    // Compute IRC
+    vec q{irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(molecule), B, {}, {})};
+    
+    // Check number of IRC
+    REQUIRE( linalg::size<vec>(q) == 1);
+    
+    // Check bond length
+    Approx bb(d * angstrom_to_bohr);
+    bb.margin(1e-12);
+    REQUIRE( q(0) == bb );
+  }
+  
+}
+
 TEST_CASE("Connectivity test for CH2O"){
   using namespace std;
   using namespace tools::conversion;
