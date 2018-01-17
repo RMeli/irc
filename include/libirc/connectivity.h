@@ -603,7 +603,8 @@ std::vector<Angle> angles(const Matrix &distance_m,
         // Compute angle
         if( a > 170){
           // TODO
-          std::cerr << "Quasi-linear angle. Not treated properly." << std::endl;
+          std::cerr << "WARNING: Quasi-linear angle. Not treated properly yet."
+                    << std::endl;
         }
         
         // Store angle
@@ -662,6 +663,13 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
         }
       }
     }
+  }
+  
+  // Check if dihedrals are found
+  if(n_atoms >= 4 && dih.size() == 0){
+    // TODO
+    std::cerr << "WARNING: Out of plane bending not implemented yet."
+              << std::endl;
   }
   
   // Return list of dihedral angles
