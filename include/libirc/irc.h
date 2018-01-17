@@ -14,7 +14,7 @@ namespace irc {
 template <typename Vector3, typename Vector, typename Matrix>
 class IRC {
  public:
-  IRC(const molecule::Molecule<Vector3>& molecule);
+  IRC(const molecule::Molecule<Vector3>& molecule = {});
   
   Matrix projected_initial_hessian_inv() const;
 
@@ -122,6 +122,10 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
 
 template <typename Vector3, typename Vector, typename Matrix>
 Matrix IRC<Vector3, Vector, Matrix>::projected_hessian_inv(const Matrix& H) const{
+  if( linalg::size(H) != n_irc * n_irc){
+    throw std::length_error("ERROR: Wrong Hessian size.");
+  }
+
   return P * H * P;
 }
 
@@ -144,12 +148,20 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_hessian_inv(const Matrix& H) cons
 template <typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
     const Vector& grad_c) const{
+  if( linalg::size(grad_c) != n_c){
+    throw std::length_error("ERROR: Wrong cartesian gradient size.");
+  }
+
   return P *
       transformation::gradient_cartesian_to_irc<Vector,Matrix>(grad_c, B);
 }
 
 template <typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const{
+  if( linalg::size(x_c) != n_c){
+    throw std::length_error("ERROR: Wrong cartesian coordinates size.");
+  }
+
   return transformation::cartesian_to_irc<Vector3,Vector>(x_c,
                                                           bonds,
                                                           angles,
@@ -163,6 +175,18 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(
     const Vector& x_c_old,
     size_t max_iters,
     double tolerance){
+
+  if( linalg::size(q_irc_old) != n_irc){
+    throw std::length_error("ERROR: Wrong old IRC coordinate size.");
+  }
+
+  if( linalg::size(dq_irc) != n_irc){
+    throw std::length_error("ERROR: Wrong IRC displacement size.");
+  }
+
+  if( linalg::size(x_c_old) != n_c){
+    throw std::length_error("ERROR: Wrong old cartesian coordinates size.");
+  }
 
   Vector x_c_new{
       transformation::irc_to_cartesian<Vector3,Vector,Matrix>(q_irc_old,
