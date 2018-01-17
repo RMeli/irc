@@ -196,16 +196,14 @@ TEST_CASE("Connectivity for compressed H2O"){
   // Compute bonds
   std::vector<Bond> B{ bonds(dist, molecule) };
   
-  // TODO: Check this properly with other codes!!!
-  
   // Check number of bonds
-  REQUIRE( B.size() == 3); // Three bonds between the three fragments
+  REQUIRE( B.size() == 2);
   
   // Compute angles
   std::vector<Angle> A{ angles(dist, predecessors, molecule) };
   
   // Check number of angles
-  REQUIRE( A.size() == 0); // No angles for this bonding structure
+  REQUIRE( A.size() == 1);
   
   // Compute IRC
   vec q{irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(molecule), B, A, {})};
@@ -242,13 +240,16 @@ TEST_CASE("Connectivity for stretched H2O"){
   double d2{1.4};
   double angle{102.03};
   
-  double a{(180. - angle) / 2.};
+  double a{(180. - angle) * deg_to_rad};
+  
+  double cos_a{ std::cos(a)};
+  double sin_a{ std::sin(a) };
   
   // Define compressed H2 molecule
   Molecule<vec3> molecule{
-      {"O",{0, 0, 0}},
-      {"H",{ d1 * std::cos(a * deg_to_rad), -d1 * std::sin(a * deg_to_rad), 0}},
-      {"H",{-d2 * std::cos(a * deg_to_rad), -d2 * std::sin(a * deg_to_rad), 0}}
+      {"O",{0., 0., 0.}},
+      {"H",{-d1, 0., 0.}},
+      {"H",{d2 * cos_a, -d2 * sin_a, 0.}}
   };
   
   std::cout << "MOLECULE: " << std::endl;
@@ -274,34 +275,39 @@ TEST_CASE("Connectivity for stretched H2O"){
   std::vector<Bond> B{ bonds(dist, molecule) };
   
   // Check number of bonds
-  REQUIRE( B.size() == 2);
+  REQUIRE( B.size() == 3); // Three interfragment bonds
   
   // Compute angles
   std::vector<Angle> A{ angles(dist, predecessors, molecule) };
   
   // Check number of angles
-  REQUIRE( A.size() == 1);
+  REQUIRE( A.size() == 0);  // No angles for this bonding structure
   
   // Compute IRC
   vec q{irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(molecule), B, A, {})};
+  
+  // Because the three atoms belong to three different fragments, there
+  // are three bonds (and no angles) for this structure.
+  // TODO: Check this properly with other codes!!!
   
   // Check number of IRC
   REQUIRE( linalg::size<vec>(q) == 3);
   
   SECTION("Bonds"){
+    // O-H1
     Approx bb1(d1 * angstrom_to_bohr);
     bb1.margin(1e-12);
     REQUIRE( q(0) == bb1 );
     
+    // O-H2
     Approx bb2(d2 * angstrom_to_bohr);
     bb2.margin(1e-12);
     REQUIRE( q(1) == bb2 );
-  }
   
-  SECTION("Angle"){
-    Approx aa(angle);
-    aa.margin(1e-12);
-    REQUIRE( q(2) == aa );
+    // H1-H2
+    Approx bb3( distance<vec3>(molecule[1].position, molecule[2].position) );
+    bb3.margin(1e-12);
+    REQUIRE( q(2) == bb3 );
   }
 }
 
