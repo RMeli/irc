@@ -60,6 +60,7 @@ TEST_CASE("Distance, angle and dihedral"){
   
 }
 
+// Regular bond
 TEST_CASE("Connectivity for compressed H2"){
   using namespace std;
   
@@ -109,6 +110,7 @@ TEST_CASE("Connectivity for compressed H2"){
   
 }
 
+// Interfragment bond
 TEST_CASE("Connectivity for stretched H2"){
   using namespace std;
   
@@ -155,7 +157,177 @@ TEST_CASE("Connectivity for stretched H2"){
     bb.margin(1e-12);
     REQUIRE( q(0) == bb );
   }
+}
+
+// Angle
+TEST_CASE("Connectivity for compressed H2O"){
+  using namespace std;
   
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  double d1{0.8};
+  double d2{0.6};
+  double angle{134};
+  
+  double a{(180. - angle) / 2.};
+  
+  // Define compressed H2 molecule
+  Molecule<vec3> molecule{
+      {"O",{0, 0, 0}},
+      {"H",{ d1 * std::cos(a * deg_to_rad), -d1 * std::sin(a * deg_to_rad), 0}},
+      {"H",{-d2 * std::cos(a * deg_to_rad), -d2 * std::sin(a * deg_to_rad), 0}}
+  };
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Compute interatomic distance for compressed H2
+  mat dd{ distances<vec3, mat>(molecule) };
+  
+  // Compute adjacency graph for compressed H2
+  UGraph adj{ adjacency_matrix(dd, molecule) };
+  
+  // Compute distance and predecessor matrices for compressed H2
+  Mat<int> dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  
+  // Compute bonds
+  std::vector<Bond> B{ bonds(dist, molecule) };
+  
+  // TODO: Check this properly with other codes!!!
+  
+  // Check number of bonds
+  REQUIRE( B.size() == 3); // Three bonds between the three fragments
+  
+  // Compute angles
+  std::vector<Angle> A{ angles(dist, predecessors, molecule) };
+  
+  // Check number of angles
+  REQUIRE( A.size() == 0); // No angles for this bonding structure
+  
+  // Compute IRC
+  vec q{irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(molecule), B, A, {})};
+  
+  // Check number of IRC
+  REQUIRE( linalg::size<vec>(q) == 3);
+  
+  SECTION("Bonds"){
+    Approx bb1(d1 * angstrom_to_bohr);
+    bb1.margin(1e-12);
+    REQUIRE( q(0) == bb1 );
+  
+    Approx bb2(d2 * angstrom_to_bohr);
+    bb2.margin(1e-12);
+    REQUIRE( q(1) == bb2 );
+  }
+  
+  SECTION("Angle"){
+    Approx aa(angle);
+    aa.margin(1e-12);
+    REQUIRE( q(2) == aa );
+  }
+}
+
+// Angle from interfragment bonds
+TEST_CASE("Connectivity for stretched H2O"){
+  using namespace std;
+  
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  double d1{1.3};
+  double d2{1.4};
+  double angle{102.03};
+  
+  double a{(180. - angle) / 2.};
+  
+  // Define compressed H2 molecule
+  Molecule<vec3> molecule{
+      {"O",{0, 0, 0}},
+      {"H",{ d1 * std::cos(a * deg_to_rad), -d1 * std::sin(a * deg_to_rad), 0}},
+      {"H",{-d2 * std::cos(a * deg_to_rad), -d2 * std::sin(a * deg_to_rad), 0}}
+  };
+  
+  std::cout << "MOLECULE: " << std::endl;
+  std::cout << to_cartesian<vec3,vec>(molecule) << std::endl;
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Compute interatomic distance for compressed H2
+  mat dd{ distances<vec3, mat>(molecule) };
+  
+  // Compute adjacency graph for compressed H2
+  UGraph adj{ adjacency_matrix(dd, molecule) };
+  
+  // Compute distance and predecessor matrices for compressed H2
+  Mat<int> dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  
+  std::cout << "DISTANCES:\n" << dist << std::endl;
+  std::cout << "PREDECESSORS:\n" << predecessors << std::endl;
+  
+  // Compute bonds
+  std::vector<Bond> B{ bonds(dist, molecule) };
+  
+  // Check number of bonds
+  REQUIRE( B.size() == 2);
+  
+  // Compute angles
+  std::vector<Angle> A{ angles(dist, predecessors, molecule) };
+  
+  // Check number of angles
+  REQUIRE( A.size() == 1);
+  
+  // Compute IRC
+  vec q{irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(molecule), B, A, {})};
+  
+  // Check number of IRC
+  REQUIRE( linalg::size<vec>(q) == 3);
+  
+  SECTION("Bonds"){
+    Approx bb1(d1 * angstrom_to_bohr);
+    bb1.margin(1e-12);
+    REQUIRE( q(0) == bb1 );
+    
+    Approx bb2(d2 * angstrom_to_bohr);
+    bb2.margin(1e-12);
+    REQUIRE( q(1) == bb2 );
+  }
+  
+  SECTION("Angle"){
+    Approx aa(angle);
+    aa.margin(1e-12);
+    REQUIRE( q(2) == aa );
+  }
+}
+
+// Dihedral
+TEST_CASE("Connectivity for compressed H2O2"){
+  // TODO
+}
+
+// Dihedral from interfragment bonds
+TEST_CASE("Connectivity for stretched H2O2"){
+  // TODO
+}
+
+// Hydrogen bond
+TEST_CASE("Connectivity for bent water dimer"){
+
+}
+
+// Quasi-linear angles
+TEST_CASE("Connectivity for water dimer"){
+  // TODO
+}
+
+// Interfragment bonds
+TEST_CASE("Connectivity for benzene dimer"){
+
 }
 
 TEST_CASE("Connectivity test for CH2O"){
