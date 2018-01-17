@@ -80,8 +80,6 @@ if(NOT EXISTS include/boost)
     target_link_libraries(irc ${Boost_LIBRARIES})
 endif()
 
-
-
 find_package(
         Armadillo
         8.000.0
