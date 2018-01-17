@@ -591,11 +591,20 @@ std::vector<Angle> angles(const Matrix &distance_m,
   std::vector<Angle> ang;
   
   size_t k{0};
+  double a{0};
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
       
       if (distance_m(i, j) == 2) {
         k = predecessors_m(i, j);
+        
+        a = angle<Vector3>({i,k,j}, molecule);
+        
+        // Compute angle
+        if( a > 170){
+          // TODO
+          std::cerr << "Quasi-linear angle. Not treated properly." << std::endl;
+        }
         
         // Store angle
         ang.push_back(Angle{i, k, j});
@@ -618,7 +627,8 @@ std::vector<Angle> angles(const Matrix &distance_m,
 template<typename Vector3, typename Matrix>
 std::vector<Dihedral> dihedrals(const Matrix &distance_m,
                                 const Matrix &predecessors_m,
-                                const molecule::Molecule<Vector3> &molecule) {
+                                const molecule::Molecule<Vector3> &molecule,
+                                double epsilon = 1.e-3) {
   
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
@@ -627,6 +637,8 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   std::vector<Dihedral> dih;
   
   size_t k{0}, l{0};
+  double a1{0}, a2{0};
+  bool linear{false};
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
       
@@ -634,8 +646,20 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
         k = predecessors_m(i, j);
         l = predecessors_m(i, k);
         
-        // Store dihedral angle
-        dih.push_back(Dihedral{i, l, k, j});
+        a1 = angle<Vector3>({i,l,k}, molecule);
+        if(std::abs(a1-180) < epsilon){
+          linear = true;
+        }
+  
+        a2 = angle<Vector3>({l,k,j}, molecule);
+        if(std::abs(a2 - 180) < epsilon){
+          linear = true;
+        }
+        
+        if(!linear){
+          // Store dihedral angle
+          dih.push_back(Dihedral{i, l, k, j});
+        }
       }
     }
   }
