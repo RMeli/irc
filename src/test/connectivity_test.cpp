@@ -252,9 +252,6 @@ TEST_CASE("Connectivity for stretched H2O"){
       {"H",{d2 * cos_a, -d2 * sin_a, 0.}}
   };
   
-  std::cout << "MOLECULE: " << std::endl;
-  std::cout << to_cartesian<vec3,vec>(molecule) << std::endl;
-  
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
   
@@ -267,9 +264,6 @@ TEST_CASE("Connectivity for stretched H2O"){
   // Compute distance and predecessor matrices for compressed H2
   Mat<int> dist, predecessors;
   std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
-  
-  std::cout << "DISTANCES:\n" << dist << std::endl;
-  std::cout << "PREDECESSORS:\n" << predecessors << std::endl;
   
   // Compute bonds
   std::vector<Bond> B{ bonds(dist, molecule) };
@@ -321,9 +315,83 @@ TEST_CASE("Connectivity for stretched H2O2"){
   // TODO
 }
 
-// Hydrogen bond
+// Hydrogen bond (without quasi-linear angles)
 TEST_CASE("Connectivity for bent water dimer"){
+  using namespace std;
+  
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  double d1{1.3};
+  double d2{1.4};
+  double angle{102.03};
+  
+  double a{(180. - angle) * deg_to_rad};
+  
+  double cos_a{ std::cos(a)};
+  double sin_a{ std::sin(a) };
+  
+  // Define compressed H2 molecule
+  Molecule<vec3> molecule{
+      {"O",{-1.464,   0.099,  -0.300}},
+      {"H",{-1.956,   0.624,  -0.340}},
+      {"H",{-1.797,  -0.799,   0.206}},
+      {"O",{ 1.369,   0.146,  -0.395}},
+      {"H",{ 1.894,   0.486,   0.335}},
+      {"H",{ 0.451,   0.165,  -0.083}}
+  };
 
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Compute interatomic distance for compressed H2
+  mat dd{ distances<vec3, mat>(molecule) };
+  
+  // Compute adjacency graph for compressed H2
+  UGraph adj{ adjacency_matrix(dd, molecule) };
+  
+  // Compute distance and predecessor matrices for compressed H2
+  Mat<int> dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  
+  // Compute bonds
+  std::vector<Bond> B{ bonds(dist, molecule) };
+  
+  // Check number of bonds
+  REQUIRE( B.size() == 5); // 4 regular bonds plus H-bond
+  
+  // Compute angles
+  std::vector<Angle> A{ angles(dist, predecessors, molecule) };
+  
+  // Check number of angles
+  REQUIRE( A.size() == 5);
+  
+  // Compute dihedral angles
+  std::vector<Dihedral> D{ dihedrals(dist, predecessors, molecule) };
+  
+  // TODO: Check wit other codes (where dihedral 2-1-3-6 is added).
+  
+  // Check number of angles
+  REQUIRE( D.size() == 3);
+  
+  // Compute IRC
+  vec q{irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(molecule), B, A, D)};
+  
+  // Check number of IRC
+  REQUIRE( linalg::size<vec>(q) == 13);
+  
+  SECTION("Bonds"){
+    // TODO
+  }
+  
+  SECTION("Angles"){
+    // TODO
+  }
+  
+  SECTION("Dihedrals"){
+    // TODO
+  }
 }
 
 // Quasi-linear angles
