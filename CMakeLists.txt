@@ -70,17 +70,21 @@ target_include_directories( irc PUBLIC ${CMAKE_BINARY_DIR}/src)
 # | FIND EXTERNAL LIBRARIES |
 # + ----------------------- +
 
-#find_package(
-#        Boost
-#        1.65.0
-#        REQUIRED
-#        )
-#include_directories(irc ${Boost_INCLUDE_DIRS}) # DON'T USE
-#target_link_libraries(irc ${Boost_LIBRARIES})
+if(NOT EXISTS include/boost)
+    find_package(
+            Boost
+            1.60.0
+            REQUIRED
+        )
+    include_directories(irc ${Boost_INCLUDE_DIRS}) # DON'T USE
+    target_link_libraries(irc ${Boost_LIBRARIES})
+endif()
+
+
 
 find_package(
         Armadillo
-        8.200.0
+        8.000.0
         REQUIRED
         )
 if( ${ARMADILLO_FOUND})
