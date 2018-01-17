@@ -235,7 +235,7 @@ TEST_CASE("Connectivity test with molecule from input"){
   using namespace connectivity;
   
   // Load molecule from file
-  Molecule<vec3> molecule{ load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz") };
+  Molecule<vec3> molecule{ load_xyz<vec3>(config::molecules_dir + "caffeine.xyz") };
   
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);

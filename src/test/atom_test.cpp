@@ -23,7 +23,7 @@ TEST_CASE("Test atom and periodic table lookup functions","[atom]"){
   
   using namespace atom;
   
-  SECTION("Atom from atomic number"){
+  SECTION("atom from atomic number"){
     for(size_t i{1}; i < periodic_table::pt_size; i++) {
       REQUIRE( periodic_table::valid_atomic_number(i) );
   
@@ -49,10 +49,28 @@ TEST_CASE("Test atom and periodic table lookup functions","[atom]"){
         
         REQUIRE( covalent_radius(a.atomic_number) == target );
       }
+
+      SECTION("Van der Waals radius from atomic number"){
+        Approx target{periodic_table::pt_vdv_radii[i]};
+
+        target.margin(1e-12);
+
+        REQUIRE( vdw_radius(a.atomic_number) == target );
+      }
+
+      SECTION("atom in H-bond"){
+        if(i == 1){
+          REQUIRE( is_H(a.atomic_number) );
+        }
+        else if(i == 7 or i == 8 or i == 9 or i == 15 or i == 16 or i == 17){
+          REQUIRE( is_NOFPSCl(a.atomic_number) );
+        }
+      }
+
     }
   }
   
-  SECTION("Atom from atomic symbol"){
+  SECTION("atom from atomic symbol"){
     for(size_t i{1}; i < periodic_table::pt_size; i++) {
       REQUIRE( periodic_table::valid_atomic_number(i) );
     
@@ -77,6 +95,23 @@ TEST_CASE("Test atom and periodic table lookup functions","[atom]"){
         target.margin(1e-12);
         
         REQUIRE( covalent_radius(a.atomic_number) == target );
+      }
+
+      SECTION("Van der Waals radius from atomic number"){
+        Approx target{periodic_table::pt_vdv_radii[i]};
+
+        target.margin(1e-12);
+
+        REQUIRE( vdw_radius(a.atomic_number) == target );
+      }
+
+      SECTION("atom in H-bond"){
+        if(i == 1){
+          REQUIRE( is_H(a.atomic_number) );
+        }
+        else if(i == 7 or i == 8 or i == 9 or i == 15 or i == 16 or i == 17){
+          REQUIRE( is_NOFPSCl(a.atomic_number) );
+        }
       }
     }
   }
