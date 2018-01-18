@@ -23,9 +23,6 @@ namespace irc {
 
 namespace connectivity {
 
-constexpr double covalent_bond_multiplier{1.3};
-constexpr double vdw_bond_multiplier{0.9};
-
 using EdgeProperty = boost::property<boost::edge_weight_t, int>;
 
 using UGraph =
@@ -358,7 +355,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
                            atom::covalent_radius(molecule[j].atomic_number);
 
       // Determine if atoms i and j are bonded
-      if (d < covalent_bond_multiplier * sum_covalent_radii) {
+      if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
         // Add edge to boost::adjacency_list between vertices i and j
         // The weights are set to 1 for all edges.
         boost::add_edge(i, j, 1, ug);
@@ -415,7 +412,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
                            atom::covalent_radius(molecule[j].atomic_number);
 
       // Determine if atoms i and j are bonded
-      if (d < covalent_bond_multiplier * sum_covalent_radii) {
+      if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
 
         // TODO: Better ways of doing this...
         // Search for H-bonds: XH...Y
@@ -464,7 +461,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
 
               // Check H-bond properties
               if (d > sum_covalent_radii and
-                  d < sum_vdw_radii * vdw_bond_multiplier and
+                  d < sum_vdw_radii * tools::constants::vdw_bond_multiplier and
                   a > 90) {
                 // Add hydrogen bond
                 boost::add_edge(h_idx, k, 1, ug);
@@ -603,7 +600,7 @@ std::vector<Angle> angles(const Matrix &distance_m,
         // Compute angle
         if( a > 170){
           // TODO
-          std::cerr << "WARNING: Quasi-linear angle. Not treated properly yet."
+          std::cerr << "WARNING: Quasi-linear angle not treated properly yet."
                     << std::endl;
         }
         
