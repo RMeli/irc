@@ -21,6 +21,7 @@
 
 namespace irc {
 
+/// Connectivity
 namespace connectivity {
 
 using EdgeProperty = boost::property<boost::edge_weight_t, int>;
