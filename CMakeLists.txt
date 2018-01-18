@@ -80,35 +80,39 @@ if(NOT EXISTS ${CMAKE_SOURCE_DIR}/include/boost)
     target_link_libraries(irc ${Boost_LIBRARIES})
 endif()
 
-#find_package(
-#        Armadillo
-#        8.000.0
-#        REQUIRED
-#        )
-#if( ${ARMADILLO_FOUND})
-#        include_directories(irc ${ARMADILLO_INCLUDE_DIRS}) # DON'T USE
-#        target_link_libraries(irc ${ARMADILLO_LIBRARIES})
-#        add_definitions(-DHAVE_ARMA)
-
-#        message("-- Armadillo version: " ${ARMADILLO_VERSION_STRING})
-#endif()
-
 find_package(
-        Eigen3
-        3.2
+        Armadillo
+        8.000.0
         REQUIRED
-)
-if( ${EIGEN3_FOUND})
-        include_directories(${EIGEN3_INCLUDE_DIRS})
-        target_link_libraries(irc ${EIGEN3_LIBRARIES})
-        add_definitions(-DHAVE_EIGEN3)
+        )
+if( ${ARMADILLO_FOUND})
+        include_directories(irc ${ARMADILLO_INCLUDE_DIRS}) # DON'T USE
+        target_link_libraries(irc ${ARMADILLO_LIBRARIES})
+        add_definitions(-DHAVE_ARMA)
 
-        add_definitions(-DEIGEN_MATRIX_PLUGIN="eigen/plugins/Matrix_initializer_list.h")
-        add_definitions(-DEIGEN_ARRAY_PLUGIN="eigen/plugins/Array_initializer_list.h")
-
-
-        message("-- Eigen3 version: " ${EIGEN3_VERSION_STRING})
+        message("-- Armadillo version: " ${ARMADILLO_VERSION_STRING})
 endif()
+
+#find_package(
+#        Eigen3
+#        3.2
+#        REQUIRED
+#)
+#if( ${EIGEN3_FOUND})
+#        include_directories(${EIGEN3_INCLUDE_DIRS})
+#        target_link_libraries(irc ${EIGEN3_LIBRARIES})
+#        add_definitions(-DHAVE_EIGEN3)
+
+#        add_definitions(
+#                -DEIGEN_MATRIX_PLUGIN="eigen/plugins/Matrix_initializer_list.h"
+#        )
+#        add_definitions(
+#                -DEIGEN_ARRAY_PLUGIN="eigen/plugins/Array_initializer_list.h"
+#        )
+
+
+#        message("-- Eigen3 version: " ${EIGEN3_VERSION_STRING})
+#endif()
 
 # + ------- +
 # | INSTALL |
