@@ -11,7 +11,8 @@
 #include <armadillo>
 using arma::vec3;
 #elif HAVE_EIGEN3
-# error // TODO: Solve problem with std::initializer_list
+#include <Eigen3/Eigen/Dense>
+using vec3 = Eigen::Vector3d;
 #else
 #error
 #endif

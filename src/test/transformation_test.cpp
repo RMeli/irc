@@ -18,6 +18,14 @@ using mat = arma::mat;
 
 template <typename T>
 using Mat = arma::Mat<T>;
+#elif HAVE_EIGEN3
+#include <Eigen3/Eigen/Dense>
+using vec3 = Eigen::Vector3d;
+using vec = Eigen::VectorXd;
+using mat = Eigen::MatrixXd;
+
+template <typename T>
+using Mat = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>;
 #else
 #error
 #endif
@@ -157,7 +165,7 @@ TEST_CASE("Transformation"){
     );
   
     // Allocate vector for internal reaction coordinates
-    vec q_irc{ irc_from_bad<vec>(
+    vec q_irc{ irc_from_bad<vec3,vec>(
         molecule::to_cartesian<vec3,vec>(molecule), B, {}, {})
     };
     
@@ -259,7 +267,7 @@ TEST_CASE("Transformation"){
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{
-        irc_from_bad<vec>(
+        irc_from_bad<vec3,vec>(
             molecule::to_cartesian<vec3,vec>(molecule), B, A, {}
         )
     };
@@ -392,7 +400,7 @@ TEST_CASE("Transformation"){
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{
-        irc_from_bad<vec>(
+        irc_from_bad<vec3,vec>(
             molecule::to_cartesian<vec3,vec>(molecule), B, A, D
         )
     };

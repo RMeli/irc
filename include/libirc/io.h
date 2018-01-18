@@ -3,7 +3,7 @@
 
 #include "molecule.h"
 
-#include <istream>
+#include <fstream>
 #include <stdexcept>
 
 namespace irc {
@@ -42,7 +42,7 @@ molecule::Molecule <Vector3> load_xyz(std::istream &in) {
 /// \return Molecule
 template<typename Vector3>
 molecule::Molecule <Vector3> load_xyz(std::string fname) {
-  std::ifstream in(fname);
+  std::ifstream in{fname};
   
   if (!in.is_open()) {
     throw std::runtime_error("Impossible to open file " + fname);

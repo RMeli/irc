@@ -3,7 +3,7 @@
 
 #ifdef HAVE_ARMA
 #include <armadillo>
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <Eigen/LU>
@@ -34,7 +34,7 @@ template<typename T>
 size_t n_rows(const T &a){
 #ifdef HAVE_ARMA
   return a.n_rows;
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return a.rows();
 #else
 #error
@@ -50,7 +50,7 @@ template<typename T>
 size_t n_cols(const T &a){
 #ifdef HAVE_ARMA
   return a.n_cols;
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return a.cols();
 #else
 #error
@@ -65,7 +65,7 @@ template<typename T>
 double norm(const T &a){
 #ifdef HAVE_ARMA
   return arma::norm(a);
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return a.norm();
 #else
 #error
@@ -82,7 +82,7 @@ template<typename T>
 double dot(const T &a, const T &b){
 #ifdef HAVE_ARMA
   return arma::dot(a,b);
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return a.dot(b);
 #else
 #error
@@ -99,7 +99,7 @@ template<typename Vector3>
 Vector3 cross(const Vector3 &a, const Vector3 &b){
 #ifdef HAVE_ARMA
   return arma::cross(a,b);
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return a.cross(b);
 #else
 #error
@@ -115,7 +115,7 @@ template<typename Vector>
 Vector zeros(size_t nelements){
 #ifdef HAVE_ARMA
   return arma::zeros<Vector>(nelements);
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return Vector::Zero(nelements);
 #else
 #error
@@ -132,7 +132,7 @@ template<typename Matrix>
 Matrix zeros(size_t nrows, size_t ncols){
 #ifdef HAVE_ARMA
   return arma::zeros<Matrix>(nrows, ncols);
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return Matrix::Zero(nrows, ncols);
 #else
 #error
@@ -148,8 +148,8 @@ template<typename Matrix>
 Matrix ones(size_t nrows, size_t ncols){
 #ifdef HAVE_ARMA
   return arma::ones<Matrix>(nrows, ncols);
-#elif HAVE_EIGEN
-#error
+#elif HAVE_EIGEN3
+  return Matrix::Ones(nrows, ncols);
 #else
 #error
 #endif
@@ -164,7 +164,7 @@ template<typename Matrix>
 Matrix identity(size_t n){
 #ifdef HAVE_ARMA
   return arma::eye(n, n);
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return Matrix::Identity(n, n);
 #else
 #error
@@ -180,7 +180,7 @@ template<typename Matrix>
 Matrix transpose(const Matrix &mat){
 #ifdef HAVE_ARMA
   return arma::trans(mat);
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return mat.transpose();
 #else
 #error
@@ -196,7 +196,7 @@ template<typename Matrix>
 Matrix inv(const Matrix &mat){
 #ifdef HAVE_ARMA
   return arma::inv(mat);
-#elif HAVE_EIGEN
+#elif HAVE_EIGEN3
   return mat.inverse();
 #else
 #error
@@ -212,8 +212,8 @@ template<typename Matrix>
 Matrix pseudo_inverse(const Matrix &mat){
 #ifdef HAVE_ARMA
   return arma::pinv(mat);
-#elif HAVE_EIGEN
-  return mat.pseudoInverse();
+#elif HAVE_EIGEN3
+  return mat.completeOrthogonalDecomposition().pseudoInverse();
 #else
 #error
 #endif
