@@ -3,9 +3,12 @@
 #include "libirc/wilson.h"
 
 #include "libirc/atom.h"
+#include "libirc/io.h"
 #include "libirc/molecule.h"
 #include "libirc/connectivity.h"
 #include "libirc/conversion.h"
+
+#include "config.h"
 
 #include <cmath>
 #include <iostream>
@@ -266,4 +269,57 @@ TEST_CASE("Wilson B matrix","[wilson]"){
       REQUIRE( displacement(5) * 180 / tools::constants::pi == target );
     }
   }
+}
+
+TEST_CASE("Wilson"){
+  using namespace std;
+  
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+  using namespace wilson;
+  
+  Molecule<vec3> mol{
+      io::load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz")
+  };
+  
+  // Transform molecule to bohr
+  multiply_positions(mol, conversion::angstrom_to_bohr);
+  
+  // Compute interatomic distances
+  mat dd{ distances<vec3,mat>(mol) };
+  
+  // Compute adjacency matrix (graph)
+  UGraph adj{ adjacency_matrix(dd, mol) };
+  
+  // Compute distance matrix and predecessor matrix
+  mat dist, predecessors;
+  tie(dist, predecessors) = distance_matrix<mat>(adj);
+  
+  // Compute bonds
+  vector<Bond> B{ bonds(dist, mol) };
+  
+  REQUIRE( B.size() == 3 );
+  
+  // Compute angles
+  vector<Angle> A{ angles(dist, predecessors, mol)};
+  
+  REQUIRE( A.size() == 2 );
+  
+  // Compute dihedrals
+  vector<Dihedral> D{ dihedrals(dist, predecessors, mol)};
+  
+  REQUIRE( D.size() == 1 );
+  
+  cout << "q =\n"
+       << irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(mol),B,A,D) << endl;
+  
+  // Return Wilson's B matrix
+  mat WB{
+      wilson_matrix<vec3,vec,mat>(
+          to_cartesian<vec3,vec>(mol),
+          B,A,D)
+  };
+  
+  cout << "B =\n" << WB << endl;
 }

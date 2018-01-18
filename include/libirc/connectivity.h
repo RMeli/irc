@@ -74,6 +74,12 @@ struct Dihedral {
 /// \param v1 Point 1
 /// \param v2 Poin 2
 /// \return Distance between point  1 and point 2
+///
+/// The distance \f$d\f$ between two points \f$\vec{v}_1\f$ and \f$\vec{v}_2\f$
+/// is defined as
+/// \f[
+///   d = |\vec{v}_1 - \vec{v}_2|.
+/// \f]
 template<typename Vector3>
 inline double distance(const Vector3 &v1, const Vector3 &v2) {
   return linalg::norm(v1 - v2);
@@ -122,6 +128,15 @@ inline double bond(const Bond& b, const molecule::Molecule<Vector3>& molecule){
 /// \param v2 Point 2
 /// \param v3 Point 3
 /// \return Angle between points 1, 2 and 3
+///
+/// The angle \f$a\f$ between three points \f$\vec{v}_1\f$, \f$\vec{v}_2\f$
+/// and \f$\vec{v}_3\f$ is defined as
+/// \f[
+///   a = \cos^{-1}\left( \frac{\vec{r}_{21}\cdot\vec{r}_{23}}
+///       {|\vec{r}_{21}||\vec{r}_{23}|} \right).
+/// \f]
+/// where \f$\vec{r}_{21}=\vec{v}_1-\vec{v}_2\f$ and
+/// \f$\vec{r}_{23}= \vec{v}_3-\vec{v}_2\f$
 template<typename Vector3>
 inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
   Vector3 r1{v1 - v2};
@@ -673,6 +688,7 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   return dih;
 }
 
+// TODO: Same function taking a molecule
 /// Get current internal redundant coordinates for list of bonds, angles and
 /// dihedral angles
 ///

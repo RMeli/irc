@@ -21,7 +21,6 @@ TEST_CASE("Loading XYZ file"){
   using namespace io;
   using namespace molecule;
   
-  // TODO: Filename independent of building directory
   Molecule<vec3> mol{ load_xyz<vec3>(config::molecules_dir + "caffeine.xyz") };
   
   std::cout << mol << std::endl;
