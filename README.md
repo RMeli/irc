@@ -6,6 +6,11 @@
 
 ## Usage
 
+### Dependencies
+
+- [Boost](http://www.boost.org/) (now included)
+- [Armadillo](http://arma.sourceforge.net/) (requirement to be removed)
+
 ### Build
 Debug:
 ```

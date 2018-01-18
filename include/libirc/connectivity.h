@@ -21,10 +21,8 @@
 
 namespace irc {
 
+/// Connectivity
 namespace connectivity {
-
-constexpr double covalent_bond_multiplier{1.3};
-constexpr double vdw_bond_multiplier{0.9};
 
 using EdgeProperty = boost::property<boost::edge_weight_t, int>;
 
@@ -77,6 +75,12 @@ struct Dihedral {
 /// \param v1 Point 1
 /// \param v2 Poin 2
 /// \return Distance between point  1 and point 2
+///
+/// The distance \f$d\f$ between two points \f$\vec{v}_1\f$ and \f$\vec{v}_2\f$
+/// is defined as
+/// \f[
+///   d = |\vec{v}_1 - \vec{v}_2|.
+/// \f]
 template<typename Vector3>
 inline double distance(const Vector3 &v1, const Vector3 &v2) {
   return linalg::norm(v1 - v2);
@@ -125,6 +129,15 @@ inline double bond(const Bond& b, const molecule::Molecule<Vector3>& molecule){
 /// \param v2 Point 2
 /// \param v3 Point 3
 /// \return Angle between points 1, 2 and 3
+///
+/// The angle \f$a\f$ between three points \f$\vec{v}_1\f$, \f$\vec{v}_2\f$
+/// and \f$\vec{v}_3\f$ is defined as
+/// \f[
+///   a = \cos^{-1}\left( \frac{\vec{r}_{21}\cdot\vec{r}_{23}}
+///       {|\vec{r}_{21}||\vec{r}_{23}|} \right).
+/// \f]
+/// where \f$\vec{r}_{21}=\vec{v}_1-\vec{v}_2\f$ and
+/// \f$\vec{r}_{23}= \vec{v}_3-\vec{v}_2\f$
 template<typename Vector3>
 inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
   Vector3 r1{v1 - v2};
@@ -358,7 +371,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
                            atom::covalent_radius(molecule[j].atomic_number);
 
       // Determine if atoms i and j are bonded
-      if (d < covalent_bond_multiplier * sum_covalent_radii) {
+      if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
         // Add edge to boost::adjacency_list between vertices i and j
         // The weights are set to 1 for all edges.
         boost::add_edge(i, j, 1, ug);
@@ -415,7 +428,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
                            atom::covalent_radius(molecule[j].atomic_number);
 
       // Determine if atoms i and j are bonded
-      if (d < covalent_bond_multiplier * sum_covalent_radii) {
+      if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
 
         // TODO: Better ways of doing this...
         // Search for H-bonds: XH...Y
@@ -464,7 +477,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
 
               // Check H-bond properties
               if (d > sum_covalent_radii and
-                  d < sum_vdw_radii * vdw_bond_multiplier and
+                  d < sum_vdw_radii * tools::constants::vdw_bond_multiplier and
                   a > 90) {
                 // Add hydrogen bond
                 boost::add_edge(h_idx, k, 1, ug);
@@ -591,11 +604,21 @@ std::vector<Angle> angles(const Matrix &distance_m,
   std::vector<Angle> ang;
   
   size_t k{0};
+  double a{0};
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
       
       if (distance_m(i, j) == 2) {
         k = predecessors_m(i, j);
+        
+        a = angle<Vector3>({i,k,j}, molecule);
+        
+        // Compute angle
+        if( a > 170){
+          // TODO
+          std::cerr << "WARNING: Quasi-linear angle not treated properly yet."
+                    << std::endl;
+        }
         
         // Store angle
         ang.push_back(Angle{i, k, j});
@@ -618,7 +641,8 @@ std::vector<Angle> angles(const Matrix &distance_m,
 template<typename Vector3, typename Matrix>
 std::vector<Dihedral> dihedrals(const Matrix &distance_m,
                                 const Matrix &predecessors_m,
-                                const molecule::Molecule<Vector3> &molecule) {
+                                const molecule::Molecule<Vector3> &molecule,
+                                double epsilon = 1.e-3) {
   
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
@@ -627,6 +651,8 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   std::vector<Dihedral> dih;
   
   size_t k{0}, l{0};
+  double a1{0}, a2{0};
+  bool linear{false};
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
       
@@ -634,16 +660,36 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
         k = predecessors_m(i, j);
         l = predecessors_m(i, k);
         
-        // Store dihedral angle
-        dih.push_back(Dihedral{i, l, k, j});
+        a1 = angle<Vector3>({i,l,k}, molecule);
+        if(std::abs(a1-180) < epsilon){
+          linear = true;
+        }
+  
+        a2 = angle<Vector3>({l,k,j}, molecule);
+        if(std::abs(a2 - 180) < epsilon){
+          linear = true;
+        }
+        
+        if(!linear){
+          // Store dihedral angle
+          dih.push_back(Dihedral{i, l, k, j});
+        }
       }
     }
+  }
+  
+  // Check if dihedrals are found
+  if(n_atoms >= 4 && dih.size() == 0){
+    // TODO
+    std::cerr << "WARNING: Out of plane bending not implemented yet."
+              << std::endl;
   }
   
   // Return list of dihedral angles
   return dih;
 }
 
+// TODO: Same function taking a molecule
 /// Get current internal redundant coordinates for list of bonds, angles and
 /// dihedral angles
 ///
