@@ -5,7 +5,7 @@ mkdir -p build
 cd build
 
 # CMake
-cmake -DCMAKE_BUILD_TYPE=Debug ..
+cmake ..
 
 # Make
 make -j
