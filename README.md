@@ -8,8 +8,9 @@
 
 ### Dependencies
 
-- [Boost](http://www.boost.org/) (now included)
-- [Armadillo](http://arma.sourceforge.net/) (requirement to be removed)
+IRC uses Boost Graph Library ([BGL](http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/index.html)) to determine the connectivity of the molecule. To simplify inclusion of IRC in other projects, BGL is provided in `inlcude/boost`. If you want to use your local Boost library, just remove `include/boost`.
+
+For tests, IRC needs a linear algebra library. For the time being, the use of [Armadillo](http://arma.sourceforge.net/) is required but support for [Eigen](http://eigen.tuxfamily.org) is also provided.
 
 ### Build
 Debug:

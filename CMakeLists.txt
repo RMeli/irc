@@ -73,7 +73,7 @@ target_include_directories( irc PUBLIC ${CMAKE_BINARY_DIR}/src)
 # | FIND EXTERNAL LIBRARIES |
 # + ----------------------- +
 
-if(NOT EXISTS include/boost)
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/include/boost)
     find_package(
             Boost
             1.60.0
@@ -99,13 +99,22 @@ endif()
 #find_package(
 #        Eigen3
 #        3.2
+#        REQUIRED
 #)
 #if( ${EIGEN3_FOUND})
 #        include_directories(${EIGEN3_INCLUDE_DIRS})
-#        target_link_libraries(libirc ${EIGEN3_LIBRARIES})
+#        target_link_libraries(irc ${EIGEN3_LIBRARIES})
 #        add_definitions(-DHAVE_EIGEN3)
 
-#        message("-- Eigen3 version: " ${EIGEN3_VERSION})
+#        add_definitions(
+#                -DEIGEN_MATRIX_PLUGIN="eigen/plugins/Matrix_initializer_list.h"
+#        )
+#        add_definitions(
+#                -DEIGEN_ARRAY_PLUGIN="eigen/plugins/Array_initializer_list.h"
+#        )
+
+
+#        message("-- Eigen3 version: " ${EIGEN3_VERSION_STRING})
 #endif()
 
 # + ------- +

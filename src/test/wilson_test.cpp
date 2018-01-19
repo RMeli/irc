@@ -18,6 +18,11 @@
 using vec3 = arma::vec3;
 using vec = arma::vec;
 using mat = arma::mat;
+#elif HAVE_EIGEN3
+#include <Eigen3/Eigen/Dense>
+using vec3 = Eigen::Vector3d;
+using vec = Eigen::VectorXd;
+using mat = Eigen::MatrixXd;
 #else
 #error
 #endif
@@ -26,34 +31,101 @@ using namespace irc;
 
 TEST_CASE("Wilson B matrix","[wilson]"){
   
+  bool verbose{true};
+  
   using namespace std;
+  
+  using namespace connectivity;
+  using namespace molecule;
   using namespace wilson;
   
   SECTION("H2 stretching"){
     
-    // Compute Wilson B matrix for H2
-    mat Bwilson = wilson_matrix<vec3,vec,mat>({{1,{0.,0.,0.}},{1,{1.,0.,0.}}});
+    // Define molecule
+    Molecule<vec3> mol{{"H",{0.,0.,0.}},{"H",{1.,0.,0.}}};
   
-    // H2 bond stretching
+    // Compute interatomic distances
+    mat dd{ distances<vec3,mat>(mol)};
+  
+    // Compute adjacency matrix (graph)
+    UGraph adj{ adjacency_matrix(dd, mol) };
+  
+    // Compute distance matrix and predecessor matrix
+    mat dist, pred;
+    tie(dist, pred) = distance_matrix<mat>(adj);
+  
+    // Compute bonds
+    vector<Bond> B{ bonds(dist, mol) };
+    
+    REQUIRE(B.size() == 1);
+  
+    // Compute Wilson B matrix for H2 analytically
+    mat Bwilson = wilson_matrix<vec3,vec,mat>(to_cartesian<vec3,vec>(mol),B);
+  
+    // Check Wilson B matrix size
+    REQUIRE( linalg::size(Bwilson) == 6 );
+    
+    if(verbose){
+      cout << "Wilson B matrix (analytical):" << endl;
+      cout << Bwilson << endl;
+    }
+  
+    // Compute Wilson B matrix for H2 numerically
+    mat BwilsonN = wilson_matrix_numerical<vec3,vec,mat>(to_cartesian<vec3,vec>(mol), B);
+  
+    // Check Wilson B matrix size
+    REQUIRE( linalg::size(BwilsonN) == 6 );
+  
+    if(verbose){
+      cout << "Wilson B matrix (numerical):" << endl;
+      cout << BwilsonN << endl;
+    }
+    
+    // Check analytical and numerical Wilson matrices are the same
+    SECTION("Analytical vs Numerical"){
+      for(size_t i{0}; i < 6; i++ ){
+        Approx target{BwilsonN(i)};
+        target.margin(1e-6);
+        
+        REQUIRE( Bwilson(i) == target);
+      }
+    }
+    
+    // Set bond stretching
     double d{0.01};
     vec dx{-d, 0.00, 0.00, d, 0.00, 0.00};
   
-    cout << "Wilson B matrix:" << endl;
-    cout << Bwilson << endl;
+    SECTION("Bond change (analytical)"){
+      // Compute transformation in IRC
+      vec transformation{Bwilson * dx};
+      
+      if(verbose){
+        cout << "\nTransformation (analytical)" << endl;
+        cout << Bwilson * dx << endl;
+      }
   
-    vec transformation{Bwilson * dx};
-    cout << "\nTransformation" << endl;
-    cout << Bwilson * dx << endl;
-    
-    SECTION("Bond change"){
       Approx target{2 * d};
-      
       target.margin(1e-5);
-      
+  
       REQUIRE( transformation(0) == target );
     }
-  }
   
+    SECTION("Bond change (numerical)"){
+      // Compute transformation in IRC
+      vec transformation{BwilsonN * dx};
+      
+      if(verbose){
+        cout << "\nTransformation (numerical)" << endl;
+        cout << Bwilson * dx << endl;
+      }
+  
+      Approx target{2 * d};
+      target.margin(1e-5);
+  
+      REQUIRE( transformation(0) == target );
+    }
+  } // H2 stretching
+
   SECTION("H2O bending"){
     
     double angle( 0.5 );
@@ -80,53 +152,103 @@ TEST_CASE("Wilson B matrix","[wilson]"){
         },
     };
     
-    molecule::Molecule<vec3> molecule{
+    molecule::Molecule<vec3> mol{
         {"H", { 1.43,  -1.10,  0.00}}, // H1
         {"O", { 0.00,   0.00,  0.00}}, // O
         {"H", {-1.43,  -1.10,  0.00}}  // H2
     };
     
     // Allocate displacements in cartesian coordinates
-    vec dx{ linalg::zeros<vec>(3 * molecule.size()) };
+    vec dx{ linalg::zeros<vec>(3 * mol.size()) };
     
     // Compute displacements
     for(size_t i{0}; i < 3; i++){
-      vec3 v{ R[i] * molecule[i].position - molecule[i].position};
+      vec3 v{ R[i] * mol[i].position - mol[i].position};
       
       dx(3*i + 0) = v(0);
       dx(3*i + 1) = v(1);
       dx(3*i + 2) = v(2);
     }
-    
-    // Compute Wilson's B matrix
-    mat Bwilson = wilson_matrix<vec3,vec,mat>(molecule);
   
-    // Print Wilson B matrix
-    cout << "\nWilson B matrix:" << endl;
-    cout << Bwilson << endl;
+    // Compute interatomic distances
+    mat dd{ distances<vec3,mat>(mol)};
   
-    // Compute displacement in internal coordinates
-    vec displacement{Bwilson * dx};
-    cout << "\nDisplacement:" << endl;
-    cout << displacement << endl;
+    // Compute adjacency matrix (graph)
+    UGraph adj{ adjacency_matrix(dd, mol) };
+  
+    // Compute distance matrix and predecessor matrix
+    mat dist, pred;
+    tie(dist, pred) = distance_matrix<mat>(adj);
+  
+    // Compute bonds
+    vector<Bond> B{ bonds(dist, mol) };
+  
+    // Check number of bonds
+    REQUIRE(B.size() == 2);
+  
+    // Compute bonds
+    vector<Angle> A{ angles(dist, pred, mol) };
+  
+    REQUIRE(A.size() == 1);
+  
+    // Compute Wilson B matrix for H2O analytically
+    mat Bwilson = wilson_matrix<vec3,vec,mat>(to_cartesian<vec3,vec>(mol),B, A);
+  
+    // Check Wilson B matrix size
+    REQUIRE( linalg::size(Bwilson) == 27 );
     
-    // Check that bonds do not change
-    SECTION("Bond change"){
-      Approx target{0};
+    if(verbose){
+      // Print Wilson B matrix
+      cout << "\nWilson B matrix (analytical):" << endl;
+      cout << Bwilson << endl;
+    }
+  
+    // Compute Wilson B matrix for H2O numerically
+    mat BwilsonN = wilson_matrix_numerical<vec3,vec,mat>(to_cartesian<vec3,vec>(mol),B, A);
+  
+    // Check Wilson B matrix size
+    REQUIRE( linalg::size(BwilsonN) == 27 );
+    
+    if(verbose){
+      // Print Wilson B matrix
+      cout << "\nWilson B matrix (numerical):" << endl;
+      cout << BwilsonN << endl;
+    }
+  
+    // Check analytical and numerical Wilson matrices are the same
+    SECTION("Analytical vs Numerical"){
+      for(size_t i{0}; i < 27; i++ ){
+        Approx target{BwilsonN(i)};
+        target.margin(1e-6);
       
-      target.margin(1e-4);
-      
-      REQUIRE( displacement(0) == target );
-      REQUIRE( displacement(1) == target );
+        REQUIRE( Bwilson(i) == target);
+      }
     }
     
-    // Check change in angle
-    SECTION("Angle change"){
-      Approx target{2 * angle};
+    SECTION("Analytical displacement"){
+      // Compute displacement in internal coordinates
+      vec displacement{Bwilson * dx};
+      cout << "\nDisplacement:" << endl;
+      cout << displacement << endl;
+  
+      // Check that bonds do not change
+      SECTION("Bond change"){
+        Approx target{0};
     
-      target.margin(1e-3);
+        target.margin(1e-4);
     
-      REQUIRE( displacement(2) * 180 / tools::constants::pi == target );
+        REQUIRE( displacement(0) == target );
+        REQUIRE( displacement(1) == target );
+      }
+  
+      // Check change in angle
+      SECTION("Angle change"){
+        Approx target{2 * angle};
+    
+        target.margin(1e-3);
+    
+        REQUIRE( displacement(2) * 180 / tools::constants::pi == target );
+      }
     }
   }
   
@@ -189,38 +311,19 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     // Compute bonds
     vector<connectivity::Bond> bonds{ connectivity::bonds(dist, molecule)};
   
-    // Print bonds
-    cout << "\nBonds:" << endl;
-    for(const auto& b : bonds){
-      cout << connectivity::bond(b, molecule) *
-          tools::conversion::bohr_to_angstrom << endl;
-    }
-  
     // Check number of bonds
     REQUIRE( bonds.size() == 3 );
   
     // Compute angles
     vector<connectivity::Angle> angles{
         connectivity::angles(dist, predecessors, molecule)};
-  
-    // Print angles
-    cout << "\nAngles:" << endl;
-    for(const auto& a : angles){
-      cout << connectivity::angle(a, molecule) << endl;
-    }
-  
+    
     // Check number of angles
     REQUIRE( angles.size() == 2 );
   
     // Compute dihedrals
     vector<connectivity::Dihedral> dihedrals{
         connectivity::dihedrals(dist, predecessors, molecule)};
-  
-    // Print angles
-    cout << "\nDihedrals:" << endl;
-    for(const auto& d : dihedrals){
-      cout << connectivity::dihedral(d, molecule) << endl;
-    }
   
     // Check number of dihedrals
     REQUIRE( dihedrals.size() == 1 );
@@ -229,45 +332,123 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     mat Bwilson = wilson_matrix<vec3,vec,mat>(
         molecule::to_cartesian<vec3,vec>(molecule),
         bonds, angles, dihedrals);
+    
+    REQUIRE( linalg::size(Bwilson) == 72 );
   
-    // Print Wilson B matrix
-    cout << "\nWilson B matrix:" << endl;
-    cout << Bwilson << endl;
-    
-    // Compute displacement in internal coordinates
-    vec displacement{Bwilson * dx};
-    cout << "\nDisplacement:" << endl;
-    cout << displacement << endl;
-  
-    // Check that bonds do not change
-    SECTION("Bond change"){
-      Approx target{0};
-    
-      target.margin(1e-3);
-    
-      REQUIRE( displacement(0) == target );
-      REQUIRE( displacement(1) == target );
-      REQUIRE( displacement(2) == target );
+    if(verbose){
+      // Print Wilson B matrix
+      cout << "\nWilson B matrix (analytical):" << endl;
+      cout << Bwilson << endl;
     }
   
-    // Check change in angle
-    SECTION("Angle change"){
-      Approx target{0};
-    
-      target.margin(1e-3);
+    // Compute Wilson's B matrix
+    mat BwilsonN = wilson_matrix_numerical<vec3,vec,mat>(
+        molecule::to_cartesian<vec3,vec>(molecule),
+        bonds, angles, dihedrals);
   
-      REQUIRE( displacement(3) == target );
-      REQUIRE( displacement(4) == target );
+    REQUIRE( linalg::size(BwilsonN) == 72 );
+  
+    if(verbose){
+      // Print Wilson B matrix
+      cout << "\nWilson B matrix (numerical):" << endl;
+      cout << BwilsonN << endl;
     }
   
-    // Check change in angle
-    SECTION("Dihedral change"){
-      Approx target{d_diff};
+    // Check analytical and numerical Wilson matrices are the same
+    SECTION("Analytical vs Numerical"){
+      for(size_t i{0}; i < 72; i++ ){
+        Approx target{BwilsonN(i)};
+        target.margin(1e-6);
       
-      target.margin(1e-4);
-    
-      REQUIRE( displacement(5) * 180 / tools::constants::pi == target );
+        REQUIRE( Bwilson(i) == target);
+      }
     }
+    
+    SECTION("Analytical displacements"){
+      // Compute displacement in internal coordinates
+      vec displacement{Bwilson * dx};
+      
+      //Print displacements
+      if(verbose){
+        cout << "\nDisplacement (analytical):" << endl;
+        cout << displacement << endl;
+      }
+  
+      // Check that bonds do not change
+      SECTION("Bonds change"){
+        Approx target{0};
+    
+        target.margin(1e-3);
+    
+        REQUIRE( displacement(0) == target );
+        REQUIRE( displacement(1) == target );
+        REQUIRE( displacement(2) == target );
+      }
+  
+      // Check change in angle
+      SECTION("Angles change"){
+        Approx target{0};
+    
+        target.margin(1e-4);
+    
+        REQUIRE( displacement(3) == target );
+        REQUIRE( displacement(4) == target );
+      }
+  
+      // Check change in angle
+      SECTION("Dihedral change"){
+        Approx target{d_diff};
+    
+        target.margin(1e-4);
+    
+        REQUIRE( displacement(5) == target );
+      }
+    }
+  
+    SECTION("Numerical displacements"){
+      // Compute displacement in internal coordinates
+      vec displacement{BwilsonN * dx};
+    
+      //Print displacements
+      if(verbose){
+        cout << "\nDisplacement (numerical):" << endl;
+        cout << displacement << endl;
+      }
+    
+      // Check that bonds do not change
+      SECTION("Bonds change"){
+        Approx target{0};
+      
+        target.margin(1e-3);
+      
+        REQUIRE( displacement(0) == target );
+        REQUIRE( displacement(1) == target );
+        REQUIRE( displacement(2) == target );
+      }
+    
+      // Check change in angle
+      SECTION("Angles change"){
+        Approx target{0};
+      
+        target.margin(1e-4);
+      
+        REQUIRE( displacement(3) == target );
+        REQUIRE( displacement(4) == target );
+      }
+    
+      // Check change in angle
+      SECTION("Dihedral change"){
+        Approx target{d_diff};
+      
+        target.margin(1e-4);
+      
+        REQUIRE( displacement(5) == target );
+      }
+    }
+    
+    
+  
+    
   }
 }
 
@@ -278,6 +459,8 @@ TEST_CASE("Wilson"){
   using namespace molecule;
   using namespace tools;
   using namespace wilson;
+  
+  bool verbose{true};
   
   Molecule<vec3> mol{
       io::load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz")
@@ -314,12 +497,25 @@ TEST_CASE("Wilson"){
   cout << "q =\n"
        << irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(mol),B,A,D) << endl;
   
-  // Return Wilson's B matrix
+  // Return Wilson's B matrix (analytical)
   mat WB{
       wilson_matrix<vec3,vec,mat>(
           to_cartesian<vec3,vec>(mol),
           B,A,D)
   };
   
-  cout << "B =\n" << WB << endl;
+  if(verbose){
+    cout << "B (analytical) =\n" << WB << endl;
+  }
+  
+  // Return Wilson's B matrix (numerical)
+  mat WBN{
+      wilson_matrix_numerical<vec3,vec,mat>(
+          to_cartesian<vec3,vec>(mol),
+          B,A,D)
+  };
+  
+  if(verbose){
+    cout << "B (numerical) =\n" << WBN << endl;
+  }
 }

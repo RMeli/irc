@@ -18,6 +18,14 @@ using mat = arma::mat;
 
 template <typename T>
 using Mat = arma::Mat<T>;
+#elif HAVE_EIGEN3
+#include <Eigen3/Eigen/Dense>
+using vec3 = Eigen::Vector3d;
+using vec = Eigen::VectorXd;
+using mat = Eigen::MatrixXd;
+
+template <typename T>
+using Mat = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>;
 #else
 #error
 #endif
@@ -157,7 +165,7 @@ TEST_CASE("Transformation"){
     );
   
     // Allocate vector for internal reaction coordinates
-    vec q_irc{ irc_from_bad<vec>(
+    vec q_irc{ irc_from_bad<vec3,vec>(
         molecule::to_cartesian<vec3,vec>(molecule), B, {}, {})
     };
     
@@ -259,13 +267,13 @@ TEST_CASE("Transformation"){
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{
-        irc_from_bad<vec>(
+        irc_from_bad<vec3,vec>(
             molecule::to_cartesian<vec3,vec>(molecule), B, A, {}
         )
     };
     
     // Displacement in internal coordinates
-    vec dq_irc{ 0.0, 0.0, 0.1 };
+    vec dq_irc{ 0.0, 0.0, 1. /180. * tools::constants::pi };
 
     // Compute new internal coordinates
     vec q_irc_new{ q_irc_old + dq_irc };
@@ -298,19 +306,19 @@ TEST_CASE("Transformation"){
     
     SECTION("Bond 1"){
       Approx target{q_irc_new(0)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p1,p2) == target);
     }
   
     SECTION("Bond 2"){
       Approx target{q_irc_new(1)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p2,p3) == target);
     }
   
     SECTION("Angle"){
       Approx target{q_irc_new(2)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( angle(p1,p2,p3) == target);
     }
   }
@@ -392,13 +400,13 @@ TEST_CASE("Transformation"){
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{
-        irc_from_bad<vec>(
+        irc_from_bad<vec3,vec>(
             molecule::to_cartesian<vec3,vec>(molecule), B, A, D
         )
     };
 
     // Displacement in internal coordinates
-    vec dq_irc{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.1 };
+    vec dq_irc{ 0.0, 0.0, 0.0, 0.0, 0.0, 1. / 180 * tools::constants::pi };
 
     // Compute new internal coordinates
     vec q_irc_new{ q_irc_old + dq_irc };
@@ -432,32 +440,38 @@ TEST_CASE("Transformation"){
 
     SECTION("Bond 1"){
       Approx target{q_irc_new(0)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p1,p2) == target);
     }
 
     SECTION("Bond 2"){
       Approx target{q_irc_new(1)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p1,p3) == target);
     }
 
     SECTION("Bond 3"){
       Approx target{q_irc_new(2)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p2,p4) == target);
     }
 
     SECTION("Angle 1"){
       Approx target{q_irc_new(3)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( angle(p2,p1,p3) == target);
     }
 
     SECTION("Angle 2"){
       Approx target{q_irc_new(4)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( angle(p1,p2,p4) == target);
+    }
+  
+    SECTION("Dihedral"){
+      Approx target{q_irc_new(5)};
+      target.margin(1e-4);
+      REQUIRE( dihedral(p4,p2,p1,p3) == target);
     }
   }
 }

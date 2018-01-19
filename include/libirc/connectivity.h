@@ -147,7 +147,7 @@ inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
   
   double angle{std::acos(linalg::dot(r1, r2) / N)};
   
-  return angle * 180.0 / tools::constants::pi;
+  return angle;
 }
 
 /// Compute angle
@@ -219,9 +219,6 @@ inline double dihedral(const Vector3 &v1,
   
   // Compute dihedral angle in radians (in the intervale [-pi,pi])
   double angle{std::atan2(y, x)};
-  
-  // Convert angle from radians to degrees
-  angle *= 180.0 / tools::constants::pi;
   
   return angle;
 }
@@ -471,6 +468,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
                   atom::covalent_radius(molecule[h_idx].atomic_number) +
                   atom::covalent_radius(molecule[k].atomic_number);
 
+              // Angle (in radians)
               a = angle(molecule[idx].position,
                         molecule[h_idx].position,
                         molecule[k].position);
@@ -478,7 +476,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
               // Check H-bond properties
               if (d > sum_covalent_radii and
                   d < sum_vdw_radii * tools::constants::vdw_bond_multiplier and
-                  a > 90) {
+                  a > tools::constants::pi / 2.) {
                 // Add hydrogen bond
                 boost::add_edge(h_idx, k, 1, ug);
               }
@@ -614,7 +612,7 @@ std::vector<Angle> angles(const Matrix &distance_m,
         a = angle<Vector3>({i,k,j}, molecule);
         
         // Compute angle
-        if( a > 170){
+        if( a  > tools::constants::quasi_linear_angle){
           // TODO
           std::cerr << "WARNING: Quasi-linear angle not treated properly yet."
                     << std::endl;
@@ -661,7 +659,7 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
         l = predecessors_m(i, k);
         
         a1 = angle<Vector3>({i,l,k}, molecule);
-        if(std::abs(a1-180) < epsilon){
+        if(std::abs(a1 - 180) < epsilon){
           linear = true;
         }
   

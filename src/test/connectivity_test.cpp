@@ -19,6 +19,14 @@ using mat = arma::mat;
 
 template <typename T>
 using Mat = arma::Mat<T>;
+#elif HAVE_EIGEN3
+#include <Eigen3/Eigen/Dense>
+using vec3 = Eigen::Vector3d;
+using vec = Eigen::VectorXd;
+using mat = Eigen::MatrixXd;
+
+template <typename T>
+using Mat = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>;
 #else
 #error
 #endif
@@ -43,7 +51,7 @@ TEST_CASE("Distance, angle and dihedral"){
   }
   
   SECTION("Angle"){
-    Approx target{90};
+    Approx target{tools::constants::pi / 2.};
     
     target.margin(1e-12);
     
@@ -51,7 +59,7 @@ TEST_CASE("Distance, angle and dihedral"){
   }
   
   SECTION("Dihedral"){
-    Approx target{-90};
+    Approx target{-tools::constants::pi / 2.};
   
     target.margin(1e-12);
   
@@ -171,13 +179,15 @@ TEST_CASE("Connectivity for compressed H2O"){
   double d2{0.6};
   double angle{134};
   
+  double angle_rad{angle * deg_to_rad};
   double a{(180. - angle) / 2.};
+  double a_rad{ a * deg_to_rad};
   
   // Define compressed H2 molecule
   Molecule<vec3> molecule{
       {"O",{0, 0, 0}},
-      {"H",{ d1 * std::cos(a * deg_to_rad), -d1 * std::sin(a * deg_to_rad), 0}},
-      {"H",{-d2 * std::cos(a * deg_to_rad), -d2 * std::sin(a * deg_to_rad), 0}}
+      {"H",{ d1 * std::cos(a_rad), -d1 * std::sin(a_rad), 0}},
+      {"H",{-d2 * std::cos(a_rad), -d2 * std::sin(a_rad), 0}}
   };
   
   // Transform molecular coordinates from angstrom to bohr
@@ -222,7 +232,7 @@ TEST_CASE("Connectivity for compressed H2O"){
   }
   
   SECTION("Angle"){
-    Approx aa(angle);
+    Approx aa(angle_rad);
     aa.margin(1e-12);
     REQUIRE( q(2) == aa );
   }
