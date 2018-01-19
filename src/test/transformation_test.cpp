@@ -273,7 +273,7 @@ TEST_CASE("Transformation"){
     };
     
     // Displacement in internal coordinates
-    vec dq_irc{ 0.0, 0.0, 0.1 };
+    vec dq_irc{ 0.0, 0.0, 1. /180. * tools::constants::pi };
 
     // Compute new internal coordinates
     vec q_irc_new{ q_irc_old + dq_irc };
@@ -306,19 +306,19 @@ TEST_CASE("Transformation"){
     
     SECTION("Bond 1"){
       Approx target{q_irc_new(0)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p1,p2) == target);
     }
   
     SECTION("Bond 2"){
       Approx target{q_irc_new(1)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p2,p3) == target);
     }
   
     SECTION("Angle"){
       Approx target{q_irc_new(2)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( angle(p1,p2,p3) == target);
     }
   }
@@ -406,7 +406,7 @@ TEST_CASE("Transformation"){
     };
 
     // Displacement in internal coordinates
-    vec dq_irc{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.1 };
+    vec dq_irc{ 0.0, 0.0, 0.0, 0.0, 0.0, 1. / 180 * tools::constants::pi };
 
     // Compute new internal coordinates
     vec q_irc_new{ q_irc_old + dq_irc };
@@ -440,32 +440,38 @@ TEST_CASE("Transformation"){
 
     SECTION("Bond 1"){
       Approx target{q_irc_new(0)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p1,p2) == target);
     }
 
     SECTION("Bond 2"){
       Approx target{q_irc_new(1)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p1,p3) == target);
     }
 
     SECTION("Bond 3"){
       Approx target{q_irc_new(2)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( distance(p2,p4) == target);
     }
 
     SECTION("Angle 1"){
       Approx target{q_irc_new(3)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( angle(p2,p1,p3) == target);
     }
 
     SECTION("Angle 2"){
       Approx target{q_irc_new(4)};
-      target.margin(1e-6);
+      target.margin(1e-4);
       REQUIRE( angle(p1,p2,p4) == target);
+    }
+  
+    SECTION("Dihedral"){
+      Approx target{q_irc_new(5)};
+      target.margin(1e-4);
+      REQUIRE( dihedral(p4,p2,p1,p3) == target);
     }
   }
 }

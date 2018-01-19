@@ -51,13 +51,11 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
                                                      const Vector3& p3) {
   double angle{ connectivity::angle(p1, p2, p3) };
   
-  double angle_rad{ tools::conversion::deg_to_rad * angle };
-  
   // TODO: Check pyberny for more robust implementation
   // https://github.com/azag0/pyberny
   
-  double sin_angle{std::sin(angle_rad)};
-  double cos_angle{std::cos(angle_rad)};
+  double sin_angle{std::sin(angle)};
+  double cos_angle{std::cos(angle)};
   
   Vector3 b21{p1 - p2};
   Vector3 b23{p3 - p2};
@@ -96,14 +94,12 @@ std::tuple<Vector3, Vector3, Vector3, Vector3> dihedral_gradient(
   // https://github.com/azag0/pyberny
   
   double angle123{ connectivity::angle(p1, p2, p3) };
-  double angle123_rad{tools::conversion::deg_to_rad * angle123};
-  double sin_angle123{std::sin(angle123_rad)};
-  double cos_angle123{std::cos(angle123_rad)};
+  double sin_angle123{std::sin(angle123)};
+  double cos_angle123{std::cos(angle123)};
   
   double angle234{ connectivity::angle(p2, p3, p4) };
-  double angle234_rad{tools::conversion::deg_to_rad * angle234};
-  double sin_angle234{std::sin(angle234_rad)};
-  double cos_angle234{std::cos(angle234_rad)};
+  double sin_angle234{std::sin(angle234)};
+  double cos_angle234{std::cos(angle234)};
   
   Vector3 b12{p2 - p1};
   Vector3 b23{p3 - p2};
@@ -293,6 +289,51 @@ Matrix wilson_matrix(const molecule::Molecule <Vector3> &molecule) {
   return wilson_matrix<Vector3, Vector, Matrix>(
       molecule::to_cartesian<Vector3, Vector>(molecule),
       bonds, angles, dihedrals);
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+Matrix wilson_matrix_numerical(
+    const Vector& x_c,
+    const std::vector<connectivity::Bond>& bonds,
+    const std::vector<connectivity::Angle>& angles = {},
+    const std::vector<connectivity::Dihedral>& dihedrals = {},
+    double dx = 1.e-6){
+  size_t n_c{ linalg::size(x_c) };
+  size_t n_irc{ bonds.size() + angles.size() + dihedrals.size() };
+  
+  Vector q_irc{
+      connectivity::irc_from_bad<Vector3,Vector>(x_c, bonds, angles, dihedrals)
+  };
+  
+  Matrix B{ linalg::zeros<Matrix>(n_irc, n_c) };
+  
+  Vector x_c_plus{ x_c };
+  Vector x_c_minus{ x_c };
+  Vector q_irc_plus{ q_irc };
+  Vector q_irc_minus{ q_irc };
+  for(size_t j{0}; j < n_c; j++){
+    x_c_plus = x_c;
+    x_c_plus(j) += dx;
+    
+    x_c_minus = x_c;
+    x_c_minus(j) -= dx;
+  
+    q_irc_plus = connectivity::irc_from_bad<Vector3,Vector>(x_c_plus,
+                                                            bonds,
+                                                            angles,
+                                                            dihedrals);
+    
+    q_irc_minus = connectivity::irc_from_bad<Vector3,Vector>(x_c_minus,
+                                                             bonds,
+                                                             angles,
+                                                             dihedrals);
+    
+    for(size_t i{0}; i < n_irc; i++){
+      B(i,j) = (q_irc_plus(i) - q_irc_minus(i)) / (2 * dx);
+    }
+  }
+  
+  return B;
 }
 
 /// Compute projector from the \param B matrix

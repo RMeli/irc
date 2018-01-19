@@ -18,6 +18,8 @@ constexpr double covalent_bond_multiplier{1.3};
 /// Van der Waals bond multiplier
 constexpr double vdw_bond_multiplier{0.9};
 
+constexpr double quasi_linear_angle{170. / 180. * pi};
+
 } // namespace constants
 
 } // namespace tools
