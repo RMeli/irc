@@ -1,13 +1,10 @@
 language: cpp
 
-compiler:
-  - clang
+compiler: clang
 
-os:
-  - osx
+os: osx
 
-osx_image:
-  - xcode9
+osx_image: xcode9
 
 before_install:
   - rm /usr/local/include/c++
