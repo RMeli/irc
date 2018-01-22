@@ -412,6 +412,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
     //throw std::logic_error("Fragment recognition not implemented.");
   }
 
+  // TODO: Better strategy to look for H-bonds (reglar bonds are known)
   // Search for hydrogen bonds
   double sum_vdw_radii{0.};
   for (size_t j{0}; j < n_atoms; j++) {

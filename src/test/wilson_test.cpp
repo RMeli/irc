@@ -38,6 +38,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   using namespace connectivity;
   using namespace molecule;
   using namespace wilson;
+  using namespace tools;
   
   SECTION("H2 stretching"){
     
@@ -71,7 +72,8 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     }
   
     // Compute Wilson B matrix for H2 numerically
-    mat BwilsonN = wilson_matrix_numerical<vec3,vec,mat>(to_cartesian<vec3,vec>(mol), B);
+    mat BwilsonN =
+        wilson_matrix_numerical<vec3,vec,mat>(to_cartesian<vec3,vec>(mol), B);
   
     // Check Wilson B matrix size
     REQUIRE( linalg::size(BwilsonN) == 6 );
@@ -129,7 +131,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   SECTION("H2O bending"){
     
     double angle( 0.5 );
-    double angle_rad( angle / 180. * tools::constants::pi );
+    double angle_rad( angle / 180. * constants::pi );
     
     std::vector<mat> R{
         {
@@ -152,7 +154,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
         },
     };
     
-    molecule::Molecule<vec3> mol{
+    Molecule<vec3> mol{
         {"H", { 1.43,  -1.10,  0.00}}, // H1
         {"O", { 0.00,   0.00,  0.00}}, // O
         {"H", {-1.43,  -1.10,  0.00}}  // H2
@@ -204,7 +206,8 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     }
   
     // Compute Wilson B matrix for H2O numerically
-    mat BwilsonN = wilson_matrix_numerical<vec3,vec,mat>(to_cartesian<vec3,vec>(mol),B, A);
+    mat BwilsonN =
+        wilson_matrix_numerical<vec3,vec,mat>(to_cartesian<vec3,vec>(mol),B, A);
   
     // Check Wilson B matrix size
     REQUIRE( linalg::size(BwilsonN) == 27 );
@@ -247,7 +250,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     
         target.margin(1e-3);
     
-        REQUIRE( displacement(2) * 180 / tools::constants::pi == target );
+        REQUIRE( displacement(2) * 180 / constants::pi == target );
       }
     }
   }
@@ -255,7 +258,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
   SECTION("H2O2 torsion"){
   
     double angle( 1.0 );
-    double angle_rad( angle / 180. * tools::constants::pi );
+    double angle_rad( angle / 180. * constants::pi );
   
     mat R{
         {cos(angle_rad), -sin(angle_rad), 0},
@@ -271,8 +274,7 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     };
 
     // Transform molecular coordinates from angstrom to bohr
-    molecule::multiply_positions(molecule,
-                                 tools::conversion::angstrom_to_bohr);
+    molecule::multiply_positions(molecule, conversion::angstrom_to_bohr);
   
     // Allocate displacements in cartesian coordinates
     vec dx{ linalg::zeros<vec>(3 * molecule.size()) };
@@ -284,54 +286,51 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     dx(2) = v(2);
     
     // Compute old dihedral (before rotation)
-    double d_old{ connectivity::dihedral<vec3>( molecule[0].position,
-                                                molecule[1].position,
-                                                molecule[2].position,
-                                                molecule[3].position) };
+    double d_old{ dihedral<vec3>( molecule[0].position,
+                                  molecule[1].position,
+                                  molecule[2].position,
+                                  molecule[3].position) };
     
     // Compute new dihedral angle (after rotation)
-    double d_new{ connectivity::dihedral<vec3>( R * molecule[0].position,
-                                                molecule[1].position,
-                                                molecule[2].position,
-                                                molecule[3].position) };
+    double d_new{ dihedral<vec3>( R * molecule[0].position,
+                                  molecule[1].position,
+                                  molecule[2].position,
+                                  molecule[3].position) };
   
     // Compute dihedral variation
     double d_diff{ d_new - d_old };
     
     // Compute interatomic distances
-    mat dd{ connectivity::distances<vec3, mat>(molecule) };
+    mat dd{ distances<vec3, mat>(molecule) };
   
     // Compute adjacency matrix (graph)
-    connectivity::UGraph adj{ connectivity::adjacency_matrix(dd, molecule) };
+    UGraph adj{ adjacency_matrix(dd, molecule) };
   
     // Compute distance matrix and predecessor matrix
     mat dist, predecessors;
-    std::tie(dist, predecessors) = connectivity::distance_matrix<mat>(adj) ;
+    tie(dist, predecessors) = distance_matrix<mat>(adj) ;
   
     // Compute bonds
-    vector<connectivity::Bond> bonds{ connectivity::bonds(dist, molecule)};
+    vector<Bond> B{ bonds(dist, molecule)};
   
     // Check number of bonds
-    REQUIRE( bonds.size() == 3 );
+    REQUIRE( B.size() == 3 );
   
     // Compute angles
-    vector<connectivity::Angle> angles{
-        connectivity::angles(dist, predecessors, molecule)};
+    vector<Angle> A{ angles(dist, predecessors, molecule) };
     
     // Check number of angles
-    REQUIRE( angles.size() == 2 );
+    REQUIRE( A.size() == 2 );
   
     // Compute dihedrals
-    vector<connectivity::Dihedral> dihedrals{
-        connectivity::dihedrals(dist, predecessors, molecule)};
+    vector<Dihedral> D{ dihedrals(dist, predecessors, molecule) };
   
     // Check number of dihedrals
-    REQUIRE( dihedrals.size() == 1 );
+    REQUIRE( D.size() == 1 );
   
     // Compute Wilson's B matrix
-    mat Bwilson = wilson_matrix<vec3,vec,mat>(
-        molecule::to_cartesian<vec3,vec>(molecule),
-        bonds, angles, dihedrals);
+    mat Bwilson = wilson_matrix<vec3,vec,mat>(to_cartesian<vec3,vec>(molecule),
+                                              B, A, D);
     
     REQUIRE( linalg::size(Bwilson) == 72 );
   
@@ -342,9 +341,9 @@ TEST_CASE("Wilson B matrix","[wilson]"){
     }
   
     // Compute Wilson's B matrix
-    mat BwilsonN = wilson_matrix_numerical<vec3,vec,mat>(
-        molecule::to_cartesian<vec3,vec>(molecule),
-        bonds, angles, dihedrals);
+    mat BwilsonN =
+        wilson_matrix_numerical<vec3,vec,mat>( to_cartesian<vec3,vec>(molecule),
+                                               B, A, D);
   
     REQUIRE( linalg::size(BwilsonN) == 72 );
   
@@ -463,7 +462,7 @@ TEST_CASE("Wilson"){
   bool verbose{true};
   
   Molecule<vec3> mol{
-      io::load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz")
+      io::load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz")
   };
   
   // Transform molecule to bohr
@@ -482,17 +481,11 @@ TEST_CASE("Wilson"){
   // Compute bonds
   vector<Bond> B{ bonds(dist, mol) };
   
-  REQUIRE( B.size() == 3 );
-  
   // Compute angles
   vector<Angle> A{ angles(dist, predecessors, mol)};
   
-  REQUIRE( A.size() == 2 );
-  
   // Compute dihedrals
   vector<Dihedral> D{ dihedrals(dist, predecessors, mol)};
-  
-  REQUIRE( D.size() == 1 );
   
   cout << "q =\n"
        << irc_from_bad<vec3,vec>(to_cartesian<vec3,vec>(mol),B,A,D) << endl;
@@ -517,5 +510,13 @@ TEST_CASE("Wilson"){
   
   if(verbose){
     cout << "B (numerical) =\n" << WBN << endl;
+  }
+  
+  size_t n{ linalg::size(WB) };
+  for(size_t i{0}; i < n; i++){
+    Approx target(WBN(i));
+    target.margin(1e-5);
+    
+    REQUIRE( WB(i) == target );
   }
 }
