@@ -298,41 +298,51 @@ Matrix wilson_matrix_numerical(
     const std::vector<connectivity::Angle>& angles = {},
     const std::vector<connectivity::Dihedral>& dihedrals = {},
     double dx = 1.e-6){
+
+  // Number of cartesian coordinates
   size_t n_c{ linalg::size(x_c) };
+
+  // Number of IRC
   size_t n_irc{ bonds.size() + angles.size() + dihedrals.size() };
-  
-  Vector q_irc{
-      connectivity::irc_from_bad<Vector3,Vector>(x_c, bonds, angles, dihedrals)
-  };
-  
+
+  // Allocate Wilson B matrix
   Matrix B{ linalg::zeros<Matrix>(n_irc, n_c) };
-  
-  Vector x_c_plus{ x_c };
-  Vector x_c_minus{ x_c };
-  Vector q_irc_plus{ q_irc };
-  Vector q_irc_minus{ q_irc };
+
+  // Allocate displaced cartesian coordinates
+  Vector x_c_pm{ x_c };
+
+  // Allocate displaced IRC
+  Vector q_irc_plus{ linalg::zeros<Vector>(n_irc) };
+  Vector q_irc_minus{ linalg::zeros<Vector>(n_irc) };
+
   for(size_t j{0}; j < n_c; j++){
-    x_c_plus = x_c;
-    x_c_plus(j) += dx;
-    
-    x_c_minus = x_c;
-    x_c_minus(j) -= dx;
-  
-    q_irc_plus = connectivity::irc_from_bad<Vector3,Vector>(x_c_plus,
+    // Compute positive displacement for cartesian coordinate j
+    x_c_pm(j) += dx;
+
+    // Compute IRC corresponding to positive displacement of x_c(j)
+    q_irc_plus = connectivity::irc_from_bad<Vector3,Vector>(x_c_pm,
                                                             bonds,
                                                             angles,
                                                             dihedrals);
-    
-    q_irc_minus = connectivity::irc_from_bad<Vector3,Vector>(x_c_minus,
+
+    // Compute negative displacement for cartesian coordinate j
+    x_c_pm(j) -= 2 * dx;
+
+    // Compute IRC corresponding tonegative displacement of x_c(j)
+    q_irc_minus = connectivity::irc_from_bad<Vector3,Vector>(x_c_pm,
                                                              bonds,
                                                              angles,
                                                              dihedrals);
     
     for(size_t i{0}; i < n_irc; i++){
+      // Compute derivative (centered finite difference)
       B(i,j) = (q_irc_plus(i) - q_irc_minus(i)) / (2 * dx);
     }
+
+    // Reset original cartesian coordinates
+    x_c_pm(j) = x_c(j);
   }
-  
+
   return B;
 }
 
