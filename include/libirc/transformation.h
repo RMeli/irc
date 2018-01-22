@@ -19,8 +19,9 @@ namespace transformation {
 /// \return Root mean square value of \param v
 template<typename Vector>
 double rms(const Vector& v) {
+
   size_t size{linalg::size<Vector>(v)};
-  
+
   double sum{0};
   
   // TODO: Use linalg::norm instead
@@ -79,25 +80,25 @@ Vector cartesian_to_irc(const Vector &x_c,
   
   // Compute bonds
   for (size_t i{0}; i < bonds.size(); i++) {
-    idx1 = bonds[i].i;
-    idx2 = bonds[i].j;
+    idx1 = 3 * bonds[i].i;
+    idx2 = 3 * bonds[i].j;
     
-    p1 = {x_c(3 * idx1), x_c(3 * idx1 + 1), x_c(3 * idx1 + 2)};
-    p2 = {x_c(3 * idx2), x_c(3 * idx2 + 1), x_c(3 * idx2 + 2)};
+    p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
+    p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
     
-    q_irc(i + offset) = connectivity::distance(p1, p2);
+    q_irc(i) = connectivity::distance(p1, p2);
   }
 
   // Compute angles
   offset = bonds.size();
   for (size_t i{0}; i < angles.size(); i++) {
-    idx1 = angles[i].i;
-    idx2 = angles[i].j;
-    idx3 = angles[i].k;
+    idx1 = 3 * angles[i].i;
+    idx2 = 3 * angles[i].j;
+    idx3 = 3 * angles[i].k;
     
-    p1 = {x_c(3 * idx1), x_c(3 * idx1 + 1), x_c(3 * idx1 + 2)};
-    p2 = {x_c(3 * idx2), x_c(3 * idx2 + 1), x_c(3 * idx2 + 2)};
-    p3 = {x_c(3 * idx3), x_c(3 * idx3 + 1), x_c(3 * idx3 + 2)};
+    p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
+    p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
+    p3 = {x_c(idx3), x_c(idx3 + 1), x_c(idx3 + 2)};
     
     q_irc(i + offset) = connectivity::angle(p1, p2, p3);
   }
@@ -105,15 +106,15 @@ Vector cartesian_to_irc(const Vector &x_c,
   // Compute dihedrals
   offset = bonds.size() + angles.size();
   for (size_t i{0}; i < dihedrals.size(); i++) {
-    idx1 = dihedrals[i].i;
-    idx2 = dihedrals[i].j;
-    idx3 = dihedrals[i].k;
-    idx4 = dihedrals[i].l;
+    idx1 = 3 * dihedrals[i].i;
+    idx2 = 3 * dihedrals[i].j;
+    idx3 = 3 * dihedrals[i].k;
+    idx4 = 3 * dihedrals[i].l;
     
-    p1 = {x_c(3 * idx1), x_c(3 * idx1 + 1), x_c(3 * idx1 + 2)};
-    p2 = {x_c(3 * idx2), x_c(3 * idx2 + 1), x_c(3 * idx2 + 2)};
-    p3 = {x_c(3 * idx3), x_c(3 * idx3 + 1), x_c(3 * idx3 + 2)};
-    p4 = {x_c(3 * idx4), x_c(3 * idx4 + 1), x_c(3 * idx4 + 2)};
+    p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
+    p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
+    p3 = {x_c(idx3), x_c(idx3 + 1), x_c(idx3 + 2)};
+    p4 = {x_c(idx4), x_c(idx4 + 1), x_c(idx4 + 2)};
     
     q_irc(i + offset) = connectivity::dihedral(p1, p2, p3, p4);
   }
