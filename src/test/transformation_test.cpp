@@ -32,6 +32,7 @@ using Mat = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>;
 
 using namespace irc;
 
+
 TEST_CASE("Transformation"){
 
   bool verbose{true};
@@ -177,8 +178,7 @@ TEST_CASE("Transformation"){
       cout << "\nDisplacement in internal coordinates (a.u.):\n "
            << dq_irc << endl;
     }
-
-  
+    
     // Compute number of cartesian coordinates
     size_t n_c{ 3 * molecule.size() };
   

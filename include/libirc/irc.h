@@ -121,12 +121,14 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
 }
 
 template <typename Vector3, typename Vector, typename Matrix>
-Matrix IRC<Vector3, Vector, Matrix>::projected_hessian_inv(const Matrix& H) const{
-  if( linalg::size(H) != n_irc * n_irc){
+Matrix IRC<Vector3, Vector, Matrix>::projected_hessian_inv(
+    const Matrix& Hinv) const{
+
+  if( linalg::size(Hinv) != n_irc * n_irc){
     throw std::length_error("ERROR: Wrong Hessian size.");
   }
 
-  return P * H * P;
+  return P * Hinv * P;
 }
 
 /// Transform gradient in cartesian coordinates to gradient in internal
@@ -199,7 +201,7 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(
                                                               tolerance)
   };
 
-  // TODO: This computation can be avoided since B is computed in irc_to_cartesian
+  // TODO: This computation can be avoided; B is computed in irc_to_cartesian
   // Update Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
       x_c_new,  bonds, angles, dihedrals
