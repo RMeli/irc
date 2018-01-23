@@ -4,6 +4,8 @@
 [![codecov](https://codecov.io/gh/RMeli/irc/branch/master/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
 [![License: MIT](https://img.shields.io/apm/l/vim-mode.svg)](https://opensource.org/licenses/MIT)
 
+IRC is a modern C++ library allowing the determination of internal redundant coordinates (and transformation to and from Cartesian coordinates) for geometry optimization of molecules. The aim of this library is to provide an easy-to-use and portable implementation of internal redundant coordinates for modern electronic structure codes.
+
 ## Usage
 
 ### Dependencies
