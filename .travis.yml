@@ -1,18 +1,22 @@
 language: cpp
 
-compiler: clang
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode9
 
-os: osx
-
-osx_image: xcode9
+    - os: osx
+      osx_image: xcode9
+      env:
+        - MATRIX_EVAL="brew install gcc7 && CC=gcc-7 && CXX=g++-7"
 
 before_install:
-  - rm /usr/local/include/c++
-  - brew update
-  - brew upgrade boost
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; rm /usr/local/include/c++; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; brew update && brew upgrade boost; fi
+  - eval "${MATRIX_EVAL}"
 
 install:
-  - brew install armadillo
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; brew install armadillo; fi
 
 script:
   - bash build.sh
