@@ -32,6 +32,7 @@ double rms(const Vector& v) {
   return std::sqrt(sum / size);
 }
 
+// TODO: Avoid transpose?
 /// Transform gradient from cartesian to internal redundant coordinates,
 /// without projection
 ///
@@ -39,12 +40,25 @@ double rms(const Vector& v) {
 /// \tparam Matrix
 /// \param grad_c Gradient in cartesian coordinates
 /// \param B Wilson \f$\mathbf{B}\f$ matrix
-/// \param iG Pseudo inverse of the \f$\mathbf{G}\f$ matrix
 /// \return Gradient in internal redundant coordinates
 template<typename Vector, typename Matrix>
 Vector gradient_cartesian_to_irc(const Vector &grad_c,
                                  const Matrix &B) {
   return linalg::pseudo_inverse(linalg::transpose(B)) * grad_c;
+}
+
+// TODO: Avoid transpose?
+/// Transform gradient from internal redundant coordinates (non-projected)
+/// to cartesian coordinates
+///
+/// \tparam Vector
+/// \tparam Matrix
+/// \param grad_irc Gradient in internal redundant coordinates
+/// \param B Wilson \f$\mathbf{B}\f$ matrix
+/// \return Gradient in cartesian coordinates
+template <typename Vector, typename Matrix>
+Vector gradient_irc_to_cartesian(const Vector& grad_irc, const Matrix& B){
+  return linalg::transpose(B) * grad_irc;
 }
 
 /// Transform cartesian coordinates to internal redundant coordinates using
