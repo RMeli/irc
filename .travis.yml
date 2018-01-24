@@ -4,9 +4,13 @@ matrix:
   include:
     - os: osx
       osx_image: xcode9
+      compiler: clang
+      env:
+        - MATRI_EVAL="CC=clang && CXX=clang++"
 
     - os: osx
       osx_image: xcode9
+      compiler: gcc
       env:
         - MATRIX_EVAL="brew install gcc7 && CC=gcc-7 && CXX=g++-7"
 
@@ -14,12 +18,14 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rm /usr/local/include/c++; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew upgrade boost; fi
   - eval "${MATRIX_EVAL}"
+  - mkrid -p build && cd build
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install armadillo; fi
 
 script:
-  - bash build.sh
+  - cmake -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX ..
+  - make -j && make -j test
 
 #after_success:
 #  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov failed to upload'
