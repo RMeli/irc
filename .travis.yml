@@ -18,12 +18,13 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rm /usr/local/include/c++; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew upgrade boost; fi
   - eval "${MATRIX_EVAL}"
-  - mkrid -p build && cd build
+  - mkdir -p build && cd build
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install armadillo; fi
 
 script:
+  - echo $CC $CXX
   - cmake -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX ..
   - make -j && make -j test
 
