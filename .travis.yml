@@ -1,21 +1,32 @@
 language: cpp
 
-compiler: clang
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode9
+      compiler: clang
+      env:
+        - MATRI_EVAL="CC=clang && CXX=clang++"
 
-os: osx
-
-osx_image: xcode9
+    - os: osx
+      osx_image: xcode9
+      compiler: gcc
+      env:
+        - MATRIX_EVAL="brew install gcc && CC=gcc-7 && CXX=g++-7"
 
 before_install:
-  - rm /usr/local/include/c++
-  - brew update
-  - brew upgrade boost
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rm /usr/local/include/c++; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew upgrade boost; fi
+  - eval "${MATRIX_EVAL}"
+  - mkdir -p build && cd build
 
 install:
-  - brew install armadillo
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install armadillo; fi
 
 script:
-  - bash build.sh
+  - echo $CC $CXX
+  - cmake -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX ..
+  - make -j && make -j test
 
 #after_success:
 #  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov failed to upload'
