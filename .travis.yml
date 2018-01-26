@@ -40,13 +40,13 @@ matrix:
 
 before_install:
   - eval "${MATRIX_EVAL}"
-  - bash .before_install.sh
+  - bash travis/before_install.sh
 
 install:
-  - bash .install.sh
+  - bash travis/install.sh
 
 script:
-  - bash .build.sh
+  - bash travis/build.sh
 
 #after_success:
 #  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov failed to upload'
