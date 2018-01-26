@@ -39,8 +39,8 @@ matrix:
         - MATRIX_EVAL="brew install gcc5 && CC=gcc-5 && CXX=g++-5"
 
 before_install:
-  - eval "${MATRIX_EVAL}"
   - bash .travis/before_install.sh
+  - eval "${MATRIX_EVAL}"
 
 install:
   - bash .travis/install.sh
