@@ -21,12 +21,6 @@ matrix:
         - MATRI_EVAL="CC=clang && CXX=clang++"
 
     - os: osx
-      osx_image: xcode6.4
-      compiler: clang
-      env:
-        - MATRI_EVAL="CC=clang && CXX=clang++"
-
-    - os: osx
       osx_image: xcode9.2
       compiler: gcc
       env:
