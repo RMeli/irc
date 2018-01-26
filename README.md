@@ -62,14 +62,24 @@ Run tests:
 
 Continuous integration (CI) is implemented using [Travis-CI](https://travis-ci.org/). The test suite is run for every commit on all the branches and at least once a day for the `master` branch.
 
-<center>
-  
+The supported operating systems and compilers are the following:
+
+OS | Compiler
+---|---------
+macOS 10.13 | Apple Clang 9.0
+macOS 10.13 | GCC 7.3
+macOS 10.12 | Apple Clang 8.1
+macOS 10.12 | GCC 6.4
+macOS 10.11 | Apple Clang 7.3
+macOS 10.11 | GCC 5.5
+
+
+The current build status for every branch is the following:
+
 Branch | Status
 -------|-------
 `master` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
 `travis-ci` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=travis-ci)](https://travis-ci.org/RMeli/irc)
-
-</center>
 
 ## Contributions
 
