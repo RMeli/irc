@@ -62,7 +62,7 @@ Release with Eigen:
 
 ## Usage
 
-## Test suite
+## Tests and code coverage
 
 ### Catch2
 Tests are written using the multi-paradigm test framework [Catch2](https://github.com/catchorg/Catch2). Catch2 is included as a single header file in `include/catch`.
@@ -97,6 +97,12 @@ Branch | Status
 -------|-------
 `master` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
 `travis-ci` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=travis-ci)](https://travis-ci.org/RMeli/irc)
+
+### Code coverage
+[![codecov](https://codecov.io/gh/RMeli/irc/branch/master/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
+
+
+Code coverage is obtained using `gcov` from `Apple LLVM`. The coverage reports are then processed and uploaded to [CodeCov](https://codecov.io) by Travis-CI.
 
 ## Contributions
 
