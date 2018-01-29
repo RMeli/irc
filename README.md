@@ -20,20 +20,34 @@ IRC is a modern C++ library allowing the determination of internal redundant coo
 
 IRC uses Boost Graph Library ([BGL](http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/index.html)) to determine the connectivity of the molecule. To simplify inclusion of IRC in other projects, BGL is provided in `inlcude/boost`. If you want to use your local Boost library, just remove `include/boost`.
 
-For tests, IRC needs a linear algebra library. For the time being, the use of [Armadillo](http://arma.sourceforge.net/) is required but support for [Eigen](http://eigen.tuxfamily.org) is also provided.
+For tests, IRC needs a linear algebra library. Support for [Armadillo](http://arma.sourceforge.net/) and [Eigen](http://eigen.tuxfamily.org) is provided.
 
 ### Build
-Debug:
+Debug with Armadillo:
 ```
   mkdir build && cd build
-  cmake -CMAKE_BUILD_TYPE=Debug ..
+  cmake -CMAKE_BUILD_TYPE=Debug -DWITH_ARMA:BOOLEAN=TRUE ..
   make -j
 ```
 
-Release:
+Debug with Eigen:
 ```
   mkdir build && cd build
-  cmake ..
+  cmake -CMAKE_BUILD_TYPE=Debug -DWITH_EIGEN:BOOLEAN=TRUE ..
+  make -j
+```
+
+Release with Armadillo:
+```
+  mkdir build && cd build
+  cmake -DWITH_ARMA:BOOLEAN=TRUE ..
+  make -j
+```
+
+Release with Eigen:
+```
+  mkdir build && cd build
+  cmake -DWITH_EIGEN:BOOLEAN=TRUE ..
   make -j
 ```
 
@@ -41,12 +55,6 @@ Release:
 
 ```
   make -j test
-```
-
-### Build and test
-
-```
-  bash build.sh
 ```
 
 ### Install
