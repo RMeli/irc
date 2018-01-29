@@ -1,0 +1,6 @@
+coverage:
+  ignore:
+    - "include/catch" # Ignore Catch2
+    - "include/boost" # Ignore boosit
+    - "/usr"
+    - "/Applications"
