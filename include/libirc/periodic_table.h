@@ -343,7 +343,7 @@ constexpr std::array<double, pt_size> pt_vdv_radii = {{
 
 /// Check if atomic number \param an is valid
 /// \param an Atomic number
-bool valid_atomic_number(size_t an);
+bool valid_atomic_number(size_t an) noexcept ;
 
 /// Return atomic number corresponding to symbol
 ///

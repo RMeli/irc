@@ -29,37 +29,37 @@ class AtomicNumber {
 ///
 /// \param an \class AtomicNumber
 /// \return Atomic symbol corresponding to \class AtomicNumber
-std::string symbol(const AtomicNumber &an);
+std::string symbol(const AtomicNumber &an) noexcept;
 
 /// Get atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Mass corresponding to \class AtomicNumber
-double mass(const AtomicNumber &an);
+double mass(const AtomicNumber &an) noexcept;
 
 /// Get covalent radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Covalent radius corresponding to \class AtomicNumber
-double covalent_radius(const AtomicNumber &an);
+double covalent_radius(const AtomicNumber &an) noexcept;
 
 /// Get Van der Waals radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Van der Waals radius corresponding to \class AtomicNumber
-double vdw_radius(const AtomicNumber &an);
+double vdw_radius(const AtomicNumber &an) noexcept;
 
 /// Check if an atom is either N, O, F, P, S or Cl
 ///
 /// \param an Atomic number
 /// \return
-bool is_NOFPSCl(const AtomicNumber &an);
+bool is_NOFPSCl(const AtomicNumber &an) noexcept;
 
 /// Check if an atom is an hydrogen atom
 ///
 /// \param an Atomic number
 /// \return
-bool is_H(const AtomicNumber &an);
+bool is_H(const AtomicNumber &an) noexcept;
 
 
 /// Print \class AtomicNumber

@@ -17,29 +17,30 @@ AtomicNumber::AtomicNumber(size_t an) {
 AtomicNumber::AtomicNumber(const std::string &symbol)
     : AtomicNumber(periodic_table::atomic_number(symbol)) {}
 
-std::string symbol(const AtomicNumber &an) {
+std::string symbol(const AtomicNumber &an) noexcept {
   return periodic_table::pt_symbols[an.atomic_number];
 }
 
-double mass(const AtomicNumber &an) {
+double mass(const AtomicNumber &an) noexcept {
   return periodic_table::pt_masses[an.atomic_number];
 }
 
-double covalent_radius(const AtomicNumber &an) {
+double covalent_radius(const AtomicNumber &an) noexcept {
   return periodic_table::pt_covalent_radii[an.atomic_number];
 }
 
-double vdw_radius(const AtomicNumber &an) {
+double vdw_radius(const AtomicNumber &an) noexcept {
   return periodic_table::pt_vdv_radii[an.atomic_number];
 }
 
-bool is_NOFPSCl(const AtomicNumber &an) {
+// TODO: constexpr for C++14
+bool is_NOFPSCl(const AtomicNumber &an) noexcept {
   size_t n{an.atomic_number};
   
   return (n == 7 or n == 8 or n == 9 or n == 15 or n == 16 or n == 17);
 }
 
-bool is_H(const AtomicNumber &an) {
+bool is_H(const AtomicNumber &an) noexcept {
   return an.atomic_number == 1;
 }
 

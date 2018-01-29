@@ -22,7 +22,7 @@ using Molecule = std::vector<atom::Atom < Vector3>>;
 /// \param molecule Molecule (collection of atoms)
 /// \return Mass of the molecule
 template<typename Vector3>
-double mass(const Molecule<Vector3> &molecule) {
+double mass(const Molecule<Vector3> &molecule) noexcept {
   double m{0};
   for (const auto &atom : molecule) {
     m += atom::mass(atom.atomic_number);

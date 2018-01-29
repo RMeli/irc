@@ -99,7 +99,12 @@ Branch | Status
 `travis-ci` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=travis-ci)](https://travis-ci.org/RMeli/irc)
 
 ### Code coverage
-Code coverage is obtained using `gcov` from `Apple LLVM`. The coverage reports are then processed and uploaded to [CodeCov](https://codecov.io) by Travis-CI.
+Code coverage is obtained using `Apple LLVM` by using the option `--coverage` (for both compiling and linking). The coverage reports are then processed and uploaded to [CodeCov](https://codecov.io) by Travis-CI. The directories `include/boost/` and `/include/catch/` are excluded from the code coverage report.
+
+Manually upload a coverage report:
+```
+bash <(curl -s https://codecov.io/bash)
+```
 
 ![codecov-graph](https://codecov.io/gh/RMeli/irc/branch/master/graphs/sunburst.svg)
 

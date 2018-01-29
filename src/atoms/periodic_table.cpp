@@ -7,7 +7,7 @@ namespace irc {
 
 namespace periodic_table {
 
-bool valid_atomic_number(size_t an) {
+bool valid_atomic_number(size_t an) noexcept {
   return an > 0 && an < pt_size;
 }
 
