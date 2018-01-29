@@ -81,14 +81,14 @@ Continuous integration (CI) is implemented using [Travis-CI](https://travis-ci.o
 
 The supported operating systems and compilers are the following:
 
-OS | Compiler
----|---------
-macOS 10.13 | Apple Clang 9.0
-macOS 10.13 | GCC 7.3
-macOS 10.12 | Apple Clang 8.1
-macOS 10.12 | GCC 6.4
-macOS 10.11 | Apple Clang 7.3
-macOS 10.11 | GCC 5.5
+OS | Compiler | Libraries
+---|----------|----------
+macOS `10.13` | Apple Clang `9.0` | Armadillo
+macOS `10.13` | GCC `7.3` | Eigen
+macOS `10.12` | Apple Clang `8.1` | Armadillo
+macOS `10.12` | GCC `6.4` | Eigen
+macOS `10.11` | Apple Clang `7.3` | Armadillo
+macOS `10.11` | GCC `5.5` | Eigen
 
 
 The current build status for every branch is the following:
