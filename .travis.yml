@@ -6,19 +6,19 @@ matrix:
       osx_image: xcode9.2
       compiler: clang
       env:
-        - MATRI_EVAL="CC=clang && CXX=clang++ && LIBLA=arma"
+        - MATRIX_EVAL="CC=clang && CXX=clang++ && export LIBLA=arma"
 
     - os: osx
       osx_image: xcode8.3
       compiler: clang
       env:
-        - MATRI_EVAL="CC=clang && CXX=clang++ && LIBLA=eigen"
+        - MATRIX_EVAL="CC=clang && CXX=clang++ && export LIBLA=eigen"
 
 #    - os: osx
 #      osx_image: xcode7.3
 #      compiler: clang
 #      env:
-#        - MATRI_EVAL="CC=clang && CXX=clang++"
+#        - MATRIX_EVAL="CC=clang && CXX=clang++"
 
 #    - os: osx
 #      osx_image: xcode9.2
