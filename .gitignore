@@ -1,9 +1,7 @@
 # Build
 build/
-build-debug/
-build-release/
-build_debug/
-build_release/
+build-*/
+build_*/
 debug/
 release/
 
@@ -15,8 +13,7 @@ doc/
 
 # CLion
 .idea/
-cmake-build-debug/
-cmake-build-release/
+cmake-build-*/
 
 # macOS
 .DS_Store
