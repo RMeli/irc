@@ -6,6 +6,7 @@
 #include "config.h"
 
 #include <iostream>
+#include <stdexcept>
 
 #ifdef HAVE_ARMA
 #include <armadillo>
@@ -18,6 +19,22 @@ using vec3 = Eigen::Vector3d;
 #endif
 
 using namespace irc;
+
+TEST_CASE("File not found"){
+  using namespace io;
+  using namespace molecule;
+  
+  bool exception{false};
+  
+  try{
+    Molecule<vec3> mol{ load_xyz<vec3>(config::molecules_dir + "ABC.xyz") };
+  }
+  catch(const std::runtime_error& e){
+    exception = true;
+  }
+  
+  REQUIRE( exception == true );
+}
 
 TEST_CASE("Loading XYZ file"){
   

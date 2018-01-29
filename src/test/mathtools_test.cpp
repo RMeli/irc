@@ -60,3 +60,60 @@ TEST_CASE("Angle in the interval ]-pi,pi]"){
   }
   
 }
+
+TEST_CASE("Angle in the interval ]-180,180]"){
+  
+  using tools::constants::pi;
+  using namespace tools::math;
+  
+  SECTION("Angle in ]-180,180]"){
+    double angle{ 90. };
+    
+    Approx target{ 90. };
+    
+    target.margin(1e-6);
+    
+    REQUIRE( pirange_deg(angle) == target );
+  }
+  
+  SECTION("Angle in ]180,360]"){
+    double angle{ 270. };
+    
+    Approx target{ -90 };
+    
+    target.margin(1e-6);
+    
+    REQUIRE( pirange_deg(angle) == target );
+  }
+  
+  SECTION("Angle in ]-360,-180]"){
+    double angle{ -270. };
+    
+    Approx target{ 90. };
+    
+    target.margin(1e-6);
+    
+    REQUIRE( pirange_deg(angle) == target );
+  }
+  
+  SECTION("Angle in ]360,540]"){
+    double angle{ 450. };
+    
+    Approx target{ 90. };
+    
+    target.margin(1e-6);
+    
+    REQUIRE( pirange_deg(angle) == target );
+  }
+  
+  SECTION("Angle in [-450,360["){
+    double angle{ -450 };
+    
+    Approx target{ -90. };
+    
+    target.margin(1e-6);
+    
+    REQUIRE( pirange_deg(angle) == target );
+  }
+  
+}
