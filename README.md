@@ -106,6 +106,15 @@ Manually upload a coverage report:
 bash <(curl -s https://codecov.io/bash)
 ```
 
+The current coverage status for every branch is the following:
+
+Branch | Status
+-------|-------
+`master` | [![codecov](https://codecov.io/gh/RMeli/irc/branch/master/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
+`travis-ci` | [![codecov](https://codecov.io/gh/RMeli/irc/branch/travis-ci/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
+
+Sunburst coverage graph for the branch `master`:
+
 ![codecov-graph](https://codecov.io/gh/RMeli/irc/branch/master/graphs/sunburst.svg)
 
 ## Contributions
