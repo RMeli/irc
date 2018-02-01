@@ -3,9 +3,9 @@
 
 #include <string>
 
-namespace irc{
+namespace irc {
 
-namespace config{
+namespace config {
 
 const std::string molecules_dir{"@IRC_MOLECULES_DIR@"};
 
@@ -13,4 +13,4 @@ const std::string molecules_dir{"@IRC_MOLECULES_DIR@"};
 
 } // namespace irc
 
-#endif //IRC_CONFIG_H
+#endif // IRC_CONFIG_H
