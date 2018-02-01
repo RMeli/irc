@@ -14,7 +14,7 @@ namespace molecule {
 
 /// Molecule as collection of atoms
 template<typename Vector3>
-using Molecule = std::vector<atom::Atom < Vector3>>;
+using Molecule = std::vector<atom::Atom<Vector3>>;
 
 /// Compute the total mass of a molecule
 ///
@@ -27,7 +27,7 @@ double mass(const Molecule<Vector3> &molecule) noexcept {
   for (const auto &atom : molecule) {
     m += atom::mass(atom.atomic_number);
   }
-  
+
   return m;
 }
 
@@ -54,17 +54,17 @@ void multiply_positions(Molecule<Vector3> &molecule, T multiplier) {
 /// The cartesian coordinates are stored in a linear vector so that the first
 /// three entries are the (x,y,z) coordinates of the first atom and so on.
 template<typename Vector3, typename Vector>
-Vector to_cartesian(const Molecule<Vector3>& molecule){
-  size_t n_atoms{ molecule.size() };
-  
-  Vector x_cartesian{ linalg::zeros<Vector>(3 * n_atoms) };
-  
-  for(size_t i{0}; i < n_atoms; i++){
-    for(size_t idx{0}; idx < 3; idx++){
+Vector to_cartesian(const Molecule<Vector3> &molecule) {
+  size_t n_atoms{molecule.size()};
+
+  Vector x_cartesian{linalg::zeros<Vector>(3 * n_atoms)};
+
+  for (size_t i{0}; i < n_atoms; i++) {
+    for (size_t idx{0}; idx < 3; idx++) {
       x_cartesian(3 * i + idx) = molecule[i].position(idx);
     }
   }
-  
+
   return x_cartesian;
 }
 
@@ -79,7 +79,7 @@ std::ostream &operator<<(std::ostream &out, const Molecule<Vector3> &molecule) {
   for (const auto &atom : molecule) {
     out << atom;
   }
-  
+
   return out;
 }
 
@@ -87,4 +87,4 @@ std::ostream &operator<<(std::ostream &out, const Molecule<Vector3> &molecule) {
 
 } // namespace irc
 
-#endif //IRC_MOLECULE_H
+#endif // IRC_MOLECULE_H

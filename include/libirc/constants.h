@@ -26,4 +26,4 @@ constexpr double quasi_linear_angle{170. / 180. * pi};
 
 } // namespace irc
 
-#endif //IRC_CONSTANTS_H
+#endif // IRC_CONSTANTS_H

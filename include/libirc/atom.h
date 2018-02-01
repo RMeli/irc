@@ -17,11 +17,11 @@ namespace atom {
 /// all the quantities accessible with dedicated functions are available
 /// in \headerfile periodic_table.h
 class AtomicNumber {
- public:
+public:
   AtomicNumber(size_t an);
-  
+
   AtomicNumber(const std::string &symbol);
-  
+
   size_t atomic_number;
 };
 
@@ -61,7 +61,6 @@ bool is_NOFPSCl(const AtomicNumber &an) noexcept;
 /// \return
 bool is_H(const AtomicNumber &an) noexcept;
 
-
 /// Print \class AtomicNumber
 ///
 /// \param out Output stream
@@ -82,28 +81,27 @@ struct Atom {
   /// \param an Atomic number
   /// \param pos Position (in 3D space)
   Atom(const AtomicNumber &an, const Vector3 &pos = {0., 0., 0.});
-  
+
   /// Constructor from atomic symbol
   ///
   /// \param symbol Atomic symbol
   /// \param pos Position (in 3D space)
   Atom(const std::string &symbol, const Vector3 &pos = {0., 0., 0.});
-  
+
   /// Atomic number
   AtomicNumber atomic_number;
-  
+
   /// Position (in 3D space)
   Vector3 position; // TODO: Make position std::optional?
-  
 };
 
 template<typename Vector3>
 Atom<Vector3>::Atom(const AtomicNumber &an, const Vector3 &pos)
-    : atomic_number(an), position(pos) {}
+  : atomic_number(an), position(pos) {}
 
 template<typename Vector3>
 Atom<Vector3>::Atom(const std::string &symbol, const Vector3 &pos)
-    : atomic_number(symbol), position(pos) {}
+  : atomic_number(symbol), position(pos) {}
 
 /// Output operator for an atom
 ///
@@ -119,59 +117,59 @@ std::ostream &operator<<(std::ostream &out, const Atom<Vector3> &a) {
   out << std::left << std::setw(2) << std::setfill(' ');
   out << symbol(a.atomic_number) << ' ';
   out << std::right << std::setw(15) << std::setfill('-') << '+' << std::endl;
-  
+
   // Print atomic number
   out << std::setfill(' ');
   out << std::left << std::setw(20) << "| atomic number:";
   out << std::right << std::setw(12) << a.atomic_number;
   out << " |" << std::endl;
-  
+
   // Print atomic mass
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "| atomic mass:";
   out << std::right << std::setw(12);
   out << mass(a.atomic_number) << " |" << std::endl;
-  
+
   // Print covalent radius
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "| covalent radius:";
   out << std::right << std::setw(12);
   out << covalent_radius(a.atomic_number) << " |" << std::endl;
-  
+
   // Print position
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "| position:";
   out << std::right << std::setw(14);
   out << " |" << std::endl;
-  
+
   // x coordinate
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "|    x =";
   out << std::right << std::setw(12) << a.position(0);
   out << " |" << std::endl;
-  
+
   // y coordinate
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "|    y =";
   out << std::right << std::setw(12) << a.position(1);
   out << " |" << std::endl;
-  
+
   // z coordinate
   out << std::setfill(' ');
   out << std::fixed << std::setprecision(5) << std::scientific;
   out << std::left << std::setw(20) << "|    x =";
   out << std::right << std::setw(12) << a.position(2);
   out << " |" << std::endl;
-  
+
   // Print bottom line
   out << std::left << std::setw(17) << std::setfill('-') << '+';
   out << std::right << std::setw(17) << std::setfill('-') << '+' << std::endl;
-  
+
   return out;
 }
 
@@ -179,4 +177,4 @@ std::ostream &operator<<(std::ostream &out, const Atom<Vector3> &a) {
 
 } // namespace irc
 
-#endif //IRC_ATOM_H
+#endif // IRC_ATOM_H

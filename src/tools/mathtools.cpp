@@ -1,5 +1,5 @@
-#include "libirc/conversion.h"
 #include "libirc/mathtools.h"
+#include "libirc/conversion.h"
 
 namespace irc {
 

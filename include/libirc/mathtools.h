@@ -27,4 +27,4 @@ double pirange_deg(double angle) noexcept;
 
 } // namespace irc
 
-#endif //IRC_MATH_H
+#endif // IRC_MATH_H

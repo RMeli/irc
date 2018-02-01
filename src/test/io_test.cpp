@@ -2,8 +2,8 @@
 
 #include "libirc/io.h"
 
-#include "libirc/molecule.h"
 #include "config.h"
+#include "libirc/molecule.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -20,28 +20,27 @@ using vec3 = Eigen::Vector3d;
 
 using namespace irc;
 
-TEST_CASE("File not found"){
+TEST_CASE("File not found") {
   using namespace io;
   using namespace molecule;
-  
+
   bool exception{false};
-  
-  try{
-    Molecule<vec3> mol{ load_xyz<vec3>(config::molecules_dir + "ABC.xyz") };
-  }
-  catch(const std::runtime_error& e){
+
+  try {
+    Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "ABC.xyz")};
+  } catch (const std::runtime_error &e) {
     exception = true;
   }
-  
-  REQUIRE( exception == true );
+
+  REQUIRE(exception == true);
 }
 
-TEST_CASE("Loading XYZ file"){
-  
+TEST_CASE("Loading XYZ file") {
+
   using namespace io;
   using namespace molecule;
-  
-  Molecule<vec3> mol{ load_xyz<vec3>(config::molecules_dir + "caffeine.xyz") };
-  
+
+  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "caffeine.xyz")};
+
   std::cout << mol << std::endl;
 }

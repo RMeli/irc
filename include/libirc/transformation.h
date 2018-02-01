@@ -3,10 +3,10 @@
 
 #include "connectivity.h"
 #include "linalg.h"
-#include "wilson.h"
 #include "mathtools.h"
+#include "wilson.h"
 
-#include<iostream>
+#include <iostream>
 
 namespace irc {
 
@@ -18,17 +18,17 @@ namespace transformation {
 /// \param v Vector
 /// \return Root mean square value of \param v
 template<typename Vector>
-double rms(const Vector& v) {
+double rms(const Vector &v) {
 
   size_t size{linalg::size<Vector>(v)};
 
   double sum{0};
-  
+
   // TODO: Use linalg::norm instead
   for (size_t i{0}; i < size; i++) {
     sum += v(i) * v(i);
   }
-  
+
   return std::sqrt(sum / size);
 }
 
@@ -42,8 +42,7 @@ double rms(const Vector& v) {
 /// \param B Wilson \f$\mathbf{B}\f$ matrix
 /// \return Gradient in internal redundant coordinates
 template<typename Vector, typename Matrix>
-Vector gradient_cartesian_to_irc(const Vector &grad_c,
-                                 const Matrix &B) {
+Vector gradient_cartesian_to_irc(const Vector &grad_c, const Matrix &B) {
   return linalg::pseudo_inverse(linalg::transpose(B)) * grad_c;
 }
 
@@ -56,8 +55,8 @@ Vector gradient_cartesian_to_irc(const Vector &grad_c,
 /// \param grad_irc Gradient in internal redundant coordinates
 /// \param B Wilson \f$\mathbf{B}\f$ matrix
 /// \return Gradient in cartesian coordinates
-template <typename Vector, typename Matrix>
-Vector gradient_irc_to_cartesian(const Vector& grad_irc, const Matrix& B){
+template<typename Vector, typename Matrix>
+Vector gradient_irc_to_cartesian(const Vector &grad_irc, const Matrix &B) {
   return linalg::transpose(B) * grad_irc;
 }
 
@@ -76,30 +75,30 @@ Vector cartesian_to_irc(const Vector &x_c,
                         const std::vector<connectivity::Bond> &bonds,
                         const std::vector<connectivity::Angle> &angles,
                         const std::vector<connectivity::Dihedral> &dihedrals) {
-  
+
   // Compute the number of internal redundant coordinates
   size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
-  
+
   // Allocate internal redundant coordinates
   Vector q_irc{linalg::zeros<Vector>(n_irc)};
-  
+
   // Temporary indices
   size_t idx1, idx2, idx3, idx4;
-  
+
   // Temporary positions
   Vector3 p1, p2, p3, p4;
-  
+
   // Offset for internal coordinates vector
   size_t offset{0};
-  
+
   // Compute bonds
   for (size_t i{0}; i < bonds.size(); i++) {
     idx1 = 3 * bonds[i].i;
     idx2 = 3 * bonds[i].j;
-    
+
     p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
     p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
-    
+
     q_irc(i) = connectivity::distance(p1, p2);
   }
 
@@ -109,11 +108,11 @@ Vector cartesian_to_irc(const Vector &x_c,
     idx1 = 3 * angles[i].i;
     idx2 = 3 * angles[i].j;
     idx3 = 3 * angles[i].k;
-    
+
     p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
     p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
     p3 = {x_c(idx3), x_c(idx3 + 1), x_c(idx3 + 2)};
-    
+
     q_irc(i + offset) = connectivity::angle(p1, p2, p3);
   }
 
@@ -124,15 +123,15 @@ Vector cartesian_to_irc(const Vector &x_c,
     idx2 = 3 * dihedrals[i].j;
     idx3 = 3 * dihedrals[i].k;
     idx4 = 3 * dihedrals[i].l;
-    
+
     p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
     p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
     p3 = {x_c(idx3), x_c(idx3 + 1), x_c(idx3 + 2)};
     p4 = {x_c(idx4), x_c(idx4 + 1), x_c(idx4 + 2)};
-    
+
     q_irc(i + offset) = connectivity::dihedral(p1, p2, p3, p4);
   }
-  
+
   return q_irc;
 }
 
@@ -165,61 +164,55 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
                         size_t max_iters = 25,
                         double tolerance = 1e-6) {
   // Number of internal redundant coordinates
-  size_t n_irc{ bonds.size() + angles.size() + dihedrals.size() };
-  
+  size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+
   // Convergence flag
   bool converged{false};
-  
+
   // Cartesian coordinates
   Vector x_c{x_c_old};
-  
+
   // Store change in internal redundant coordinates
   Vector dq{dq_irc};
-  
+
   // Old internal coordinates
   Vector q_0{q_irc_old};
-  
+
   // New internal coordinates
   Vector q_new{q_irc_old};
-  
+
   // Change in cartesian coordinates
-  Vector dx{ linalg::zeros<Vector>(linalg::size(x_c_old)) };
+  Vector dx{linalg::zeros<Vector>(linalg::size(x_c_old))};
 
   // Compute Wilson's B matrix
-  Matrix B{
-      wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c,
-                                                   bonds,
-                                                   angles,
-                                                   dihedrals)
-  };
+  Matrix B{wilson::wilson_matrix<Vector3, Vector, Matrix>(
+      x_c, bonds, angles, dihedrals)};
 
   // Compute the transpose of B
-  Matrix iB{ linalg::pseudo_inverse(B) };
-  
+  Matrix iB{linalg::pseudo_inverse(B)};
+
   double RMS{0};
-  
+
   // Start iterative search
   for (size_t i{0}; i < max_iters; i++) {
-    
+
     // Compute displacement in cartesian coordinates
     dx = iB * dq;
-    
+
     // Check for convergence
     RMS = rms<Vector>(dx);
-    if ( RMS < tolerance) {
+    if (RMS < tolerance) {
       converged = true;
       break;
     }
-    
+
     // Update cartesian coordinates
     x_c += dx;
 
     // Update Wilson B matrix
-    B = wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c,
-                                                     bonds,
-                                                     angles,
-                                                     dihedrals);
-  
+    B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
+        x_c, bonds, angles, dihedrals);
+
     // Update transpose of the Wilson B matrix
     iB = linalg::pseudo_inverse(B);
 
@@ -227,12 +220,12 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     q_new = cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles, dihedrals);
 
     // Check change in dihedral angles (in radians)
-    size_t offset{ bonds.size() + angles.size() };
-    for(size_t i{offset}; i < n_irc; i++){
+    size_t offset{bonds.size() + angles.size()};
+    for (size_t i{offset}; i < n_irc; i++) {
       // Restrain dihedral angle on the interval [-pi,pi]
       q_new(i) = tools::math::pirange_rad(q_new(i));
     }
-    
+
     // New difference in internal coordinates
     dq = dq - (q_new - q_0);
   }
@@ -241,18 +234,16 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   // If iteration does not converge, use first estimate
   if (!converged) {
     // Re-compute original B matrix
-    B = wilson::wilson_matrix<Vector3,Vector,Matrix>(x_c,
-                                                     bonds,
-                                                     angles,
-                                                     dihedrals);
+    B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
+        x_c, bonds, angles, dihedrals);
 
     // Compute first estimate
     x_c = x_c_old + linalg::pseudo_inverse(B) * dq_irc;
-    
+
     // TODO: Something better?
     std::cerr << "WARNING: IRC_TO_CARTESIAN not converged." << std::endl;
   }
-  
+
   return x_c;
 }
 
@@ -260,4 +251,4 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
 
 } // namespace irc
 
-#endif //IRC_TRANSFORMATION_H
+#endif // IRC_TRANSFORMATION_H
