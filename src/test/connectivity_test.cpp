@@ -398,7 +398,9 @@ TEST_CASE("Connectivity for water dimer") {
 }
 
 // Interfragment bonds
-TEST_CASE("Connectivity for benzene dimer") {}
+TEST_CASE("Connectivity for benzene dimer") {
+  // TODO
+}
 
 TEST_CASE("Connectivity test for CH2O") {
   using namespace std;

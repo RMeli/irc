@@ -172,8 +172,11 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   // Cartesian coordinates
   Vector x_c{x_c_old};
 
+  // Store initial change in internal redundant coordinates
+  Vector dq0{dq_irc};
+  
   // Store change in internal redundant coordinates
-  Vector dq{dq_irc};
+  Vector dq{dq0};
 
   // Old internal coordinates
   Vector q_0{q_irc_old};
@@ -227,7 +230,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     }
 
     // New difference in internal coordinates
-    dq = dq - (q_new - q_0);
+    dq = dq0 - (q_new - q_0);
   }
 
   // TODO: Store first iteration to avoid computation
