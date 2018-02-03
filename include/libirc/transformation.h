@@ -171,15 +171,9 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
 
   // Cartesian coordinates
   Vector x_c{x_c_old};
-
-  // Store initial change in internal redundant coordinates
-  Vector dq0{dq_irc};
   
   // Store change in internal redundant coordinates
-  Vector dq{dq0};
-
-  // Old internal coordinates
-  Vector q_0{q_irc_old};
+  Vector dq{dq_irc};
 
   // New internal coordinates
   Vector q_new{q_irc_old};
@@ -230,7 +224,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     }
 
     // New difference in internal coordinates
-    dq = dq0 - (q_new - q_0);
+    dq = dq_irc - (q_new - q_irc_old);
   }
 
   // TODO: Store first iteration to avoid computation
@@ -238,7 +232,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   if (!converged) {
     // Re-compute original B matrix
     B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-        x_c, bonds, angles, dihedrals);
+        x_c_old, bonds, angles, dihedrals);
 
     // Compute first estimate
     x_c = x_c_old + linalg::pseudo_inverse(B) * dq_irc;

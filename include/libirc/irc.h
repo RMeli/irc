@@ -117,7 +117,7 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
     H0(i + offset, i + offset) = 0.1;
   }
 
-  return linalg::inv<Matrix>(P * H0 * P);
+  return P * linalg::inv<Matrix>(H0) * P;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
@@ -176,7 +176,7 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector &q_irc_old,
                                                       double tolerance) {
 
   if (linalg::size(q_irc_old) != n_irc) {
-    throw std::length_error("ERROR: Wrong old IRC coordinate size.");
+    throw std::length_error("ERROR: Wrong old IRC coordinates size.");
   }
 
   if (linalg::size(dq_irc) != n_irc) {
