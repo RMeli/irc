@@ -718,38 +718,38 @@ Vector cartesian_to_irc(const Vector &x_c,
                         const std::vector<connectivity::Bond> &bonds,
                         const std::vector<connectivity::Angle> &angles,
                         const std::vector<connectivity::Dihedral> &dihedrals) {
-  
+
   // Get number of bonds, angles and dihedrals
   size_t n_bonds{bonds.size()};
   size_t n_angles{angles.size()};
   size_t n_dihedrals{dihedrals.size()};
-  
+
   // Compute number of internal redundant coordinates
   size_t n_irc{n_bonds + n_angles + n_dihedrals};
-  
+
   // Allocate vector for internal redundant coordinates
   Vector q_irc{linalg::zeros<Vector>(n_irc)};
-  
+
   // Offset
   size_t offset{0};
-  
+
   // Compute bonds
   for (size_t i{0}; i < n_bonds; i++) {
     q_irc(i) = bond<Vector3, Vector>(bonds[i], x_c);
   }
-  
+
   // Compute angles
   offset = n_bonds;
   for (size_t i{0}; i < n_angles; i++) {
     q_irc(i + offset) = angle<Vector3, Vector>(angles[i], x_c);
   }
-  
+
   // Compute dihedrals
   offset = n_bonds + n_angles;
   for (size_t i{0}; i < n_dihedrals; i++) {
     q_irc(i + offset) = dihedral<Vector3, Vector>(dihedrals[i], x_c);
   }
-  
+
   // Return internal redundant coordinates
   return q_irc;
 }

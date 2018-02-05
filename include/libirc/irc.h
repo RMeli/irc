@@ -100,7 +100,7 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3> &molecule) {
 template<typename Vector3, typename Vector, typename Matrix>
 Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
   Matrix H0(linalg::zeros<Matrix>(n_irc, n_irc));
-  
+
   size_t offset{0};
 
   for (size_t i{0}; i < bonds.size(); i++) {

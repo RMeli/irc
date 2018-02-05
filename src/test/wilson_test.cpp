@@ -476,7 +476,8 @@ TEST_CASE("Wilson") {
   vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
 
   cout << "q =\n"
-       << connectivity::cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(mol), B, A, D)
+       << connectivity::cartesian_to_irc<vec3, vec>(
+              to_cartesian<vec3, vec>(mol), B, A, D)
        << endl;
 
   // Return Wilson's B matrix (analytical)

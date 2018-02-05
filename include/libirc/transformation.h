@@ -96,7 +96,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
 
   // Cartesian coordinates
   Vector x_c{x_c_old};
-  
+
   // Store change in internal redundant coordinates
   Vector dq{dq_irc};
 
@@ -132,14 +132,15 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     x_c += dx;
 
     // Update Wilson B matrix
-    //B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
+    // B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
     //    x_c, bonds, angles, dihedrals);
 
     // Update transpose of the Wilson B matrix
-    //iB = linalg::pseudo_inverse(B);
+    // iB = linalg::pseudo_inverse(B);
 
     // Compute new internal coordinates
-    q_new = connectivity::cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles, dihedrals);
+    q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
+        x_c, bonds, angles, dihedrals);
 
     // Check change in dihedral angles (in radians)
     size_t offset{bonds.size() + angles.size()};
