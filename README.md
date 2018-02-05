@@ -19,7 +19,7 @@ IRC is a modern C++ library allowing the determination of internal redundant coo
 
 ### Dependencies
 
-IRC uses Boost Graph Library ([BGL](http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/index.html)) to determine the connectivity of the molecule. To simplify inclusion of IRC in other projects, BGL is provided in `inlcude/boost`. If you want to use your local Boost library, just remove `include/boost`.
+IRC uses the Boost Graph Library ([BGL](http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/index.html)) to determine the connectivity of the molecule. Boost is therefore a requirement for the library to work.
 
 For tests, IRC needs a linear algebra library. Support for [Armadillo](http://arma.sourceforge.net/) and [Eigen](http://eigen.tuxfamily.org) is provided.
 
@@ -102,6 +102,11 @@ Branch | Status
 
 ### Code coverage
 Code coverage is obtained using `Apple LLVM` by using the option `--coverage` (for both compiling and linking). The coverage reports are then processed and uploaded to [CodeCov](https://codecov.io) by Travis-CI. The directories `include/boost/` and `/include/catch/` are excluded from the code coverage report.
+
+To compile with code coverage, use the following CMake option:
+```
+-DCOVERAGE:BOOLEAN=TRUE
+```
 
 Manually upload a coverage report:
 ```
