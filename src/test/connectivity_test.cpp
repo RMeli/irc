@@ -7,6 +7,7 @@
 #include "libirc/conversion.h"
 #include "libirc/io.h"
 #include "libirc/molecule.h"
+#include "libirc/transformation.h"
 
 #include <iostream>
 
@@ -101,7 +102,9 @@ TEST_CASE("Connectivity for compressed H2") {
 
     // Compute IRC
     vec q{
-        irc_from_bad<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, {}, {})};
+        connectivity::cartesian_to_irc<vec3, vec>(
+            to_cartesian<vec3, vec>(molecule), B, {}, {})
+    };
 
     // Check number of IRC
     REQUIRE(linalg::size<vec>(q) == 1);
@@ -148,7 +151,9 @@ TEST_CASE("Connectivity for stretched H2") {
 
     // Compute IRC
     vec q{
-        irc_from_bad<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, {}, {})};
+        connectivity::cartesian_to_irc<vec3, vec>(
+            to_cartesian<vec3, vec>(molecule), B, {}, {})
+    };
 
     // Check number of IRC
     REQUIRE(linalg::size<vec>(q) == 1);
@@ -208,7 +213,10 @@ TEST_CASE("Connectivity for compressed H2O") {
   REQUIRE(A.size() == 1);
 
   // Compute IRC
-  vec q{irc_from_bad<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, {})};
+  vec q{
+      connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(molecule), B, A, {})
+  };
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 3);
@@ -278,7 +286,7 @@ TEST_CASE("Connectivity for stretched H2O") {
   REQUIRE(A.size() == 0); // No angles for this bonding structure
 
   // Compute IRC
-  vec q{irc_from_bad<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, {})};
+  vec q{cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, {})};
 
   // Because the three atoms belong to three different fragments, there
   // are three bonds (and no angles) for this structure.
@@ -374,7 +382,7 @@ TEST_CASE("Connectivity for bent water dimer") {
   REQUIRE(D.size() == 3);
 
   // Compute IRC
-  vec q{irc_from_bad<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D)};
+  vec q{cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D)};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 13);

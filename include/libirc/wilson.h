@@ -3,7 +3,6 @@
 
 #include "connectivity.h"
 
-#include "connectivity.h"
 #include "constants.h"
 #include "mathtools.h"
 #include "molecule.h"
@@ -255,38 +254,6 @@ wilson_matrix(const Vector &x_cartesian,
   return B;
 }
 
-// TODO: Remove this function
-template<typename Vector3, typename Vector, typename Matrix>
-Matrix wilson_matrix(const molecule::Molecule<Vector3> &molecule) {
-  // Compute interatomic distances
-  Matrix dd{connectivity::distances<Vector3, Matrix>(molecule)};
-
-  // Compute adjacency matrix (graph)
-  connectivity::UGraph adj{connectivity::adjacency_matrix(dd, molecule)};
-
-  // Compute distance matrix and predecessor matrix
-  Matrix dist, predecessors;
-  std::tie(dist, predecessors) = connectivity::distance_matrix<Matrix>(adj);
-
-  // Compute bonds
-  std::vector<connectivity::Bond> bonds{connectivity::bonds(dist, molecule)};
-
-  // Compute angles
-  std::vector<connectivity::Angle> angles{
-      connectivity::angles(dist, predecessors, molecule)};
-
-  // Compute dihedrals
-  std::vector<connectivity::Dihedral> dihedrals{
-      connectivity::dihedrals(dist, predecessors, molecule)};
-
-  // Return Wilson's B matrix
-  return wilson_matrix<Vector3, Vector, Matrix>(
-      molecule::to_cartesian<Vector3, Vector>(molecule),
-      bonds,
-      angles,
-      dihedrals);
-}
-
 template<typename Vector3, typename Vector, typename Matrix>
 Matrix wilson_matrix_numerical(
     const Vector &x_c,
@@ -316,14 +283,14 @@ Matrix wilson_matrix_numerical(
     x_c_pm(j) += dx;
 
     // Compute IRC corresponding to positive displacement of x_c(j)
-    q_irc_plus = connectivity::irc_from_bad<Vector3, Vector>(
+    q_irc_plus = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c_pm, bonds, angles, dihedrals);
 
     // Compute negative displacement for cartesian coordinate j
     x_c_pm(j) -= 2 * dx;
 
     // Compute IRC corresponding tonegative displacement of x_c(j)
-    q_irc_minus = connectivity::irc_from_bad<Vector3, Vector>(
+    q_irc_minus = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c_pm, bonds, angles, dihedrals);
 
     for (size_t i{0}; i < n_irc; i++) {

@@ -164,7 +164,7 @@ Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector &x_c) const {
     throw std::length_error("ERROR: Wrong cartesian coordinates size.");
   }
 
-  return transformation::cartesian_to_irc<Vector3, Vector>(
+  return connectivity::cartesian_to_irc<Vector3, Vector>(
       x_c, bonds, angles, dihedrals);
 }
 

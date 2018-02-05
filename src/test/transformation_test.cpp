@@ -164,7 +164,7 @@ TEST_CASE("Transformation") {
         molecule::to_cartesian<vec3, vec>(molecule), B);
 
     // Allocate vector for internal reaction coordinates
-    vec q_irc{irc_from_bad<vec3, vec>(
+    vec q_irc{connectivity::cartesian_to_irc<vec3, vec>(
         molecule::to_cartesian<vec3, vec>(molecule), B, {}, {})};
 
     // Displacement in internal coordinates
@@ -265,7 +265,7 @@ TEST_CASE("Transformation") {
         molecule::to_cartesian<vec3, vec>(molecule), B, A);
 
     // Allocate vector for internal reaction coordinates
-    vec q_irc_old{irc_from_bad<vec3, vec>(
+    vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
         molecule::to_cartesian<vec3, vec>(molecule), B, A, {})};
 
     // Displacement in internal coordinates
@@ -394,7 +394,7 @@ TEST_CASE("Transformation") {
         molecule::to_cartesian<vec3, vec>(molecule), B, A, D);
 
     // Allocate vector for internal reaction coordinates
-    vec q_irc_old{irc_from_bad<vec3, vec>(
+    vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
         molecule::to_cartesian<vec3, vec>(molecule), B, A, D)};
 
     // Displacement in internal coordinates

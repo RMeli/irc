@@ -60,81 +60,6 @@ Vector gradient_irc_to_cartesian(const Vector &grad_irc, const Matrix &B) {
   return linalg::transpose(B) * grad_irc;
 }
 
-/// Transform cartesian coordinates to internal redundant coordinates using
-/// information contained in the lists of bonds, angles and dihedrals
-///
-/// \tparam Vector3
-/// \tparam Vector
-/// \param x_c Cartesian coordinates
-/// \param bonds List of bonds
-/// \param angles List of angles
-/// \param dihedrals List of dihedral angles
-/// \return
-template<typename Vector3, typename Vector>
-Vector cartesian_to_irc(const Vector &x_c,
-                        const std::vector<connectivity::Bond> &bonds,
-                        const std::vector<connectivity::Angle> &angles,
-                        const std::vector<connectivity::Dihedral> &dihedrals) {
-
-  // Compute the number of internal redundant coordinates
-  size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
-
-  // Allocate internal redundant coordinates
-  Vector q_irc{linalg::zeros<Vector>(n_irc)};
-
-  // Temporary indices
-  size_t idx1, idx2, idx3, idx4;
-
-  // Temporary positions
-  Vector3 p1, p2, p3, p4;
-
-  // Offset for internal coordinates vector
-  size_t offset{0};
-
-  // Compute bonds
-  for (size_t i{0}; i < bonds.size(); i++) {
-    idx1 = 3 * bonds[i].i;
-    idx2 = 3 * bonds[i].j;
-
-    p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
-    p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
-
-    q_irc(i) = connectivity::distance(p1, p2);
-  }
-
-  // Compute angles
-  offset = bonds.size();
-  for (size_t i{0}; i < angles.size(); i++) {
-    idx1 = 3 * angles[i].i;
-    idx2 = 3 * angles[i].j;
-    idx3 = 3 * angles[i].k;
-
-    p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
-    p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
-    p3 = {x_c(idx3), x_c(idx3 + 1), x_c(idx3 + 2)};
-
-    q_irc(i + offset) = connectivity::angle(p1, p2, p3);
-  }
-
-  // Compute dihedrals
-  offset = bonds.size() + angles.size();
-  for (size_t i{0}; i < dihedrals.size(); i++) {
-    idx1 = 3 * dihedrals[i].i;
-    idx2 = 3 * dihedrals[i].j;
-    idx3 = 3 * dihedrals[i].k;
-    idx4 = 3 * dihedrals[i].l;
-
-    p1 = {x_c(idx1), x_c(idx1 + 1), x_c(idx1 + 2)};
-    p2 = {x_c(idx2), x_c(idx2 + 1), x_c(idx2 + 2)};
-    p3 = {x_c(idx3), x_c(idx3 + 1), x_c(idx3 + 2)};
-    p4 = {x_c(idx4), x_c(idx4 + 1), x_c(idx4 + 2)};
-
-    q_irc(i + offset) = connectivity::dihedral(p1, p2, p3, p4);
-  }
-
-  return q_irc;
-}
-
 /// Transform internal redundant displacements to cartesian coordinates
 ///
 /// \tparam Vector3
@@ -207,14 +132,14 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     x_c += dx;
 
     // Update Wilson B matrix
-    B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-        x_c, bonds, angles, dihedrals);
+    //B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
+    //    x_c, bonds, angles, dihedrals);
 
     // Update transpose of the Wilson B matrix
-    iB = linalg::pseudo_inverse(B);
+    //iB = linalg::pseudo_inverse(B);
 
     // Compute new internal coordinates
-    q_new = cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles, dihedrals);
+    q_new = connectivity::cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles, dihedrals);
 
     // Check change in dihedral angles (in radians)
     size_t offset{bonds.size() + angles.size()};
