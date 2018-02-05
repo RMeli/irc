@@ -14,16 +14,43 @@ namespace irc {
 template<typename Vector3, typename Vector, typename Matrix>
 class IRC {
 public:
-  IRC(const molecule::Molecule<Vector3> &molecule = {});
+  IRC(const molecule::Molecule<Vector3> &molecule = {},
+      const std::vector<connectivity::Bond> &mybonds = {},
+      const std::vector<connectivity::Angle> &myangles = {},
+      const std::vector<connectivity::Dihedral> &mydihedrals = {});
 
+  /// Compute initial projected inverted Hessian estimate
+  ///
+  /// \return Projected inverted initial Hessian
   Matrix projected_initial_hessian_inv() const;
 
+  /// Project Hessian
+  ///
+  /// \param H Hessian
+  /// \return Projected Hessian
   Matrix projected_hessian_inv(const Matrix &H) const;
 
+  /// Transform gradient from cartesian coordinates to projected redundant
+  /// internal coordinates.
+  ///
+  /// \param grad_c Gradient in cartesian coordinates
+  /// \return Gradient in redundant internal coordinates
   Vector grad_cartesian_to_projected_irc(const Vector &grad_c) const;
 
+  /// Transform cartesian coordinates to redundant internal coordinates
+  ///
+  /// \param x_c Cartesian coordinates
+  /// \return Redundant internal coordinates
   Vector cartesian_to_irc(const Vector &x_c) const;
 
+  /// Tranform redundant internal coordinates to cartesian coordinates
+  ///
+  /// \param q_irc_old Old redundant internal coordinates
+  /// \param dq_irc Change in redundant internal coordinates
+  /// \param x_c_old Old cartesian coordinates
+  /// \param max_iters Maximum number of iterations
+  /// \param tolerance Convergence tolerance
+  /// \return New cartesian coordinates
   Vector irc_to_cartesian(const Vector &q_irc_old,
                           const Vector &dq_irc,
                           const Vector &x_c_old,
@@ -54,7 +81,11 @@ private:
 };
 
 template<typename Vector3, typename Vector, typename Matrix>
-IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3> &molecule) {
+IRC<Vector3, Vector, Matrix>::IRC(
+    const molecule::Molecule<Vector3> &molecule,
+    const std::vector<connectivity::Bond> &mybonds,
+    const std::vector<connectivity::Angle> &myangles,
+    const std::vector<connectivity::Dihedral> &mydihedrals) {
   // Number of cartesian coordinates
   n_c = 3 * molecule.size();
 
@@ -72,11 +103,27 @@ IRC<Vector3, Vector, Matrix>::IRC(const molecule::Molecule<Vector3> &molecule) {
   // Compute bonds
   bonds = connectivity::bonds(distance_m, molecule);
 
+  // Add user-defined bonds
+  if (mybonds.size() != 0) { // For CodeCov, can be removed after tests
+    bonds.insert(bonds.cend(), mybonds.cbegin(), mybonds.cend());
+  }
+
   // Compute angles
   angles = connectivity::angles(distance_m, predecessors_m, molecule);
 
+  // Add user-defined angles
+  if (myangles.size() != 0) { // For CodeCov, can be removed after tests
+    angles.insert(angles.cend(), myangles.cbegin(), myangles.cend());
+  }
+
   // Compute dihedrals
   dihedrals = connectivity::dihedrals(distance_m, predecessors_m, molecule);
+
+  // Add user-defined dihedrals
+  if (mydihedrals.size() != 0) { // For CodeCov, can be removed after tests
+    dihedrals.insert(
+        dihedrals.cend(), mydihedrals.cbegin(), mydihedrals.cend());
+  }
 
   // Count the number of internal coordinates
   n_irc = bonds.size() + angles.size() + dihedrals.size();

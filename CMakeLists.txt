@@ -84,15 +84,15 @@ target_include_directories( irc PUBLIC ${CMAKE_BINARY_DIR}/src)
 # | FIND EXTERNAL LIBRARIES |
 # + ----------------------- +
 
-if(NOT EXISTS ${CMAKE_SOURCE_DIR}/include/boost)
-    find_package(
-            Boost
-            1.60.0
-            REQUIRED
-        )
-    include_directories(irc ${Boost_INCLUDE_DIRS}) # DON'T USE
-    target_link_libraries(irc ${Boost_LIBRARIES})
-endif()
+#if(NOT EXISTS ${CMAKE_SOURCE_DIR}/include/boost)
+find_package(
+        Boost
+        1.60.0
+        REQUIRED
+    )
+include_directories(irc ${Boost_INCLUDE_DIRS}) # DON'T USE
+target_link_libraries(irc ${Boost_LIBRARIES})
+#endif()
 
 if(WITH_ARMA)
     find_package(

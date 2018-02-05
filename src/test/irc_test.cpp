@@ -31,8 +31,83 @@ using namespace irc;
 
 TEST_CASE("Internal Redundant Coordinates") {
   using namespace std;
-  using namespace tools::conversion;
+
+  using namespace connectivity;
   using namespace molecule;
+  using namespace tools::conversion;
+
+  SECTION("User-defined Coordinates") {
+
+    // Define formaldehyde molecule (CH2O)
+    Molecule<vec3> molecule{{"C", {0.000000, 0.000000, -0.537500}},
+                            {"O", {0.000000, 0.000000, 0.662500}},
+                            {"H", {0.000000, 0.866025, -1.037500}},
+                            {"H", {0.000000, -0.866025, -1.037500}}};
+
+    // Transform molecular coordinates from angstrom to bohr
+    multiply_positions(molecule, angstrom_to_bohr);
+
+    // Build internal reaction coordinates
+    // Add O-H bonds: (1,2)
+    // Add H-H bond: (2,3)
+    // Add H-O-H angle: (2,1,3)
+    // Add H-H-O-C dihedral: (3,2,1,0)
+    IRC<vec3, vec, mat> irc(
+        molecule, {{1, 2}, {2, 3}}, {{2, 1, 3}}, {{3, 2, 1, 0}});
+
+    // Compute internal coordinates
+    vec q_irc{
+        irc.cartesian_to_irc(molecule::to_cartesian<vec3, vec>(molecule))};
+
+    // Check size (3+2 bonds, 3+1 angles, 0+1 dihedrals)
+    REQUIRE(linalg::size(q_irc) == 10);
+
+    // Check manually added O-H bond
+    SECTION("Manually added O-H bond") {
+      Approx target(q_irc(3));
+      target.margin(1e-6);
+
+      // Compute O-H distance
+      double d{distance(molecule[1].position, molecule[2].position)};
+
+      REQUIRE(d == target);
+    }
+
+    // Check manually added H-H bond
+    SECTION("Manually added H-H bond") {
+      Approx target(q_irc(4));
+      target.margin(1e-6);
+
+      // Compute H-H disance
+      double b{distance(molecule[2].position, molecule[3].position)};
+
+      REQUIRE(b == target);
+    }
+
+    // Check manually added H-O-H angle
+    SECTION("Manually added H-O-H angle") {
+      Approx target(q_irc(8));
+      target.margin(1e-6);
+
+      // Compute H-O-H angle
+      double a{angle(
+          molecule[2].position, molecule[1].position, molecule[3].position)};
+
+      REQUIRE(a == target);
+    }
+    
+    // Check manually added H-H-O-C dihedral angle
+    SECTION("Manually added H-H-O-C dihedral angle"){
+      Approx target(q_irc(9));
+      target.margin(1e-6);
+  
+      // Compute H-H-O-C dihedral angle
+      double d{dihedral(
+          molecule[3].position, molecule[2].position, molecule[1].position, molecule[0].position)};
+  
+      REQUIRE(d == target);
+    }
+  }
 
   SECTION("Initial hessian") {
 
@@ -51,13 +126,19 @@ TEST_CASE("Internal Redundant Coordinates") {
     // Compute initial hessian
     mat iH0{irc.projected_initial_hessian_inv()};
 
-    // Print initial hessian
-    cout << "iH0 =\n" << iH0 << endl;
-
-    // Project Hessian again (should not change)
+    // Project Hessian again
     mat iH{irc.projected_hessian_inv(iH0)};
 
-    // Print initial hessian
-    cout << "iH0 =\n" << iH0 << endl;
+    // Check sizes
+    REQUIRE(linalg::size(iH0) == linalg::size(iH));
+
+    // Chech that second projection has no effect
+    size_t n{linalg::size(iH0)};
+    for (size_t i{0}; i < n; i++) {
+      Approx target(iH0(i));
+      target.margin(1e-6);
+
+      REQUIRE(iH(i) == target);
+    }
   }
 }
