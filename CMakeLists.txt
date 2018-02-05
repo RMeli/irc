@@ -24,7 +24,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(-Wall) # DON'T USE
 
-set(COVERAGE TRUE)
 if(COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CLANG_COVERAGE_COMPILE_FLAGS "--coverage -g -O0")
     set(CLANG_COVERAGE_LINK_FLAGS    "--coverage")
