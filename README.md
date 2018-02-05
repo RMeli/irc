@@ -125,11 +125,11 @@ Sunburst coverage graph for the branch `master`:
 ![codecov-graph](https://codecov.io/gh/RMeli/irc/branch/master/graphs/sunburst.svg)
 
 ### Code format
-The code is formatted using `clang-format`.  The style configuration is based on `LLVM` style and saved in the file `.clang-format`.
+The code is formatted using `clang-format`.  The style configuration is based on `LLVM` style and saved in the file `tools/.clang-format`.
 
 Format the code:
 ```
-bash format.sh
+bash tool/clang-format.sh
 ```
 
 ## Contributions

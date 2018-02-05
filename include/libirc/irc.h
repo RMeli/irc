@@ -86,7 +86,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
     const std::vector<connectivity::Bond> &mybonds,
     const std::vector<connectivity::Angle> &myangles,
     const std::vector<connectivity::Dihedral> &mydihedrals) {
-  
+
   // Number of cartesian coordinates
   n_c = 3 * molecule.size();
 
