@@ -1,9 +1,12 @@
 #include "../../include/catch/catch.hpp"
 
+#include "config.h"
+
 #include "libirc/irc.h"
 
 #include "libirc/conversion.h"
 #include "libirc/molecule.h"
+#include "libirc/io.h"
 
 #include <iostream>
 
@@ -121,7 +124,8 @@ TEST_CASE("Internal Redundant Coordinates") {
     multiply_positions(molecule, angstrom_to_bohr);
 
     // Build internal reaction coordinates
-    IRC<vec3, vec, mat> irc(molecule);
+    // (Manually added dihedral to increase to increase coverage)
+    IRC<vec3, vec, mat> irc(molecule,{},{},{{0,1,2,3}});
 
     // Compute initial hessian
     mat iH0{irc.projected_initial_hessian_inv()};
@@ -139,6 +143,38 @@ TEST_CASE("Internal Redundant Coordinates") {
       target.margin(1e-6);
 
       REQUIRE(iH(i) == target);
+    }
+  }
+  
+  SECTION("IRC to Cartesian"){
+    
+    // Define formaldehyde molecule (CH2O)
+    Molecule<vec3> molecule{io::load_xyz<vec3>(config::molecules_dir + "ethanol.xyz")};
+  
+    // Transform molecular coordinates from angstrom to bohr
+    multiply_positions(molecule, angstrom_to_bohr);
+  
+    // Build internal reaction coordinates
+    IRC<vec3, vec, mat> irc(molecule);
+    
+    // Get cartesian coordinates
+    vec x_c{ to_cartesian<vec3,vec>(molecule) };
+    
+    // Compute internal redundant coordinates
+    vec q_irc{ irc.cartesian_to_irc(x_c) };
+    
+    // Define no displacement in IRC
+    vec dq{linalg::zeros<vec>(linalg::size(q_irc))};
+    
+    // Compute cartesian coordinate from IRC
+    vec x_c_from_irc{ irc.irc_to_cartesian(q_irc, dq, x_c) };
+    
+    size_t n{linalg::size(x_c)};
+    for(size_t i{0}; i < n; i++){
+      Approx target( x_c(i) );
+      target.margin(1e-6);
+      
+      REQUIRE(x_c_from_irc(i) == target);
     }
   }
 }

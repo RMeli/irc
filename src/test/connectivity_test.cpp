@@ -543,10 +543,8 @@ TEST_CASE("Fragment recognition") {
   mat dd{distances<vec3, mat>(molecule)};
 
   std::cout << "\nDistance matrix:\n" << dd << std::endl;
-
-  try {
-    UGraph adj{adjacency_matrix(dd, molecule)};
-  } catch (const std::logic_error &le) {
-    cerr << le.what() << endl;
-  }
+  
+  UGraph adj{adjacency_matrix(dd, molecule)};
+  
+  // TODO
 }
