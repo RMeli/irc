@@ -597,6 +597,53 @@ std::vector<Bond> bonds(const Matrix &distance_m,
   return b;
 }
 
+/*
+std::vector<Angle> angles(size_t i, size_t j, const UGraph& ug){
+  // Declare empty vector
+  std::vector<Angle> angles;
+
+  boost::graph_traits<UGraph>::adjacency_iterator ai_iter_j, ai_iter_k;
+  boost::graph_traits<UGraph>::adjacency_iterator ai_end_j, ai_end_k;
+
+  for(std::tie(ai_iter_k, ai_end_k) = boost::adjacent_vertices(i,ug); ai_iter_k != ai_end_k; ++ai_iter_k){
+    for(std::tie(ai_iter_j, ai_end_j) = boost::adjacent_vertices(*ai_iter_k,ug); ai_iter_j != ai_end_j; ++ai_iter_j){
+      if( *ai_iter_k == j ){
+        angles.push_back({i,*ai_iter_k,j});
+      }
+    }
+  }
+
+  return angles;
+}
+*/
+
+/// Determine all possible angles between atoms i and j
+///
+/// \tparam Matrix
+/// \param i
+/// \param j
+/// \param distance
+/// \return
+///
+/// Dijkstra shortest paths algorithm returns only one shortest path. In some
+/// cases however, there might be two different angles between the same two
+/// end atoms.
+template <typename Matrix>
+std::vector<Angle> angles(size_t i, size_t j, const Matrix& distance){
+  // Declare empty vector of angles
+  std::vector<Angle> angles;
+
+  size_t n_atoms{ static_cast<size_t>(std::sqrt(linalg::size(distance))) };
+
+  for(size_t k{0}; k < n_atoms; k++){
+    if( distance(k,i) == 1 and distance(k,j) == 1 ){
+      angles.push_back({i,k,j});
+    }
+  }
+
+  return angles;
+}
+
 /// Returns the angles between bonded atoms in \param molecule
 ///
 /// \tparam Vector3
@@ -614,7 +661,10 @@ std::vector<Angle> angles(const Matrix &distance_m,
   const size_t n_atoms{molecule.size()};
 
   // Declare list of angles
-  std::vector<Angle> angles;
+  std::vector<Angle> ang;
+
+  // Declare temporary list of angles
+  std::vector<Angle> A;
 
   size_t k{0};
   double a{0};
@@ -622,25 +672,48 @@ std::vector<Angle> angles(const Matrix &distance_m,
     for (size_t i{0}; i < j; i++) {
 
       if (distance_m(i, j) == 2) {
-        k = predecessors_m(i, j);
 
-        a = angle<Vector3>({i, k, j}, molecule);
+        A = angles(i, j, distance_m);
 
-        // Compute angle
-        if (a > tools::constants::quasi_linear_angle) {
-          // TODO
-          std::cerr << "WARNING: Quasi-linear angle not treated properly yet."
-                    << std::endl;
+        for(const auto& aa : A){
+          a = angle<Vector3>(aa, molecule);
+
+          // Compute angle
+          if (a > tools::constants::quasi_linear_angle) {
+            // TODO
+            std::cerr << "WARNING: Quasi-linear angle not treated properly yet."
+                      << std::endl;
+          }
+
+          // Store angle
+          ang.push_back(aa);
         }
-
-        // Store angle
-        angles.push_back(Angle{i, k, j});
       }
     }
   }
 
   // Return list of angles
-  return angles;
+  return ang;
+}
+
+template <typename Matrix>
+std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance){
+  // Declare empty vector of angles
+  std::vector<Dihedral> dihedrals;
+
+  size_t n_atoms{ static_cast<size_t>(std::sqrt(linalg::size(distance))) };
+
+  for(size_t k{0}; k < n_atoms; k++){
+    if( distance(k,i) == 1 and distance(k,j) == 2 ){
+      for(size_t l{0}; l < n_atoms; l++){
+        if(distance(l,i) == 2 and distance(l,j) == 1 and distance(l,k) == 1){
+          dihedrals.push_back({i,k,l,j});
+        }
+      }
+    }
+  }
+
+  return dihedrals;
 }
 
 /// Returns the dihedral angles between bonded atoms in \param molecule
@@ -663,6 +736,9 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   // Declare list of dihedrals
   std::vector<Dihedral> dih;
 
+  // Declare temporary list of dihedrals
+  std::vector<Dihedral> D;
+
   size_t k{0}, l{0};
   double a1{0}, a2{0};
   bool linear{false};
@@ -670,22 +746,24 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
     for (size_t i{0}; i < j; i++) {
 
       if (distance_m(i, j) == 3) {
-        k = predecessors_m(i, j);
-        l = predecessors_m(i, k);
 
-        a1 = angle<Vector3>({i, l, k}, molecule);
-        if (std::abs(a1 - 180) < epsilon) {
-          linear = true;
-        }
+        D = dihedrals(i,j,distance_m );
 
-        a2 = angle<Vector3>({l, k, j}, molecule);
-        if (std::abs(a2 - 180) < epsilon) {
-          linear = true;
-        }
+        for(const auto& dd : D){
+          a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
+          if (std::abs(a1 - 180) < epsilon) {
+            linear = true;
+          }
 
-        if (!linear) {
-          // Store dihedral angle
-          dih.push_back(Dihedral{i, l, k, j});
+          a2 = angle<Vector3>({dd.j, dd.k, dd.l}, molecule);
+          if (std::abs(a2 - 180) < epsilon) {
+            linear = true;
+          }
+
+          if (!linear) {
+            // Store dihedral angle
+            dih.push_back(dd);
+          }
         }
       }
     }
