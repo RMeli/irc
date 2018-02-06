@@ -82,17 +82,26 @@ TEST_CASE("Print") {
   // Compute bonds
   std::vector<Bond> B{bonds(dist, mol)};
 
+  // Chek number of bonds
+  REQUIRE( B.size() == 15 );
+
   // Print bonds to std::cout
   print_bonds<vec3, vec>(to_cartesian<vec3, vec>(mol), B);
 
   // Compute angles
   std::vector<Angle> A{angles(dist, predecessors, mol)};
 
+  // Check number of angles
+  REQUIRE( A.size() == 24 );
+
   // Print angles to std::cout
   print_angles<vec3, vec>(to_cartesian<vec3, vec>(mol), A);
 
   // Compute dihedral angles
   std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+
+  // Check number of dihedral angles
+  REQUIRE( D.size() == 30 );
 
   // Print dihedrals to std::cout
   print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(mol), D);

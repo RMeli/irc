@@ -66,11 +66,7 @@ TEST_CASE("Transformation") {
 
     // Print bonds
     if (verbose) {
-      cout << '\n' << B.size() << " bonds (a.u.):" << endl;
-      for (const auto &b : B) {
-        cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-             << connectivity::bond(b, molecule) << endl;
-      }
+      print_bonds<vec3,vec>(to_cartesian<vec3,vec>(molecule), B);
     }
 
     // Compute angles
@@ -78,11 +74,7 @@ TEST_CASE("Transformation") {
 
     // Print angles
     if (verbose) {
-      cout << '\n' << A.size() << " angles (deg):" << endl;
-      for (const auto &a : A) {
-        cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-             << connectivity::angle(a, molecule) << endl;
-      }
+      print_angles<vec3,vec>(to_cartesian<vec3,vec>(molecule), A);
     }
 
     // Compute dihedral angles
@@ -90,11 +82,7 @@ TEST_CASE("Transformation") {
 
     // Print dihedral angles
     if (verbose) {
-      cout << '\n' << D.size() << " dihedrals (deg):" << endl;
-      for (const auto &d : D) {
-        cout << '(' << d.i + 1 << ',' << d.j + 1 << ',' << d.k + 1 << ','
-             << d.l + 1 << ") " << connectivity::dihedral(d, molecule) << endl;
-      }
+      print_dihedrals<vec3,vec>(to_cartesian<vec3,vec>(molecule), D);
     }
 
     // Compute number of cartesian coordinates
@@ -148,12 +136,8 @@ TEST_CASE("Transformation") {
     std::vector<Bond> B{bonds(dist, molecule)};
 
     // Print bonds
-    if (verbose) {
-      cout << '\n' << B.size() << " bonds (a.u.):" << endl;
-      for (const auto &b : B) {
-        cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-             << connectivity::bond(b, molecule) << endl;
-      }
+    if(verbose){
+      print_bonds<vec3,vec>(to_cartesian<vec3,vec>(molecule), B);
     }
 
     // Check number of bonds
@@ -237,13 +221,10 @@ TEST_CASE("Transformation") {
     std::vector<Bond> B{bonds(dist, molecule)};
 
     // Print bonds
-    if (verbose) {
-      cout << '\n' << B.size() << " bonds (a.u.):" << endl;
-      for (const auto &b : B) {
-        cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-             << connectivity::bond(b, molecule) << endl;
-      }
+    if(verbose){
+      print_bonds<vec3,vec>(to_cartesian<vec3,vec>(molecule), B);
     }
+
 
     // Check number of bonds
     REQUIRE(B.size() == 2);
@@ -252,12 +233,8 @@ TEST_CASE("Transformation") {
     std::vector<Angle> A{angles(dist, predecessors, molecule)};
 
     // Print angles
-    if (verbose) {
-      cout << '\n' << A.size() << " angles (deg):" << endl;
-      for (const auto &a : A) {
-        cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-             << connectivity::angle(a, molecule) << endl;
-      }
+    if(verbose){
+      print_angles<vec3,vec>(to_cartesian<vec3,vec>(molecule), A);
     }
 
     // Compute Wilson B matrix
@@ -348,12 +325,8 @@ TEST_CASE("Transformation") {
     std::vector<Bond> B{bonds(dist, molecule)};
 
     // Print bonds
-    if (verbose) {
-      cout << '\n' << B.size() << " bonds (a.u.):" << endl;
-      for (const auto &b : B) {
-        cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-             << connectivity::bond(b, molecule) << endl;
-      }
+    if(verbose){
+      print_bonds<vec3,vec>(to_cartesian<vec3,vec>(molecule), B);
     }
 
     // Check number of bonds
@@ -363,13 +336,10 @@ TEST_CASE("Transformation") {
     std::vector<Angle> A{angles(dist, predecessors, molecule)};
 
     // Print angles
-    if (verbose) {
-      cout << '\n' << A.size() << " angles (deg):" << endl;
-      for (const auto &a : A) {
-        cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-             << connectivity::angle(a, molecule) << endl;
-      }
+    if(verbose){
+      print_angles<vec3,vec>(to_cartesian<vec3,vec>(molecule), A);
     }
+
 
     // Check number of angles
     REQUIRE(A.size() == 2);
@@ -379,11 +349,7 @@ TEST_CASE("Transformation") {
 
     // Print dihedrals
     if (verbose) {
-      cout << '\n' << D.size() << " dihedrals (deg):" << endl;
-      for (const auto &d : D) {
-        cout << '(' << d.i + 1 << ',' << d.j + 1 << ',' << d.k + 1 << ','
-             << d.l + 1 << ") " << connectivity::dihedral(d, molecule) << endl;
-      }
+      print_dihedrals<vec3,vec>(to_cartesian<vec3,vec>(molecule), D);
     }
 
     // Check number of dihedrals
