@@ -614,7 +614,7 @@ std::vector<Angle> angles(const Matrix &distance_m,
   const size_t n_atoms{molecule.size()};
 
   // Declare list of angles
-  std::vector<Angle> ang;
+  std::vector<Angle> angles;
 
   size_t k{0};
   double a{0};
@@ -634,13 +634,13 @@ std::vector<Angle> angles(const Matrix &distance_m,
         }
 
         // Store angle
-        ang.push_back(Angle{i, k, j});
+        angles.push_back(Angle{i, k, j});
       }
     }
   }
 
   // Return list of angles
-  return ang;
+  return angles;
 }
 
 /// Returns the dihedral angles between bonded atoms in \param molecule
@@ -655,7 +655,7 @@ template<typename Vector3, typename Matrix>
 std::vector<Dihedral> dihedrals(const Matrix &distance_m,
                                 const Matrix &predecessors_m,
                                 const molecule::Molecule<Vector3> &molecule,
-                                double epsilon = 1.e-3) {
+                                double epsilon = 1.e-6) {
 
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};

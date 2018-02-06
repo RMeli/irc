@@ -3,17 +3,17 @@
 #include "libirc/io.h"
 
 #include "config.h"
-#include "libirc/molecule.h"
 #include "libirc/conversion.h"
+#include "libirc/molecule.h"
 
 #include <iostream>
 #include <stdexcept>
 
 #ifdef HAVE_ARMA
 #include <armadillo>
-using arma::vec3;
-using arma::vec;
 using arma::mat;
+using arma::vec;
+using arma::vec3;
 #elif HAVE_EIGEN3
 #include <Eigen3/Eigen/Dense>
 using vec3 = Eigen::Vector3d;
@@ -49,9 +49,14 @@ TEST_CASE("Loading XYZ file") {
   Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "caffeine.xyz")};
 
   std::cout << mol << std::endl;
+
+  try {
+    Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "foo.xyz")};
+  } catch (const std::runtime_error &e) {
+  }
 }
 
-TEST_CASE("Print"){
+TEST_CASE("Print") {
   using namespace io;
 
   using namespace connectivity;
@@ -78,17 +83,17 @@ TEST_CASE("Print"){
   std::vector<Bond> B{bonds(dist, mol)};
 
   // Print bonds to std::cout
-  print_bonds<vec3,vec>( to_cartesian<vec3,vec>(mol), B );
+  print_bonds<vec3, vec>(to_cartesian<vec3, vec>(mol), B);
 
   // Compute angles
   std::vector<Angle> A{angles(dist, predecessors, mol)};
 
   // Print angles to std::cout
-  print_angles<vec3,vec>( to_cartesian<vec3,vec>(mol), A );
+  print_angles<vec3, vec>(to_cartesian<vec3, vec>(mol), A);
 
   // Compute dihedral angles
   std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
 
   // Print dihedrals to std::cout
-  print_dihedrals<vec3,vec>( to_cartesian<vec3,vec>(mol), D );
+  print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(mol), D);
 }
