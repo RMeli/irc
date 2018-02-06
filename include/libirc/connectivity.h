@@ -605,8 +605,9 @@ std::vector<Angle> angles(size_t i, size_t j, const UGraph& ug){
   boost::graph_traits<UGraph>::adjacency_iterator ai_iter_j, ai_iter_k;
   boost::graph_traits<UGraph>::adjacency_iterator ai_end_j, ai_end_k;
 
-  for(std::tie(ai_iter_k, ai_end_k) = boost::adjacent_vertices(i,ug); ai_iter_k != ai_end_k; ++ai_iter_k){
-    for(std::tie(ai_iter_j, ai_end_j) = boost::adjacent_vertices(*ai_iter_k,ug); ai_iter_j != ai_end_j; ++ai_iter_j){
+  for(std::tie(ai_iter_k, ai_end_k) = boost::adjacent_vertices(i,ug); ai_iter_k
+!= ai_end_k; ++ai_iter_k){ for(std::tie(ai_iter_j, ai_end_j) =
+boost::adjacent_vertices(*ai_iter_k,ug); ai_iter_j != ai_end_j; ++ai_iter_j){
       if( *ai_iter_k == j ){
         angles.push_back({i,*ai_iter_k,j});
       }
@@ -628,16 +629,18 @@ std::vector<Angle> angles(size_t i, size_t j, const UGraph& ug){
 /// Dijkstra shortest paths algorithm returns only one shortest path. In some
 /// cases however, there might be two different angles between the same two
 /// end atoms.
-template <typename Matrix>
-std::vector<Angle> angles(size_t i, size_t j, const Matrix& distance){
+template<typename Matrix>
+std::vector<Angle> angles(size_t i, size_t j, const Matrix &distance) {
   // Declare empty vector of angles
   std::vector<Angle> angles;
 
-  size_t n_atoms{ static_cast<size_t>(std::sqrt(linalg::size(distance))) };
+  // Number of atoms
+  size_t n_atoms{static_cast<size_t>(std::sqrt(linalg::size(distance)))};
 
-  for(size_t k{0}; k < n_atoms; k++){
-    if( distance(k,i) == 1 and distance(k,j) == 1 ){
-      angles.push_back({i,k,j});
+  // Compute possible (i,k,j) angles
+  for (size_t k{0}; k < n_atoms; k++) {
+    if (distance(k, i) == 1 and distance(k, j) == 1) {
+      angles.push_back({i, k, j});
     }
   }
 
@@ -666,7 +669,6 @@ std::vector<Angle> angles(const Matrix &distance_m,
   // Declare temporary list of angles
   std::vector<Angle> A;
 
-  size_t k{0};
   double a{0};
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
@@ -675,7 +677,7 @@ std::vector<Angle> angles(const Matrix &distance_m,
 
         A = angles(i, j, distance_m);
 
-        for(const auto& aa : A){
+        for (const auto &aa : A) {
           a = angle<Vector3>(aa, molecule);
 
           // Compute angle
@@ -696,18 +698,21 @@ std::vector<Angle> angles(const Matrix &distance_m,
   return ang;
 }
 
-template <typename Matrix>
-std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance){
+template<typename Matrix>
+std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix &distance) {
   // Declare empty vector of angles
   std::vector<Dihedral> dihedrals;
 
-  size_t n_atoms{ static_cast<size_t>(std::sqrt(linalg::size(distance))) };
+  // Number of atoms
+  size_t n_atoms{static_cast<size_t>(std::sqrt(linalg::size(distance)))};
 
-  for(size_t k{0}; k < n_atoms; k++){
-    if( distance(k,i) == 1 and distance(k,j) == 2 ){
-      for(size_t l{0}; l < n_atoms; l++){
-        if(distance(l,i) == 2 and distance(l,j) == 1 and distance(l,k) == 1){
-          dihedrals.push_back({i,k,l,j});
+  // Compute possible (i,k,l,j) dihedral angles
+  for (size_t k{0}; k < n_atoms; k++) {
+    if (distance(k, i) == 1 and distance(k, j) == 2) {
+      for (size_t l{0}; l < n_atoms; l++) {
+        if (distance(l, i) == 2 and distance(l, j) == 1 and
+            distance(l, k) == 1) {
+          dihedrals.push_back({i, k, l, j});
         }
       }
     }
@@ -739,7 +744,6 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   // Declare temporary list of dihedrals
   std::vector<Dihedral> D;
 
-  size_t k{0}, l{0};
   double a1{0}, a2{0};
   bool linear{false};
   for (size_t j{0}; j < n_atoms; j++) {
@@ -747,9 +751,9 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
 
       if (distance_m(i, j) == 3) {
 
-        D = dihedrals(i,j,distance_m );
+        D = dihedrals(i, j, distance_m);
 
-        for(const auto& dd : D){
+        for (const auto &dd : D) {
           a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
           if (std::abs(a1 - 180) < epsilon) {
             linear = true;
