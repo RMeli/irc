@@ -384,6 +384,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
                            atom::covalent_radius(molecule[j].atomic_number);
 
       // Determine if atoms i and j are bonded
+      // TODO: Neglect H-H bond? (Bad for H2, H2+H->H+H2, ...)
       if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
         // Add edge to boost::adjacency_list between vertices i and j
         // The weights are set to 1 for all edges.
@@ -749,7 +750,10 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
 
-      if (distance_m(i, j) == 3) {
+      // A dihedral angle with terminal atoms i and j can still be present
+      // when the shortest path between i and j is smaller than 3. This
+      // happen when a pentagon is present (i.e. in caffeine)
+      if (distance_m(i, j) <= 3) {
 
         D = dihedrals(i, j, distance_m);
 
