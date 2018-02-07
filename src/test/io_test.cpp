@@ -1,4 +1,4 @@
-#include "../../include/catch/catch.hpp"
+#include "../../external/catch/catch.hpp"
 
 #include "libirc/io.h"
 

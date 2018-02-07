@@ -80,6 +80,8 @@ target_include_directories( irc PUBLIC include )
 target_include_directories( irc PUBLIC include/libirc )
 target_include_directories( irc PUBLIC ${CMAKE_BINARY_DIR}/src)
 
+target_include_directories( irc PUBLIC external )
+
 # + ----------------------- +
 # | FIND EXTERNAL LIBRARIES |
 # + ----------------------- +
