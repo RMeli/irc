@@ -335,7 +335,7 @@ min_interfragment_distance(size_t i,
     for (size_t l{0}; l < n_atoms; l++) {
       if (k != l and fragments[k] == i and fragments[l] == j) {
 
-        distance = distances(k, l);
+        distance = distances(l, k);
 
         if (distance < min_distance) {
           min_distance = distance;
@@ -362,7 +362,7 @@ min_interfragment_distance(size_t i,
 /// The number of vertices corresponds to the number of atoms, while the
 /// number of edges is determined by bonding.
 template<typename Vector3, typename Matrix>
-UGraph adjacency_matrix(const Matrix &distance_m,
+UGraph adjacency_matrix(const Matrix &distances,
                         const molecule::Molecule<Vector3> &molecule) {
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
@@ -377,7 +377,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
     for (size_t i{j + 1}; i < n_atoms; i++) {
 
       // Extract distance between atom i and atom j
-      d = distance_m(i, j);
+      d = distances(i, j);
 
       // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
@@ -415,10 +415,26 @@ UGraph adjacency_matrix(const Matrix &distance_m,
     for (size_t i{0}; i < num_fragments; i++) {
       for (size_t j{i + 1}; j < num_fragments; j++) {
         std::tie(i_min, j_min, min_d) =
-            min_interfragment_distance<Matrix>(i, j, fragments, distance_m);
+            min_interfragment_distance<Matrix>(i, j, fragments, distances);
 
         // Add shortest interfragment bond
         boost::add_edge(i_min, j_min, 1, ug);
+
+        for (size_t k{0}; k < n_atoms; k++) {
+          for (size_t l{0}; l < n_atoms; l++) {
+            if (k != l and fragments[k] == i and fragments[l] == j) {
+              d = distances(l, k);
+
+              // TODO: Check
+              if (d <
+                  std::min(min_d *
+                               tools::constants::interfragment_bond_multiplier,
+                           2. * tools::conversion::angstrom_to_bohr)) {
+                boost::add_edge(l, k, 1, ug);
+              }
+            }
+          }
+        }
 
         std::cout << "min(" << i << ',' << j << ';' << i_min << ',' << j_min
                   << "): " << min_d << std::endl;
@@ -437,7 +453,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
     for (size_t i{j + 1}; i < n_atoms; i++) {
 
       // Extract distance between atom i and atom j
-      d = distance_m(i, j);
+      d = distances(i, j);
 
       // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
@@ -474,7 +490,7 @@ UGraph adjacency_matrix(const Matrix &distance_m,
                 k != h_idx) {
 
               // Load distance
-              d = distance_m(h_idx, k);
+              d = distances(h_idx, k);
 
               // Compute sum of Van der Waals radii
               sum_vdw_radii = atom::vdw_radius(molecule[h_idx].atomic_number) +

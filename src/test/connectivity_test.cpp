@@ -472,6 +472,90 @@ TEST_CASE("Connectivity test for CH2O") {
   REQUIRE(A.size() == 3);
 }
 
+TEST_CASE("Connectivity test for toluene") {
+  using namespace io;
+
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+
+  // Load toluene molecule
+  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "toluene.xyz")};
+
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(mol, conversion::angstrom_to_bohr);
+
+  // Compute interatomic distance for formaldehyde molecule
+  mat dd{distances<vec3, mat>(mol)};
+
+  // Build graph based on the adjacency matrix
+  UGraph adj{adjacency_matrix(dd, mol)};
+
+  // Compute distance matrix and predecessor matrix
+  mat dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+
+  // Compute bonds
+  std::vector<Bond> B{bonds(dist, mol)};
+
+  // Chek number of bonds
+  REQUIRE(B.size() == 15);
+
+  // Compute angles
+  std::vector<Angle> A{angles(dist, predecessors, mol)};
+
+  // Check number of angles
+  REQUIRE(A.size() == 24);
+
+  // Compute dihedral angles
+  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 30);
+}
+
+TEST_CASE("Connectivity test for caffeine") {
+  using namespace io;
+
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+
+  // Load toluene molecule
+  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "caffeine.xyz")};
+
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(mol, conversion::angstrom_to_bohr);
+
+  // Compute interatomic distance for formaldehyde molecule
+  mat dd{distances<vec3, mat>(mol)};
+
+  // Build graph based on the adjacency matrix
+  UGraph adj{adjacency_matrix(dd, mol)};
+
+  // Compute distance matrix and predecessor matrix
+  mat dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+
+  // Compute bonds
+  std::vector<Bond> B{bonds(dist, mol)};
+
+  // Chek number of bonds
+  REQUIRE(B.size() == 25);
+
+  // Compute angles
+  std::vector<Angle> A{angles(dist, predecessors, mol)};
+
+  // Chek number of angles
+  REQUIRE(A.size() == 43);
+
+  // Compute dihedral angles
+  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+
+  // Chek number of dihedral angles
+  REQUIRE(D.size() == 54);
+}
+
 TEST_CASE("Connectivity test with molecule from input") {
   using namespace std;
 
