@@ -420,7 +420,8 @@ UGraph adjacency_matrix(const Matrix &distance_m,
         // Add shortest interfragment bond
         boost::add_edge(i_min, j_min, 1, ug);
 
-        std::cout << "min(" << i << ',' << j << "): " << min_d << std::endl;
+        std::cout << "min(" << i << ',' << j << ';' << i_min << ',' << j_min
+                  << "): " << min_d << std::endl;
       }
     }
 
