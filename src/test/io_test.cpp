@@ -56,7 +56,7 @@ TEST_CASE("Loading XYZ file") {
   }
 }
 
-TEST_CASE("Print") {
+TEST_CASE("Print toluene") {
   using namespace io;
 
   using namespace connectivity;
