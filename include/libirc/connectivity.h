@@ -691,7 +691,7 @@ std::vector<Angle> angles(const Matrix &distance_m,
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
 
-      if (distance_m(i, j) == 2) {
+      if (distance_m(i, j) <= 2) {
 
         A = angles(i, j, distance_m);
 
