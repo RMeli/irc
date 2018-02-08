@@ -66,7 +66,7 @@ TEST_CASE("Transformation") {
 
     // Print bonds
     if (verbose) {
-      print_bonds<vec3,vec>(to_cartesian<vec3,vec>(molecule), B);
+      print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule), B);
     }
 
     // Compute angles
@@ -74,7 +74,7 @@ TEST_CASE("Transformation") {
 
     // Print angles
     if (verbose) {
-      print_angles<vec3,vec>(to_cartesian<vec3,vec>(molecule), A);
+      print_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), A);
     }
 
     // Compute dihedral angles
@@ -82,7 +82,7 @@ TEST_CASE("Transformation") {
 
     // Print dihedral angles
     if (verbose) {
-      print_dihedrals<vec3,vec>(to_cartesian<vec3,vec>(molecule), D);
+      print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule), D);
     }
 
     // Compute number of cartesian coordinates
@@ -136,8 +136,8 @@ TEST_CASE("Transformation") {
     std::vector<Bond> B{bonds(dist, molecule)};
 
     // Print bonds
-    if(verbose){
-      print_bonds<vec3,vec>(to_cartesian<vec3,vec>(molecule), B);
+    if (verbose) {
+      print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule), B);
     }
 
     // Check number of bonds
@@ -221,10 +221,9 @@ TEST_CASE("Transformation") {
     std::vector<Bond> B{bonds(dist, molecule)};
 
     // Print bonds
-    if(verbose){
-      print_bonds<vec3,vec>(to_cartesian<vec3,vec>(molecule), B);
+    if (verbose) {
+      print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule), B);
     }
-
 
     // Check number of bonds
     REQUIRE(B.size() == 2);
@@ -233,8 +232,8 @@ TEST_CASE("Transformation") {
     std::vector<Angle> A{angles(dist, predecessors, molecule)};
 
     // Print angles
-    if(verbose){
-      print_angles<vec3,vec>(to_cartesian<vec3,vec>(molecule), A);
+    if (verbose) {
+      print_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), A);
     }
 
     // Compute Wilson B matrix
@@ -325,8 +324,8 @@ TEST_CASE("Transformation") {
     std::vector<Bond> B{bonds(dist, molecule)};
 
     // Print bonds
-    if(verbose){
-      print_bonds<vec3,vec>(to_cartesian<vec3,vec>(molecule), B);
+    if (verbose) {
+      print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule), B);
     }
 
     // Check number of bonds
@@ -336,10 +335,9 @@ TEST_CASE("Transformation") {
     std::vector<Angle> A{angles(dist, predecessors, molecule)};
 
     // Print angles
-    if(verbose){
-      print_angles<vec3,vec>(to_cartesian<vec3,vec>(molecule), A);
+    if (verbose) {
+      print_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), A);
     }
-
 
     // Check number of angles
     REQUIRE(A.size() == 2);
@@ -349,7 +347,7 @@ TEST_CASE("Transformation") {
 
     // Print dihedrals
     if (verbose) {
-      print_dihedrals<vec3,vec>(to_cartesian<vec3,vec>(molecule), D);
+      print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule), D);
     }
 
     // Check number of dihedrals
