@@ -33,7 +33,38 @@ using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 
 using namespace irc;
 
-TEST_CASE("Distance, angle and dihedral") {
+template<typename Vector3, typename Vector, typename Matrix>
+std::tuple<std::vector<connectivity::Bond>,
+           std::vector<connectivity::Angle>,
+           std::vector<connectivity::Dihedral>>
+bad_from_molecule(const molecule::Molecule<Vector3> &mol) {
+
+  using namespace connectivity;
+
+  // Compute interatomic distance for formaldehyde molecule
+  Matrix dd{distances<Vector3, Matrix>(mol)};
+
+  // Build graph based on the adjacency matrix
+  UGraph adj{adjacency_matrix(dd, mol)};
+
+  // Compute distance matrix and predecessor matrix
+  Matrix dist, predecessors;
+  std::tie(dist, predecessors) = distance_matrix<Matrix>(adj);
+
+  // Compute bonds
+  std::vector<Bond> B{bonds(dist, mol)};
+
+  // Compute angles
+  std::vector<Angle> A{angles(dist, predecessors, mol)};
+
+  // Compute dihedral angles
+  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+
+  // Return bonds, angles and dihedral angles
+  return std::make_tuple(B, A, D);
+}
+
+TEST_CASE("Distance, angle and dihedral angle") {
   using namespace connectivity;
 
   // Define three points in 3D space
@@ -83,23 +114,22 @@ TEST_CASE("Connectivity for compressed H2") {
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
 
-  // Compute interatomic distance for compressed H2
-  mat dd{distances<vec3, mat>(molecule)};
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
 
-  // Compute adjacency graph for compressed H2
-  UGraph adj{adjacency_matrix(dd, molecule)};
+  // Check number of bonds
+  REQUIRE(B.size() == 1);
 
-  // Compute distance and predecessor matrices for compressed H2
-  Mat<int> dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  // Check number of angles
+  REQUIRE(A.size() == 0);
+
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 0);
 
   SECTION("Bond") {
-    // Compute bond
-    std::vector<Bond> B{bonds(dist, molecule)};
-
-    // Check number of bonds
-    REQUIRE(B.size() == 1);
-
     // Compute IRC
     vec q{connectivity::cartesian_to_irc<vec3, vec>(
         to_cartesian<vec3, vec>(molecule), B, {}, {})};
@@ -130,23 +160,22 @@ TEST_CASE("Connectivity for stretched H2") {
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
 
-  // Compute interatomic distance for compressed H2
-  mat dd{distances<vec3, mat>(molecule)};
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
 
-  // Compute adjacency graph for compressed H2
-  UGraph adj{adjacency_matrix(dd, molecule)};
+  // Check number of bonds
+  REQUIRE(B.size() == 1);
 
-  // Compute distance and predecessor matrices for compressed H2
-  Mat<int> dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  // Check number of angles
+  REQUIRE(A.size() == 0);
+
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 0);
 
   SECTION("Bond") {
-    // Compute bond
-    std::vector<Bond> B{bonds(dist, molecule)};
-
-    // Check number of bonds
-    REQUIRE(B.size() == 1);
-
     // Compute IRC
     vec q{connectivity::cartesian_to_irc<vec3, vec>(
         to_cartesian<vec3, vec>(molecule), B, {}, {})};
@@ -186,27 +215,20 @@ TEST_CASE("Connectivity for compressed H2O") {
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
 
-  // Compute interatomic distance for compressed H2
-  mat dd{distances<vec3, mat>(molecule)};
-
-  // Compute adjacency graph for compressed H2
-  UGraph adj{adjacency_matrix(dd, molecule)};
-
-  // Compute distance and predecessor matrices for compressed H2
-  Mat<int> dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
-
-  // Compute bonds
-  std::vector<Bond> B{bonds(dist, molecule)};
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   REQUIRE(B.size() == 2);
 
-  // Compute angles
-  std::vector<Angle> A{angles(dist, predecessors, molecule)};
-
   // Check number of angles
   REQUIRE(A.size() == 1);
+
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 0);
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -233,80 +255,7 @@ TEST_CASE("Connectivity for compressed H2O") {
 }
 
 // Angle from interfragment bonds
-TEST_CASE("Connectivity for stretched H2O") {
-  using namespace std;
-
-  using namespace tools::conversion;
-  using namespace molecule;
-  using namespace connectivity;
-
-  double d1{1.3};
-  double d2{1.4};
-  double angle{102.03};
-
-  double a{(180. - angle) * deg_to_rad};
-
-  double cos_a{std::cos(a)};
-  double sin_a{std::sin(a)};
-
-  // Define compressed H2 molecule
-  Molecule<vec3> molecule{{"O", {0., 0., 0.}},
-                          {"H", {-d1, 0., 0.}},
-                          {"H", {d2 * cos_a, -d2 * sin_a, 0.}}};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(molecule, angstrom_to_bohr);
-
-  // Compute interatomic distance for compressed H2
-  mat dd{distances<vec3, mat>(molecule)};
-
-  // Compute adjacency graph for compressed H2
-  UGraph adj{adjacency_matrix(dd, molecule)};
-
-  // Compute distance and predecessor matrices for compressed H2
-  Mat<int> dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
-
-  // Compute bonds
-  std::vector<Bond> B{bonds(dist, molecule)};
-
-  // Check number of bonds
-  REQUIRE(B.size() == 3); // Three interfragment bonds
-
-  // Compute angles
-  std::vector<Angle> A{angles(dist, predecessors, molecule)};
-
-  // Check number of angles
-  REQUIRE(A.size() == 0); // No angles for this bonding structure
-
-  // Compute IRC
-  vec q{
-      cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, {})};
-
-  // Because the three atoms belong to three different fragments, there
-  // are three bonds (and no angles) for this structure.
-  // TODO: Check this properly with other codes!!!
-
-  // Check number of IRC
-  REQUIRE(linalg::size<vec>(q) == 3);
-
-  SECTION("Bonds") {
-    // O-H1
-    Approx bb1(d1 * angstrom_to_bohr);
-    bb1.margin(1e-12);
-    REQUIRE(q(0) == bb1);
-
-    // O-H2
-    Approx bb2(d2 * angstrom_to_bohr);
-    bb2.margin(1e-12);
-    REQUIRE(q(1) == bb2);
-
-    // H1-H2
-    Approx bb3(distance<vec3>(molecule[1].position, molecule[2].position));
-    bb3.margin(1e-12);
-    REQUIRE(q(2) == bb3);
-  }
-}
+TEST_CASE("Connectivity for stretched H2O") {}
 
 // Dihedral
 TEST_CASE("Connectivity for compressed H2O2") {
@@ -346,35 +295,22 @@ TEST_CASE("Connectivity for bent water dimer") {
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
 
-  // Compute interatomic distance for compressed H2
-  mat dd{distances<vec3, mat>(molecule)};
-
-  // Compute adjacency graph for compressed H2
-  UGraph adj{adjacency_matrix(dd, molecule)};
-
-  // Compute distance and predecessor matrices for compressed H2
-  Mat<int> dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
-
-  // Compute bonds
-  std::vector<Bond> B{bonds(dist, molecule)};
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
-  REQUIRE(B.size() == 5); // 4 regular bonds plus H-bond
-
-  // Compute angles
-  std::vector<Angle> A{angles(dist, predecessors, molecule)};
+  REQUIRE(B.size() == 5);
 
   // Check number of angles
   REQUIRE(A.size() == 5);
 
-  // Compute dihedral angles
-  std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 3);
 
   // TODO: Check wit other codes (where dihedral 2-1-3-6 is added).
-
-  // Check number of angles
-  REQUIRE(D.size() == 3);
 
   // Compute IRC
   vec q{
@@ -407,69 +343,182 @@ TEST_CASE("Connectivity for benzene dimer") {
 }
 
 TEST_CASE("Connectivity test for CH2O") {
-  using namespace std;
-  using namespace tools::conversion;
-  using namespace molecule;
-  using namespace connectivity;
+  // TODO
+}
 
-  // Define formaldehyde molecule (CH2O)
-  Molecule<vec3> molecule{{"C", {0.000000, 0.000000, -0.537500}},
-                          {"O", {0.000000, 0.000000, 0.662500}},
-                          {"H", {0.000000, 0.866025, -1.037500}},
-                          {"H", {0.000000, -0.866025, -1.037500}}};
+TEST_CASE("Connectivity test for hydrogen peroxide") {
+  using namespace io;
+
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+
+  // Load toluene molecule
+  Molecule<vec3> mol{
+      load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz")};
 
   // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(molecule, angstrom_to_bohr);
+  multiply_positions(mol, conversion::angstrom_to_bohr);
 
-  // Compute interatomic distance for formaldehyde molecule
-  mat dd{distances<vec3, mat>(molecule)};
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
 
-  // Print interatomic distances for formaldehyde molecule
-  cout << "Distances" << endl;
-  cout << dd * bohr_to_angstrom << endl;
+  // Check number of bonds
+  REQUIRE(B.size() == 3);
 
-  UGraph adj{adjacency_matrix(dd, molecule)};
+  // Check number of angles
+  REQUIRE(A.size() == 2);
 
-  Mat<int> dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 1);
+}
 
-  // Distance matrix
-  cout << "Distance matrix:" << endl;
-  cout << dist << endl;
+TEST_CASE("Connectivity test for ethanol") {
+  using namespace io;
 
-  // Predecessors matrix
-  cout << "Predecessors matrix:" << endl;
-  cout << predecessors << endl;
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
 
-  SECTION("Bonds") {
-    // Compute bonds
-    std::vector<Bond> B{bonds(dist, molecule)};
+  // Load toluene molecule
+  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "ethanol.xyz")};
 
-    // Check number of bonds
-    REQUIRE(B.size() == 3);
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(mol, conversion::angstrom_to_bohr);
 
-    // Define correct bond lengths
-    std::vector<double> bb{1.2, 1., 1.};
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
 
-    cout << "\nBonds:" << endl;
-    for (size_t i{0}; i < B.size(); i++) {
-      cout << bond(B[i], molecule) * bohr_to_angstrom << endl;
+  // Check number of bonds
+  REQUIRE(B.size() == 8);
 
-      Approx target{bb[i]};
+  // Check number of angles
+  REQUIRE(A.size() == 13);
 
-      target.margin(1e-6);
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 12);
+}
 
-      REQUIRE(bond(B[i], molecule) * bohr_to_angstrom == target);
-    }
-  }
+TEST_CASE("Connectivity test for glycerol") {
+  using namespace io;
 
-  std::vector<Angle> A{angles(dist, predecessors, molecule)};
-  cout << "\nAngles:" << endl;
-  for (const auto &a : A) {
-    cout << angle(a, molecule) << endl;
-  }
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
 
-  REQUIRE(A.size() == 3);
+  // Load toluene molecule
+  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "glycerol.xyz")};
+
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(mol, conversion::angstrom_to_bohr);
+
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
+
+  // Check number of bonds
+  REQUIRE(B.size() == 13);
+
+  // Check number of angles
+  REQUIRE(A.size() == 21);
+
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 27);
+}
+
+TEST_CASE("Connectivity test for octane") {
+  using namespace io;
+
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+
+  // Load toluene molecule
+  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "octane.xyz")};
+
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(mol, conversion::angstrom_to_bohr);
+
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
+
+  // Check number of bonds
+  REQUIRE(B.size() == 25);
+
+  // Check number of angles
+  REQUIRE(A.size() == 48);
+
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 63);
+}
+
+TEST_CASE("Connectivity test for phenol") {
+  using namespace io;
+
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+
+  // Load toluene molecule
+  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "phenol.xyz")};
+
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(mol, conversion::angstrom_to_bohr);
+
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
+
+  // Check number of bonds
+  REQUIRE(B.size() == 13);
+
+  // Check number of angles
+  REQUIRE(A.size() == 19);
+
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 26);
+}
+
+TEST_CASE("Connectivity test for indene") {
+  using namespace io;
+
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+
+  // Load toluene molecule
+  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "indene.xyz")};
+
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(mol, conversion::angstrom_to_bohr);
+
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
+
+  // Check number of bonds
+  REQUIRE(B.size() == 18);
+
+  // Check number of angles
+  REQUIRE(A.size() == 30);
+
+  // Check number of dihedral angles
+  REQUIRE(D.size() == 44);
 }
 
 TEST_CASE("Connectivity test for toluene") {
@@ -485,30 +534,17 @@ TEST_CASE("Connectivity test for toluene") {
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(mol, conversion::angstrom_to_bohr);
 
-  // Compute interatomic distance for formaldehyde molecule
-  mat dd{distances<vec3, mat>(mol)};
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
 
-  // Build graph based on the adjacency matrix
-  UGraph adj{adjacency_matrix(dd, mol)};
-
-  // Compute distance matrix and predecessor matrix
-  mat dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<mat>(adj);
-
-  // Compute bonds
-  std::vector<Bond> B{bonds(dist, mol)};
-
-  // Chek number of bonds
+  // Check number of bonds
   REQUIRE(B.size() == 15);
-
-  // Compute angles
-  std::vector<Angle> A{angles(dist, predecessors, mol)};
 
   // Check number of angles
   REQUIRE(A.size() == 24);
-
-  // Compute dihedral angles
-  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
 
   // Check number of dihedral angles
   REQUIRE(D.size() == 30);
@@ -527,108 +563,18 @@ TEST_CASE("Connectivity test for caffeine") {
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(mol, conversion::angstrom_to_bohr);
 
-  // Compute interatomic distance for formaldehyde molecule
-  mat dd{distances<vec3, mat>(mol)};
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
 
-  // Build graph based on the adjacency matrix
-  UGraph adj{adjacency_matrix(dd, mol)};
-
-  // Compute distance matrix and predecessor matrix
-  mat dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<mat>(adj);
-
-  // Compute bonds
-  std::vector<Bond> B{bonds(dist, mol)};
-
-  // Chek number of bonds
+  // Check number of bonds
   REQUIRE(B.size() == 25);
 
-  // Compute angles
-  std::vector<Angle> A{angles(dist, predecessors, mol)};
-
-  // Chek number of angles
+  // Check number of angles
   REQUIRE(A.size() == 43);
 
-  // Compute dihedral angles
-  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
-
-  // Chek number of dihedral angles
+  // Check number of dihedral angles
   REQUIRE(D.size() == 54);
-}
-
-TEST_CASE("Connectivity test with molecule from input") {
-  using namespace std;
-
-  using namespace io;
-  using namespace tools::conversion;
-  using namespace molecule;
-  using namespace connectivity;
-
-  // Load molecule from file
-  Molecule<vec3> molecule{
-      load_xyz<vec3>(config::molecules_dir + "caffeine.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(molecule, angstrom_to_bohr);
-
-  // Compute interatomic distance for formaldehyde molecule
-  mat dd{distances<vec3, mat>(molecule)};
-
-  UGraph adj{adjacency_matrix(dd, molecule)};
-
-  Mat<int> dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Mat<int>>(adj);
-
-  std::cout << "\nPredecessor matrix:\n" << predecessors << std::endl;
-
-  std::cout << "\nDistance matrix:\n" << dist << std::endl;
-
-  // Compute bonds
-  std::vector<Bond> B{bonds(dist, molecule)};
-
-  // Print bonds
-  cout << '\n' << B.size() << " bonds:" << endl;
-  for (const auto &b : B) {
-    cout << '(' << b.i + 1 << ',' << b.j + 1 << ") "
-         << bond(b, molecule) * bohr_to_angstrom << endl;
-  }
-
-  std::vector<Angle> A{angles(dist, predecessors, molecule)};
-  cout << '\n' << A.size() << " angles:" << endl;
-  for (const auto &a : A) {
-    cout << '(' << a.i + 1 << ',' << a.j + 1 << ',' << a.k + 1 << ") "
-         << angle(a, molecule) << endl;
-  }
-
-  std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
-  cout << '\n' << D.size() << " dihedrals:" << endl;
-  for (const auto &d : D) {
-    cout << '(' << d.i + 1 << ',' << d.j + 1 << ',' << d.k + 1 << ',' << d.l + 1
-         << ") " << dihedral(d, molecule) << endl;
-  }
-}
-
-TEST_CASE("Fragment recognition") {
-  using namespace std;
-
-  using namespace io;
-  using namespace tools::conversion;
-  using namespace molecule;
-  using namespace connectivity;
-
-  // Load molecule from file
-  Molecule<vec3> molecule{
-      load_xyz<vec3>(config::molecules_dir + "benzene_dimer.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(molecule, angstrom_to_bohr);
-
-  // Compute interatomic distance for formaldehyde molecule
-  mat dd{distances<vec3, mat>(molecule)};
-
-  std::cout << "\nDistance matrix:\n" << dd << std::endl;
-
-  UGraph adj{adjacency_matrix(dd, molecule)};
-
-  // TODO
 }
