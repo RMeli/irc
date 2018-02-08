@@ -2,5 +2,4 @@ codecov:
   token: 0df04682-8860-4262-ab40-26e9e447d780
 
 ignore:
-    - include/catch # Ignore Catch2
-    - include/boost # Ignore boosit
+    - external/ # Ignore external libraries
