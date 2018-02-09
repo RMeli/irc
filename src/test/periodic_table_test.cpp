@@ -1,4 +1,4 @@
-#include "../../external/catch/catch.hpp"
+#include "catch.hpp"
 
 #include "libirc/periodic_table.h"
 
