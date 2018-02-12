@@ -91,10 +91,10 @@ IRC<Vector3, Vector, Matrix>::IRC(
   n_c = 3 * molecule.size();
 
   // Compute interatomic distances
-  Matrix dd{connectivity::distances<Vector3, Matrix>(molecule)};
+  const Matrix dd{connectivity::distances<Vector3, Matrix>(molecule)};
 
   // Compute adjacency matrix (graph)
-  connectivity::UGraph adj{connectivity::adjacency_matrix(dd, molecule)};
+  const connectivity::UGraph adj{connectivity::adjacency_matrix(dd, molecule)};
 
   // Compute distance matrix and predecessor matrix
   Matrix distance_m, predecessors_m;
@@ -234,8 +234,8 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector &q_irc_old,
   if (linalg::size(x_c_old) != n_c) {
     throw std::length_error("ERROR: Wrong old cartesian coordinates size.");
   }
-
-  Vector x_c_new{
+  
+  const Vector x_c_new{
       transformation::irc_to_cartesian<Vector3, Vector, Matrix>(q_irc_old,
                                                                 dq_irc,
                                                                 x_c_old,

@@ -19,8 +19,8 @@ namespace transformation {
 /// \return Root mean square value of \param v
 template<typename Vector>
 double rms(const Vector &v) {
-
-  size_t size{linalg::size<Vector>(v)};
+  
+  const size_t size{linalg::size<Vector>(v)};
 
   double sum{0};
 
@@ -89,7 +89,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
                         size_t max_iters = 25,
                         double tolerance = 1e-6) {
   // Number of internal redundant coordinates
-  size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
   // Convergence flag
   bool converged{false};
@@ -107,13 +107,16 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   Vector dx{linalg::zeros<Vector>(linalg::size(x_c_old))};
 
   // Compute Wilson's B matrix
-  Matrix B{wilson::wilson_matrix<Vector3, Vector, Matrix>(
+  const Matrix B{wilson::wilson_matrix<Vector3, Vector, Matrix>(
       x_c, bonds, angles, dihedrals)};
 
   // Compute the transpose of B
-  Matrix iB{linalg::pseudo_inverse(B)};
+  const Matrix iB{linalg::pseudo_inverse(B)};
 
   double RMS{0};
+  
+  // Offset for dihedral angles in q_irc
+  const size_t offset{bonds.size() + angles.size()};
 
   // Start iterative search
   for (size_t i{0}; i < max_iters; i++) {
@@ -141,9 +144,8 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     // Compute new internal coordinates
     q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c, bonds, angles, dihedrals);
-
+  
     // Check change in dihedral angles (in radians)
-    size_t offset{bonds.size() + angles.size()};
     for (size_t i{offset}; i < n_irc; i++) {
       // Restrain dihedral angle on the interval [-pi,pi]
       q_new(i) = tools::math::pirange_rad(q_new(i));
@@ -157,8 +159,8 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   // If iteration does not converge, use first estimate
   if (!converged) {
     // Re-compute original B matrix
-    B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-        x_c_old, bonds, angles, dihedrals);
+    //B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
+    //    x_c_old, bonds, angles, dihedrals);
 
     // Compute first estimate
     x_c = x_c_old + linalg::pseudo_inverse(B) * dq_irc;

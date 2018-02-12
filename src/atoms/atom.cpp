@@ -35,7 +35,7 @@ double vdw_radius(const AtomicNumber &an) noexcept {
 
 // TODO: constexpr for C++14
 bool is_NOFPSCl(const AtomicNumber &an) noexcept {
-  size_t n{an.atomic_number};
+  const size_t n{an.atomic_number};
 
   return (n == 7 or n == 8 or n == 9 or n == 15 or n == 16 or n == 17);
 }

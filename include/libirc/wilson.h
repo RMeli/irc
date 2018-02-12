@@ -28,9 +28,9 @@ namespace wilson {
 template<typename Vector3>
 std::pair<Vector3, Vector3> bond_gradient(const Vector3 &p1,
                                           const Vector3 &p2) {
-  double bond{connectivity::distance(p1, p2)};
-
-  Vector3 v{(p1 - p2) / bond};
+  const double bond{connectivity::distance(p1, p2)};
+  
+  const Vector3 v{(p1 - p2) / bond};
 
   return {v, -v};
 }
@@ -47,26 +47,23 @@ std::pair<Vector3, Vector3> bond_gradient(const Vector3 &p1,
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3>
 angle_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3) {
-  double angle{connectivity::angle(p1, p2, p3)};
-
-  // TODO: Check pyberny for more robust implementation
-  // https://github.com/azag0/pyberny
-
-  double sin_angle{std::sin(angle)};
-  double cos_angle{std::cos(angle)};
+  const double angle{connectivity::angle(p1, p2, p3)};
+  
+  const double sin_angle{std::sin(angle)};
+  const double cos_angle{std::cos(angle)};
 
   Vector3 b21{p1 - p2};
   Vector3 b23{p3 - p2};
-
-  double bond21{linalg::norm(b21)};
-  double bond23{linalg::norm(b23)};
+  
+  const double bond21{linalg::norm(b21)};
+  const double bond23{linalg::norm(b23)};
 
   b21 = b21 / bond21;
   b23 = b23 / bond23;
-
-  Vector3 v1{(cos_angle * b21 - b23) / (sin_angle * bond21)};
-  Vector3 v3{(cos_angle * b23 - b21) / (sin_angle * bond23)};
-  Vector3 v2{-v1 - v3};
+  
+  const Vector3 v1{(cos_angle * b21 - b23) / (sin_angle * bond21)};
+  const Vector3 v3{(cos_angle * b23 - b21) / (sin_angle * bond23)};
+  const Vector3 v2{-v1 - v3};
 
   return std::make_tuple(v1, v2, v3);
 }
@@ -87,34 +84,31 @@ dihedral_gradient(const Vector3 &p1,
                   const Vector3 &p2,
                   const Vector3 &p3,
                   const Vector3 &p4) {
-
-  // TODO: Check pyberny for more robust implementation
-  // https://github.com/azag0/pyberny
-
-  double angle123{connectivity::angle(p1, p2, p3)};
-  double sin_angle123{std::sin(angle123)};
-  double cos_angle123{std::cos(angle123)};
-
-  double angle234{connectivity::angle(p2, p3, p4)};
-  double sin_angle234{std::sin(angle234)};
-  double cos_angle234{std::cos(angle234)};
+  
+  const double angle123{connectivity::angle(p1, p2, p3)};
+  const double sin_angle123{std::sin(angle123)};
+  const double cos_angle123{std::cos(angle123)};
+  
+  const double angle234{connectivity::angle(p2, p3, p4)};
+  const double sin_angle234{std::sin(angle234)};
+  const double cos_angle234{std::cos(angle234)};
 
   Vector3 b12{p2 - p1};
   Vector3 b23{p3 - p2};
   Vector3 b34{p4 - p3};
-
-  double bond12{linalg::norm(b12)};
-  double bond23{linalg::norm(b23)};
-  double bond34{linalg::norm(b34)};
+  
+  const double bond12{linalg::norm(b12)};
+  const double bond23{linalg::norm(b23)};
+  const double bond34{linalg::norm(b34)};
 
   b12 = b12 / bond12;
   b23 = b23 / bond23;
   b34 = b34 / bond34;
-
-  Vector3 b32{-b23};
-  Vector3 b43{-b34};
-
-  Vector3 v1{-linalg::cross(b12, b23) / (bond12 * sin_angle123 * sin_angle123)};
+  
+  const Vector3 b32{-b23};
+  const Vector3 b43{-b34};
+  
+  const Vector3 v1{-linalg::cross(b12, b23) / (bond12 * sin_angle123 * sin_angle123)};
 
   double vc1{0.}, vc2{0.};
   Vector3 vv1, vv2{0., 0., 0.};
@@ -123,17 +117,17 @@ dihedral_gradient(const Vector3 &p1,
   vc2 = cos_angle234 / (bond23 * sin_angle234);
   vv1 = linalg::cross(b12, b23) / sin_angle123;
   vv2 = linalg::cross(b43, b32) / sin_angle234;
-
-  Vector3 v2{vc1 * vv1 + vc2 * vv2};
+  
+  const Vector3 v2{vc1 * vv1 + vc2 * vv2};
 
   vc1 = (bond23 - bond34 * cos_angle234) / (bond23 * bond34 * sin_angle234);
   vc2 = cos_angle123 / (bond23 * sin_angle123);
   vv1 = linalg::cross(b43, b32) / sin_angle234;
   vv2 = linalg::cross(b12, b23) / sin_angle123;
-
-  Vector3 v3{vc1 * vv1 + vc2 * vv2};
-
-  Vector3 v4{-linalg::cross(b43, b32) / (bond34 * sin_angle234 * sin_angle234)};
+  
+  const Vector3 v3{vc1 * vv1 + vc2 * vv2};
+  
+  const Vector3 v4{-linalg::cross(b43, b32) / (bond34 * sin_angle234 * sin_angle234)};
 
   return std::make_tuple(v1, v2, v3, v4);
 }
@@ -172,10 +166,10 @@ wilson_matrix(const Vector &x_cartesian,
               const std::vector<connectivity::Angle> &angles = {},
               const std::vector<connectivity::Dihedral> &dihedrals = {}) {
   // Get number of atoms
-  size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
+  const size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
 
   // Get the total number of internal redundant coordinates
-  size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
   // Allocate Wilson's B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, 3 * n_atoms)};
@@ -263,10 +257,10 @@ Matrix wilson_matrix_numerical(
     double dx = 1.e-6) {
 
   // Number of cartesian coordinates
-  size_t n_c{linalg::size(x_c)};
+  const size_t n_c{linalg::size(x_c)};
 
   // Number of IRC
-  size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
   // Allocate Wilson B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, n_c)};

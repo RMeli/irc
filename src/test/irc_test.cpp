@@ -126,7 +126,7 @@ TEST_CASE("Internal Redundant Coordinates") {
     multiply_positions(molecule, angstrom_to_bohr);
 
     // Build internal reaction coordinates
-    // (Manually added dihedral to increase to increase coverage)
+    // (Manually added dihedral to increase coverage)
     IRC<vec3, vec, mat> irc(molecule, {}, {}, {{0, 1, 2, 3}});
 
     // Compute initial hessian
