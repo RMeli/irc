@@ -25,30 +25,21 @@ TEST_CASE("Molecule") {
   using namespace molecule;
   using namespace periodic_table;
 
-  Molecule<vec3> molecule{
+  const auto molecule = Molecule<vec3>{
       {{1, {0.0, 1.1, 2.2}}, {2, {0.0, 1.1, 2.2}}, {3, {0.0, 1.1, 2.2}}}};
 
-  SECTION("Mass") {
-    Approx target{pt_masses[1] + pt_masses[2] + pt_masses[3]};
-
-    target.margin(1e-12);
-
-    REQUIRE(mass(molecule) == target);
-  }
+  CHECK(mass(molecule) == Approx(pt_masses[1] + pt_masses[2] + pt_masses[3]));
 
   SECTION("Positon multiplier") {
-    multiply_positions(molecule, 2.);
+    auto scaled_molecule = molecule;
+    multiply_positions(scaled_molecule, 2.);
 
-    for (const auto &atom : molecule) {
+    const auto pos = vec3{{0.0, 2.2, 4.4}};
 
-      vec3 pos{{0.0, 2.2, 4.4}};
-
-      for (unsigned i{0}; i < 3; i++) {
-        Approx target{pos(i)};
-
-        target.margin(1e-12);
-
-        REQUIRE(atom.position(i) == target);
+    for (const auto &atom : scaled_molecule) {
+      for (size_t i{0}; i < 3; i++) {
+        CAPTURE(i);
+        CHECK(atom.position(i) == Approx(pos(i)));
       }
     }
   }
