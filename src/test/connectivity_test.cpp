@@ -67,35 +67,17 @@ bad_from_molecule(const molecule::Molecule<Vector3> &mol) {
 TEST_CASE("Distance, angle and dihedral angle") {
   using namespace connectivity;
 
-  // Define three points in 3D space
-  vec3 p1{0.00, 0.00, -0.25};
-  vec3 p2{0.00, 0.00, 1.50};
-  vec3 p3{0.00, 1.00, 1.50};
-  vec3 p4{5.00, 1.00, 1.50};
+  // Define four points in 3D space
+  const auto p1 = vec3{0.00, 0.00, -0.25};
+  const auto p2 = vec3{0.00, 0.00, 1.50};
+  const auto p3 = vec3{0.00, 1.00, 1.50};
+  const auto p4 = vec3{5.00, 1.00, 1.50};
 
-  SECTION("Distance") {
-    Approx target{1.75};
+  REQUIRE(distance(p1, p2) == Approx(1.75));
 
-    target.margin(1e-12);
+  REQUIRE(angle(p1, p2, p3) == Approx(tools::constants::pi / 2.));
 
-    REQUIRE(distance(p1, p2) == target);
-  }
-
-  SECTION("Angle") {
-    Approx target{tools::constants::pi / 2.};
-
-    target.margin(1e-12);
-
-    REQUIRE(angle(p1, p2, p3) == target);
-  }
-
-  SECTION("Dihedral") {
-    Approx target{-tools::constants::pi / 2.};
-
-    target.margin(1e-12);
-
-    REQUIRE(dihedral(p1, p2, p3, p4) == target);
-  }
+  REQUIRE(dihedral(p1, p2, p3, p4) == Approx(-tools::constants::pi / 2.));
 }
 
 // Regular bond
@@ -346,235 +328,44 @@ TEST_CASE("Connectivity test for CH2O") {
   // TODO
 }
 
-TEST_CASE("Connectivity test for hydrogen peroxide") {
+
+TEST_CASE("Connectivity of molecule database") {
   using namespace io;
 
   using namespace connectivity;
   using namespace molecule;
   using namespace tools;
 
-  // Load toluene molecule
-  Molecule<vec3> mol{
-      load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz")};
+  struct ConnectivityResult {
+    std::string filename;
+    size_t n_bonds;
+    size_t n_angles;
+    size_t n_dihedrals;
+  };
 
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
+  auto results = std::vector<ConnectivityResult>{
+     {"hydrogen_peroxide.xyz", 3,  2,  1},
+     {"ethanol.xyz",           8, 13, 12},
+     {"glycerol.xyz",         13, 21, 27},
+     {"octane.xyz",           25, 48, 63},
+     {"phenol.xyz",           13, 19, 26},
+     {"indene.xyz",           18, 30, 44},
+     {"toluene.xyz",          15, 24, 30},
+     {"caffeine.xyz",         25, 43, 54}
+     };
+  for(const auto & molecule_parameters : results) {
+    CAPTURE(molecule_parameters.filename);
 
-  // Get bonds, angles and dihedrals
-  std::vector<Bond> B;
-  std::vector<Angle> A;
-  std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
+    auto mol = load_xyz<vec3>(config::molecules_dir + molecule_parameters.filename);
+    multiply_positions(mol, conversion::angstrom_to_bohr);
 
-  // Check number of bonds
-  REQUIRE(B.size() == 3);
+    std::vector<Bond> B;
+    std::vector<Angle> A;
+    std::vector<Dihedral> D;
+    std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
 
-  // Check number of angles
-  REQUIRE(A.size() == 2);
-
-  // Check number of dihedral angles
-  REQUIRE(D.size() == 1);
-}
-
-TEST_CASE("Connectivity test for ethanol") {
-  using namespace io;
-
-  using namespace connectivity;
-  using namespace molecule;
-  using namespace tools;
-
-  // Load toluene molecule
-  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "ethanol.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
-
-  // Get bonds, angles and dihedrals
-  std::vector<Bond> B;
-  std::vector<Angle> A;
-  std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
-
-  // Check number of bonds
-  REQUIRE(B.size() == 8);
-
-  // Check number of angles
-  REQUIRE(A.size() == 13);
-
-  // Check number of dihedral angles
-  REQUIRE(D.size() == 12);
-}
-
-TEST_CASE("Connectivity test for glycerol") {
-  using namespace io;
-
-  using namespace connectivity;
-  using namespace molecule;
-  using namespace tools;
-
-  // Load toluene molecule
-  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "glycerol.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
-
-  // Get bonds, angles and dihedrals
-  std::vector<Bond> B;
-  std::vector<Angle> A;
-  std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
-
-  // Check number of bonds
-  REQUIRE(B.size() == 13);
-
-  // Check number of angles
-  REQUIRE(A.size() == 21);
-
-  // Check number of dihedral angles
-  REQUIRE(D.size() == 27);
-}
-
-TEST_CASE("Connectivity test for octane") {
-  using namespace io;
-
-  using namespace connectivity;
-  using namespace molecule;
-  using namespace tools;
-
-  // Load toluene molecule
-  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "octane.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
-
-  // Get bonds, angles and dihedrals
-  std::vector<Bond> B;
-  std::vector<Angle> A;
-  std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
-
-  // Check number of bonds
-  REQUIRE(B.size() == 25);
-
-  // Check number of angles
-  REQUIRE(A.size() == 48);
-
-  // Check number of dihedral angles
-  REQUIRE(D.size() == 63);
-}
-
-TEST_CASE("Connectivity test for phenol") {
-  using namespace io;
-
-  using namespace connectivity;
-  using namespace molecule;
-  using namespace tools;
-
-  // Load toluene molecule
-  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "phenol.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
-
-  // Get bonds, angles and dihedrals
-  std::vector<Bond> B;
-  std::vector<Angle> A;
-  std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
-
-  // Check number of bonds
-  REQUIRE(B.size() == 13);
-
-  // Check number of angles
-  REQUIRE(A.size() == 19);
-
-  // Check number of dihedral angles
-  REQUIRE(D.size() == 26);
-}
-
-TEST_CASE("Connectivity test for indene") {
-  using namespace io;
-
-  using namespace connectivity;
-  using namespace molecule;
-  using namespace tools;
-
-  // Load toluene molecule
-  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "indene.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
-
-  // Get bonds, angles and dihedrals
-  std::vector<Bond> B;
-  std::vector<Angle> A;
-  std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
-
-  // Check number of bonds
-  REQUIRE(B.size() == 18);
-
-  // Check number of angles
-  REQUIRE(A.size() == 30);
-
-  // Check number of dihedral angles
-  REQUIRE(D.size() == 44);
-}
-
-TEST_CASE("Connectivity test for toluene") {
-  using namespace io;
-
-  using namespace connectivity;
-  using namespace molecule;
-  using namespace tools;
-
-  // Load toluene molecule
-  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "toluene.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
-
-  // Get bonds, angles and dihedrals
-  std::vector<Bond> B;
-  std::vector<Angle> A;
-  std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
-
-  // Check number of bonds
-  REQUIRE(B.size() == 15);
-
-  // Check number of angles
-  REQUIRE(A.size() == 24);
-
-  // Check number of dihedral angles
-  REQUIRE(D.size() == 30);
-}
-
-TEST_CASE("Connectivity test for caffeine") {
-  using namespace io;
-
-  using namespace connectivity;
-  using namespace molecule;
-  using namespace tools;
-
-  // Load toluene molecule
-  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "caffeine.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
-
-  // Get bonds, angles and dihedrals
-  std::vector<Bond> B;
-  std::vector<Angle> A;
-  std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
-
-  // Check number of bonds
-  REQUIRE(B.size() == 25);
-
-  // Check number of angles
-  REQUIRE(A.size() == 43);
-
-  // Check number of dihedral angles
-  REQUIRE(D.size() == 54);
+    CHECK(B.size() == molecule_parameters.n_bonds);
+    CHECK(A.size() == molecule_parameters.n_angles);
+    CHECK(D.size() == molecule_parameters.n_dihedrals);
+  }
 }
