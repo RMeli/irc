@@ -16,13 +16,12 @@ namespace atom {
 /// The \class AtomicNumber represents a valid atomic number, for which
 /// all the quantities accessible with dedicated functions are available
 /// in \headerfile periodic_table.h
-class AtomicNumber {
-public:
+struct AtomicNumber {
+  size_t atomic_number;
+
   AtomicNumber(size_t an);
 
   AtomicNumber(const std::string &symbol);
-
-  size_t atomic_number;
 };
 
 /// Get an atomic symbol from \class AtomicNumber
@@ -51,13 +50,13 @@ double vdw_radius(const AtomicNumber &an) noexcept;
 
 /// Check if an atom is either N, O, F, P, S or Cl
 ///
-/// \param an Atomic number
+/// \param an \class AtomicNumber
 /// \return
 bool is_NOFPSCl(const AtomicNumber &an) noexcept;
 
-/// Check if an atom is an hydrogen atom
+/// Check if an atom is a hydrogen atom
 ///
-/// \param an Atomic number
+/// \param an \class AtomicNumber
 /// \return
 bool is_H(const AtomicNumber &an) noexcept;
 
@@ -76,9 +75,15 @@ std::ostream &operator<<(std::ostream &out, const AtomicNumber &an);
 /// Its properties can be looked up in \headerfile periodic_table.h
 template<typename Vector3>
 struct Atom {
-  /// Constructor from atomic number
+  /// Atomic number
+  AtomicNumber atomic_number;
+
+  /// Position (in 3D space)
+  Vector3 position;
+
+  /// Constructor from \class AtomicNumber
   ///
-  /// \param an Atomic number
+  /// \param an \class AtomicNumber
   /// \param pos Position (in 3D space)
   Atom(const AtomicNumber &an, const Vector3 &pos = {0., 0., 0.});
 
@@ -87,12 +92,6 @@ struct Atom {
   /// \param symbol Atomic symbol
   /// \param pos Position (in 3D space)
   Atom(const std::string &symbol, const Vector3 &pos = {0., 0., 0.});
-
-  /// Atomic number
-  AtomicNumber atomic_number;
-
-  /// Position (in 3D space)
-  Vector3 position; // TODO: Make position std::optional?
 };
 
 template<typename Vector3>

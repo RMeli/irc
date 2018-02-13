@@ -61,7 +61,7 @@ void print_bonds(const Vector &x_c,
                  std::ostream &out = std::cout) {
 
   // Total number of bonds
-  size_t n_bonds{bonds.size()};
+  const size_t n_bonds{bonds.size()};
 
   out << n_bonds << " bonds (\u212B):" << std::endl;
 
@@ -105,7 +105,7 @@ void print_angles(const Vector &x_c,
                   std::ostream &out = std::cout) {
 
   // Total number of angles
-  size_t n_angles{angles.size()};
+  const size_t n_angles{angles.size()};
 
   out << n_angles << " angles (\u00B0):" << std::endl;
 
@@ -152,7 +152,7 @@ void print_dihedrals(const Vector &x_c,
                      std::ostream &out = std::cout) {
 
   // Total number of angles
-  size_t n_dihedrals{dihedrals.size()};
+  const size_t n_dihedrals{dihedrals.size()};
 
   out << n_dihedrals << " dihedrals (\u00B0):" << std::endl;
 

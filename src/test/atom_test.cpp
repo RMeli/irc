@@ -1,4 +1,4 @@
-#include "../../external/catch/catch.hpp"
+#include "catch.hpp"
 
 #include "libirc/atom.h"
 
@@ -24,58 +24,36 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
   using namespace atom;
 
   SECTION("invalid atom") {
-
-    bool exception{false};
-
-    try {
-      Atom<vec3> a{periodic_table::pt_size + 1};
-    } catch (const std::logic_error &e) {
-      exception = true;
-    }
-
-    REQUIRE(exception == true);
+    CHECK_THROWS_AS(Atom<vec3>(periodic_table::pt_size + 1), std::logic_error);
   }
 
   SECTION("atom from atomic number") {
     for (size_t i{1}; i < periodic_table::pt_size; i++) {
       REQUIRE(periodic_table::valid_atomic_number(i));
 
-      // Define atom from atomic number
-      Atom<vec3> a{i};
+      const auto a = Atom<vec3>{i};
 
       REQUIRE(symbol(a.atomic_number) == periodic_table::pt_symbols[i]);
+      REQUIRE(symbol(i) == periodic_table::pt_symbols[i]);
 
-      {
-        Approx target{periodic_table::pt_masses[i]};
+      REQUIRE(mass(a.atomic_number) == Approx(periodic_table::pt_masses[i]));
+      REQUIRE(mass(i) == Approx(periodic_table::pt_masses[i]));
 
-        target.margin(1e-12);
+      REQUIRE(covalent_radius(a.atomic_number) ==
+              Approx(periodic_table::pt_covalent_radii[i]));
+      REQUIRE(covalent_radius(i) ==
+              Approx(periodic_table::pt_covalent_radii[i]));
 
-        REQUIRE(mass(a.atomic_number) == target);
-      }
+      REQUIRE(vdw_radius(a.atomic_number) ==
+              Approx(periodic_table::pt_vdv_radii[i]));
+      REQUIRE(vdw_radius(i) == Approx(periodic_table::pt_vdv_radii[i]));
 
-      {
-        Approx target{periodic_table::pt_covalent_radii[i]};
-
-        target.margin(1e-12);
-
-        REQUIRE(covalent_radius(a.atomic_number) == target);
-      }
-
-      {
-        Approx target{periodic_table::pt_vdv_radii[i]};
-
-        target.margin(1e-12);
-
-        REQUIRE(vdw_radius(a.atomic_number) == target);
-      }
-
-      {
-        if (i == 1) {
-          REQUIRE(is_H(a.atomic_number));
-        } else if (i == 7 or i == 8 or i == 9 or i == 15 or i == 16 or
-                   i == 17) {
-          REQUIRE(is_NOFPSCl(a.atomic_number));
-        }
+      if (i == 1) {
+        REQUIRE(is_H(a.atomic_number));
+        REQUIRE(is_H(i));
+      } else if (i == 7 or i == 8 or i == 9 or i == 15 or i == 16 or i == 17) {
+        REQUIRE(is_NOFPSCl(a.atomic_number));
+        REQUIRE(is_NOFPSCl(i));
       }
     }
   }
@@ -85,46 +63,31 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
 
       REQUIRE(periodic_table::valid_atomic_number(i));
 
-      // Define atom from atomic number
-      Atom<vec3> a{periodic_table::pt_symbols[i]};
+      const auto a = Atom<vec3>{periodic_table::pt_symbols[i]};
 
       REQUIRE(symbol(a.atomic_number) == periodic_table::pt_symbols[i]);
+      REQUIRE(symbol(AtomicNumber(periodic_table::pt_symbols[i])) ==
+              periodic_table::pt_symbols[i]);
 
-      // Mass from atomic number
-      {
-        Approx target{periodic_table::pt_masses[i]};
+      REQUIRE(mass(a.atomic_number) == Approx(periodic_table::pt_masses[i]));
+      REQUIRE(mass(AtomicNumber(periodic_table::pt_symbols[i])) ==
+              Approx(periodic_table::pt_masses[i]));
 
-        target.margin(1e-12);
+      REQUIRE(covalent_radius(a.atomic_number) ==
+              Approx(periodic_table::pt_covalent_radii[i]));
+      REQUIRE(covalent_radius(AtomicNumber(periodic_table::pt_symbols[i])) ==
+              Approx(periodic_table::pt_covalent_radii[i]));
 
-        REQUIRE(mass(a.atomic_number) == target);
-      }
-
-      // Covalent radius from atomic number
-      {
-        Approx target{periodic_table::pt_covalent_radii[i]};
-
-        target.margin(1e-12);
-
-        REQUIRE(covalent_radius(a.atomic_number) == target);
-      }
-
-      // Van der Waals radius from atomic number
-      {
-        Approx target{periodic_table::pt_vdv_radii[i]};
-
-        target.margin(1e-12);
-
-        REQUIRE(vdw_radius(a.atomic_number) == target);
-      }
+      REQUIRE(vdw_radius(a.atomic_number) ==
+              Approx(periodic_table::pt_vdv_radii[i]));
+      REQUIRE(vdw_radius(AtomicNumber(periodic_table::pt_symbols[i])) ==
+              Approx(periodic_table::pt_vdv_radii[i]));
 
       // Atom in H-bond
-      {
-        if (i == 1) {
-          REQUIRE(is_H(a.atomic_number));
-        } else if (i == 7 or i == 8 or i == 9 or i == 15 or i == 16 or
-                   i == 17) {
-          REQUIRE(is_NOFPSCl(a.atomic_number));
-        }
+      if (i == 1) {
+        REQUIRE(is_H(a.atomic_number));
+      } else if (i == 7 or i == 8 or i == 9 or i == 15 or i == 16 or i == 17) {
+        REQUIRE(is_NOFPSCl(a.atomic_number));
       }
     }
   }

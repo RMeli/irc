@@ -55,7 +55,7 @@ void multiply_positions(Molecule<Vector3> &molecule, T multiplier) {
 /// three entries are the (x,y,z) coordinates of the first atom and so on.
 template<typename Vector3, typename Vector>
 Vector to_cartesian(const Molecule<Vector3> &molecule) {
-  size_t n_atoms{molecule.size()};
+  const size_t n_atoms{molecule.size()};
 
   Vector x_cartesian{linalg::zeros<Vector>(3 * n_atoms)};
 

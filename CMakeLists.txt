@@ -24,6 +24,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(-Wall) # DON'T USE
 
+option(COVERAGE "Use code coverage if compiler is Clang" OFF)
+
 if(COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CLANG_COVERAGE_COMPILE_FLAGS "--coverage -g -O0")
     set(CLANG_COVERAGE_LINK_FLAGS    "--coverage")
@@ -89,12 +91,15 @@ target_include_directories( irc PUBLIC external )
 #if(NOT EXISTS ${CMAKE_SOURCE_DIR}/include/boost)
 find_package(
         Boost
-        1.60.0
+        1.58.0
         REQUIRED
     )
 include_directories(irc ${Boost_INCLUDE_DIRS}) # DON'T USE
 target_link_libraries(irc ${Boost_LIBRARIES})
 #endif()
+
+option(WITH_ARMA "Use Armadillo for the linear algebra library" OFF)
+option(WITH_EIGEN "Use Eigen for the linear algebra library" OFF)
 
 if(WITH_ARMA)
     find_package(
@@ -132,7 +137,7 @@ elseif(WITH_EIGEN)
         message("-- Eigen3 version: " ${EIGEN3_VERSION_STRING})
     endif()
 else()
-    message( FATAL_ERROR "No linera algebra library provided." )
+    message( FATAL_ERROR "No linera algebra library provided. Specifiy -DWITH_ARMA or -DWITH_EIGEN" )
 endif()
 
 # + ------- +
