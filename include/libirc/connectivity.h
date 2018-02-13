@@ -97,9 +97,13 @@ inline double distance(const Vector3 &v1, const Vector3 &v2) {
 template<typename Vector3, typename Vector>
 inline double bond(const Bond &b, const Vector &x_cartesian) {
   // Temporary positions
-  const Vector3 b1{x_cartesian(3 * b.i + 0), x_cartesian(3 * b.i + 1), x_cartesian(3 * b.i + 2)};
-  
-  const Vector3 b2{x_cartesian(3 * b.j + 0), x_cartesian(3 * b.j + 1), x_cartesian(3 * b.j + 2)};
+  const Vector3 b1{x_cartesian(3 * b.i + 0),
+                   x_cartesian(3 * b.i + 1),
+                   x_cartesian(3 * b.i + 2)};
+
+  const Vector3 b2{x_cartesian(3 * b.j + 0),
+                   x_cartesian(3 * b.j + 1),
+                   x_cartesian(3 * b.j + 2)};
 
   return distance(b1, b2);
 }
@@ -162,11 +166,11 @@ inline double angle(const Angle &a, const Vector &x_cartesian) {
   const Vector3 a1{x_cartesian(3 * a.i + 0),
                    x_cartesian(3 * a.i + 1),
                    x_cartesian(3 * a.i + 2)};
-  
+
   const Vector3 a2{x_cartesian(3 * a.j + 0),
                    x_cartesian(3 * a.j + 1),
                    x_cartesian(3 * a.j + 2)};
-  
+
   const Vector3 a3{x_cartesian(3 * a.k + 0),
                    x_cartesian(3 * a.k + 1),
                    x_cartesian(3 * a.k + 2)};
@@ -212,9 +216,9 @@ inline double dihedral(const Vector3 &v1,
 
   n1 /= linalg::norm(n1);
   n2 /= linalg::norm(n2);
-  
+
   const Vector3 m{linalg::cross(n1, b2) / linalg::norm(b2)};
-  
+
   const double x{linalg::dot(n1, n2)};
   const double y{linalg::dot(m, n2)};
 
@@ -240,15 +244,15 @@ inline double dihedral(const Dihedral &d, const Vector &x_cartesian) {
   const Vector3 d1{x_cartesian(3 * d.i + 0),
                    x_cartesian(3 * d.i + 1),
                    x_cartesian(3 * d.i + 2)};
-  
+
   const Vector3 d2{x_cartesian(3 * d.j + 0),
                    x_cartesian(3 * d.j + 1),
                    x_cartesian(3 * d.j + 2)};
-  
+
   const Vector3 d3{x_cartesian(3 * d.k + 0),
                    x_cartesian(3 * d.k + 1),
                    x_cartesian(3 * d.k + 2)};
-  
+
   const Vector3 d4{x_cartesian(3 * d.l + 0),
                    x_cartesian(3 * d.l + 1),
                    x_cartesian(3 * d.l + 2)};
@@ -289,7 +293,7 @@ inline double dihedral(const Dihedral &d,
 template<typename Vector3, typename Matrix>
 Matrix distances(const molecule::Molecule<Vector3> &molecule) {
   const size_t n_atoms{molecule.size()};
-  
+
   Matrix distances_m{linalg::zeros<Matrix>(n_atoms, n_atoms)};
 
   double r{0.};
@@ -673,7 +677,8 @@ std::vector<Angle> angles(const Matrix &distance_m,
 
           // Compute angle
           if (a > tools::constants::quasi_linear_angle) {
-            throw std::runtime_error("Quasi-linear angle not treated properly yet.");
+            throw std::runtime_error(
+                "Quasi-linear angle not treated properly yet.");
           }
 
           // Store angle
@@ -767,7 +772,8 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
 
   // Check if dihedrals are found
   if (n_atoms >= 4 && dih.size() == 0) {
-    std::cerr << "ERROR: Out of plane bending not implemented yet." << std::endl;
+    std::cerr << "ERROR: Out of plane bending not implemented yet."
+              << std::endl;
   }
 
   // Return list of dihedral angles

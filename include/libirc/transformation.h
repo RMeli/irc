@@ -19,7 +19,7 @@ namespace transformation {
 /// \return Root mean square value of \param v
 template<typename Vector>
 double rms(const Vector &v) {
-  
+
   const size_t size{linalg::size<Vector>(v)};
 
   double sum{0};
@@ -114,7 +114,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   const Matrix iB{linalg::pseudo_inverse(B)};
 
   double RMS{0};
-  
+
   // Offset for dihedral angles in q_irc
   const size_t offset{bonds.size() + angles.size()};
 
@@ -144,7 +144,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
     // Compute new internal coordinates
     q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c, bonds, angles, dihedrals);
-  
+
     // Check change in dihedral angles (in radians)
     for (size_t i{offset}; i < n_irc; i++) {
       // Restrain dihedral angle on the interval [-pi,pi]
@@ -159,7 +159,7 @@ Vector irc_to_cartesian(const Vector &q_irc_old,
   // If iteration does not converge, use first estimate
   if (!converged) {
     // Re-compute original B matrix
-    //B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
+    // B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
     //    x_c_old, bonds, angles, dihedrals);
 
     // Compute first estimate

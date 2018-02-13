@@ -234,7 +234,7 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector &q_irc_old,
   if (linalg::size(x_c_old) != n_c) {
     throw std::length_error("ERROR: Wrong old cartesian coordinates size.");
   }
-  
+
   const Vector x_c_new{
       transformation::irc_to_cartesian<Vector3, Vector, Matrix>(q_irc_old,
                                                                 dq_irc,

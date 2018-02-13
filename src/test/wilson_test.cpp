@@ -65,8 +65,8 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
 
     // Check analytical and numerical Wilson matrices are the same
     INFO("Analytical vs Numerical");
-    for (size_t i{0}; i < 6; i++) 
-        REQUIRE(Bwilson(i) == Approx(BwilsonN(i)).margin(1e-6));
+    for (size_t i{0}; i < 6; i++)
+      REQUIRE(Bwilson(i) == Approx(BwilsonN(i)).margin(1e-6));
 
     INFO("Transformation with bond stretch");
     const double d{0.01};
@@ -75,12 +75,12 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     INFO("Analytical transformation");
     vec analytical_transformation = Bwilson * dx;
     CAPTURE(analytical_transformation);
-    REQUIRE(analytical_transformation(0) == Approx(2*d).margin(1e-5));
+    REQUIRE(analytical_transformation(0) == Approx(2 * d).margin(1e-5));
 
     INFO("Numerical transformation");
     vec numerical_transformation = BwilsonN * dx;
     CAPTURE(numerical_transformation);
-    REQUIRE(numerical_transformation(0) == Approx(2*d).margin(1e-5));
+    REQUIRE(numerical_transformation(0) == Approx(2 * d).margin(1e-5));
   } // H2 stretching
 
   SECTION("H2O bending") {
@@ -143,7 +143,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
 
     // Compute Wilson B matrix for H2O numerically
     const mat BwilsonN = wilson_matrix_numerical<vec3, vec, mat>(
-                           to_cartesian<vec3, vec>(mol), B, A);
+        to_cartesian<vec3, vec>(mol), B, A);
     REQUIRE(linalg::size(BwilsonN) == 27);
     INFO("Wilson B matrix (numerical):\n" << BwilsonN);
 
@@ -160,7 +160,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     REQUIRE(displacement(1) == Approx(0).margin(1e-4));
 
     INFO("Check angle change");
-    REQUIRE(displacement(2) == Approx(2*angle_rad).margin(1e-3));
+    REQUIRE(displacement(2) == Approx(2 * angle_rad).margin(1e-3));
   }
 
   SECTION("H2O2 torsion") {
@@ -169,8 +169,8 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     const double angle_rad(angle / 180. * constants::pi);
 
     const mat R{{cos(angle_rad), -sin(angle_rad), 0},
-          {sin(angle_rad), cos(angle_rad), 0},
-          {0, 0, 1}};
+                {sin(angle_rad), cos(angle_rad), 0},
+                {0, 0, 1}};
 
     molecule::Molecule<vec3> molecule{
         {"H", {0.000, 0.947, -0.079}}, // H1
@@ -245,7 +245,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
       REQUIRE(displacement(0) == Approx(0).margin(1e-3));
       REQUIRE(displacement(1) == Approx(0).margin(1e-3));
       REQUIRE(displacement(2) == Approx(0).margin(1e-3));
-      
+
       INFO("Angles do not change");
       REQUIRE(displacement(3) == Approx(0).margin(1e-4));
       REQUIRE(displacement(4) == Approx(0).margin(1e-4));
@@ -263,7 +263,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
       REQUIRE(displacement(0) == Approx(0).margin(1e-3));
       REQUIRE(displacement(1) == Approx(0).margin(1e-3));
       REQUIRE(displacement(2) == Approx(0).margin(1e-3));
-      
+
       INFO("Angles do not change");
       REQUIRE(displacement(3) == Approx(0).margin(1e-4));
       REQUIRE(displacement(4) == Approx(0).margin(1e-4));
@@ -281,7 +281,8 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   using namespace wilson;
   using namespace io;
 
-  Molecule<vec3> mol = load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz");
+  Molecule<vec3> mol =
+      load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz");
   multiply_positions(mol, conversion::angstrom_to_bohr);
 
   // Compute interatomic distances
@@ -296,21 +297,23 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
 
   const auto q = connectivity::cartesian_to_irc<vec3, vec>(
-              to_cartesian<vec3, vec>(mol), B, A, D);
+      to_cartesian<vec3, vec>(mol), B, A, D);
   CAPTURE(q);
 
   const mat wilson_b_analytical =
-    wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D);
+      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D);
   CAPTURE(wilson_b_analytical);
 
-  const mat wilson_b_numerical =
-    wilson_matrix_numerical<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D);
+  const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
+      to_cartesian<vec3, vec>(mol), B, A, D);
   CAPTURE(wilson_b_numerical);
 
-  REQUIRE(linalg::size(wilson_b_analytical) == linalg::size(wilson_b_numerical));
+  REQUIRE(linalg::size(wilson_b_analytical) ==
+          linalg::size(wilson_b_numerical));
 
   const size_t n = linalg::size(wilson_b_analytical);
   for (size_t i{0}; i < n; i++) {
-    REQUIRE(wilson_b_analytical(i) == Approx(wilson_b_numerical(i)).margin(1e-5));
+    REQUIRE(wilson_b_analytical(i) ==
+            Approx(wilson_b_numerical(i)).margin(1e-5));
   }
 }

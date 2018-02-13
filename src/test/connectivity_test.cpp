@@ -328,7 +328,6 @@ TEST_CASE("Connectivity test for CH2O") {
   // TODO
 }
 
-
 TEST_CASE("Connectivity of molecule database") {
   using namespace io;
 
@@ -343,20 +342,20 @@ TEST_CASE("Connectivity of molecule database") {
     size_t n_dihedrals;
   };
 
-  auto results = std::vector<ConnectivityResult>{
-     {"hydrogen_peroxide.xyz", 3,  2,  1},
-     {"ethanol.xyz",           8, 13, 12},
-     {"glycerol.xyz",         13, 21, 27},
-     {"octane.xyz",           25, 48, 63},
-     {"phenol.xyz",           13, 19, 26},
-     {"indene.xyz",           18, 30, 44},
-     {"toluene.xyz",          15, 24, 30},
-     {"caffeine.xyz",         25, 43, 54}
-     };
-  for(const auto & molecule_parameters : results) {
+  auto results =
+      std::vector<ConnectivityResult>{{"hydrogen_peroxide.xyz", 3, 2, 1},
+                                      {"ethanol.xyz", 8, 13, 12},
+                                      {"glycerol.xyz", 13, 21, 27},
+                                      {"octane.xyz", 25, 48, 63},
+                                      {"phenol.xyz", 13, 19, 26},
+                                      {"indene.xyz", 18, 30, 44},
+                                      {"toluene.xyz", 15, 24, 30},
+                                      {"caffeine.xyz", 25, 43, 54}};
+  for (const auto &molecule_parameters : results) {
     CAPTURE(molecule_parameters.filename);
 
-    auto mol = load_xyz<vec3>(config::molecules_dir + molecule_parameters.filename);
+    auto mol =
+        load_xyz<vec3>(config::molecules_dir + molecule_parameters.filename);
     multiply_positions(mol, conversion::angstrom_to_bohr);
 
     std::vector<Bond> B;
