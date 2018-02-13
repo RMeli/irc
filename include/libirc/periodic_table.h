@@ -342,7 +342,7 @@ bool valid_atomic_number(size_t an) noexcept;
 ///
 /// \param symbol Atomic symbol
 /// \return Atomic number
-size_t atomic_number(const std::string &symbol);
+size_t atomic_number(const std::string& symbol);
 
 } // namespace periodic_table
 

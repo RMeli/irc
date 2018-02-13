@@ -18,7 +18,7 @@ namespace transformation {
 /// \param v Vector
 /// \return Root mean square value of \param v
 template<typename Vector>
-double rms(const Vector &v) {
+double rms(const Vector& v) {
 
   const size_t size{linalg::size<Vector>(v)};
 
@@ -42,7 +42,7 @@ double rms(const Vector &v) {
 /// \param B Wilson \f$\mathbf{B}\f$ matrix
 /// \return Gradient in internal redundant coordinates
 template<typename Vector, typename Matrix>
-Vector gradient_cartesian_to_irc(const Vector &grad_c, const Matrix &B) {
+Vector gradient_cartesian_to_irc(const Vector& grad_c, const Matrix& B) {
   return linalg::pseudo_inverse(linalg::transpose(B)) * grad_c;
 }
 
@@ -56,7 +56,7 @@ Vector gradient_cartesian_to_irc(const Vector &grad_c, const Matrix &B) {
 /// \param B Wilson \f$\mathbf{B}\f$ matrix
 /// \return Gradient in cartesian coordinates
 template<typename Vector, typename Matrix>
-Vector gradient_irc_to_cartesian(const Vector &grad_irc, const Matrix &B) {
+Vector gradient_irc_to_cartesian(const Vector& grad_irc, const Matrix& B) {
   return linalg::transpose(B) * grad_irc;
 }
 
@@ -88,12 +88,12 @@ struct IrcToCartesianResult {
 /// curvilinear, the transformation must be done iteratively.
 template<typename Vector3, typename Vector, typename Matrix>
 IrcToCartesianResult<Vector>
-irc_to_cartesian(const Vector &q_irc_old,
-                 const Vector &dq_irc,
-                 const Vector &x_c_old,
-                 const std::vector<connectivity::Bond> &bonds,
-                 const std::vector<connectivity::Angle> &angles,
-                 const std::vector<connectivity::Dihedral> &dihedrals,
+irc_to_cartesian(const Vector& q_irc_old,
+                 const Vector& dq_irc,
+                 const Vector& x_c_old,
+                 const std::vector<connectivity::Bond>& bonds,
+                 const std::vector<connectivity::Angle>& angles,
+                 const std::vector<connectivity::Dihedral>& dihedrals,
                  size_t max_iters = 25,
                  double tolerance = 1e-6) {
   // Number of internal redundant coordinates

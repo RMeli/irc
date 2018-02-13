@@ -37,7 +37,7 @@ template<typename Vector3, typename Vector, typename Matrix>
 std::tuple<std::vector<connectivity::Bond>,
            std::vector<connectivity::Angle>,
            std::vector<connectivity::Dihedral>>
-bad_from_molecule(const molecule::Molecule<Vector3> &mol) {
+bad_from_molecule(const molecule::Molecule<Vector3>& mol) {
 
   using namespace connectivity;
 
@@ -332,7 +332,7 @@ TEST_CASE("Connectivity of molecule database") {
                                       {"toluene.xyz", 15, 24, 30},
                                       {"caffeine.xyz", 25, 43, 54}};
 
-  for (const auto &molecule_parameters : results) {
+  for (const auto& molecule_parameters : results) {
     CAPTURE(molecule_parameters.filename);
 
     const auto mol =

@@ -23,7 +23,7 @@ namespace io {
 /// \param in Input stream
 /// \return Molecule
 template<typename Vector3>
-molecule::Molecule<Vector3> load_xyz(std::istream &in) {
+molecule::Molecule<Vector3> load_xyz(std::istream& in) {
   using irc::molecule::multiply_positions;
 
   size_t n_atoms{0};
@@ -64,9 +64,9 @@ molecule::Molecule<Vector3> load_xyz(std::string fname) {
 
 /// Print bonds
 template<typename Vector3, typename Vector>
-void print_bonds(const Vector &x_c,
-                 const std::vector<connectivity::Bond> &bonds,
-                 std::ostream &out = std::cout) {
+void print_bonds(const Vector& x_c,
+                 const std::vector<connectivity::Bond>& bonds,
+                 std::ostream& out = std::cout) {
 
   // Total number of bonds
   const size_t n_bonds{bonds.size()};
@@ -108,9 +108,9 @@ void print_bonds(const Vector &x_c,
 }
 
 template<typename Vector3, typename Vector>
-void print_angles(const Vector &x_c,
-                  const std::vector<connectivity::Angle> &angles,
-                  std::ostream &out = std::cout) {
+void print_angles(const Vector& x_c,
+                  const std::vector<connectivity::Angle>& angles,
+                  std::ostream& out = std::cout) {
 
   // Total number of angles
   const size_t n_angles{angles.size()};
@@ -155,9 +155,9 @@ void print_angles(const Vector &x_c,
 }
 
 template<typename Vector3, typename Vector>
-void print_dihedrals(const Vector &x_c,
-                     const std::vector<connectivity::Dihedral> &dihedrals,
-                     std::ostream &out = std::cout) {
+void print_dihedrals(const Vector& x_c,
+                     const std::vector<connectivity::Dihedral>& dihedrals,
+                     std::ostream& out = std::cout) {
 
   // Total number of angles
   const size_t n_dihedrals{dihedrals.size()};

@@ -22,9 +22,9 @@ using Molecule = std::vector<atom::Atom<Vector3>>;
 /// \param molecule Molecule (collection of atoms)
 /// \return Mass of the molecule
 template<typename Vector3>
-double mass(const Molecule<Vector3> &molecule) noexcept {
+double mass(const Molecule<Vector3>& molecule) noexcept {
   double m{0};
-  for (const auto &atom : molecule) {
+  for (const auto& atom : molecule) {
     m += atom::mass(atom.atomic_number);
   }
 
@@ -38,8 +38,8 @@ double mass(const Molecule<Vector3> &molecule) noexcept {
 /// \param molecule Molecule
 /// \param multiplier Multiplier for atomic positions
 template<typename T, typename Vector3>
-void multiply_positions(Molecule<Vector3> &molecule, T multiplier) {
-  for (auto &atom : molecule) {
+void multiply_positions(Molecule<Vector3>& molecule, T multiplier) {
+  for (auto& atom : molecule) {
     atom.position = atom.position * multiplier;
   }
 }
@@ -54,7 +54,7 @@ void multiply_positions(Molecule<Vector3> &molecule, T multiplier) {
 /// The cartesian coordinates are stored in a linear vector so that the first
 /// three entries are the (x,y,z) coordinates of the first atom and so on.
 template<typename Vector3, typename Vector>
-Vector to_cartesian(const Molecule<Vector3> &molecule) {
+Vector to_cartesian(const Molecule<Vector3>& molecule) {
   const size_t n_atoms{molecule.size()};
 
   Vector x_cartesian{linalg::zeros<Vector>(3 * n_atoms)};
@@ -75,8 +75,8 @@ Vector to_cartesian(const Molecule<Vector3> &molecule) {
 /// \param molecule Molecule
 /// \return Output stream
 template<typename Vector3>
-std::ostream &operator<<(std::ostream &out, const Molecule<Vector3> &molecule) {
-  for (const auto &atom : molecule) {
+std::ostream& operator<<(std::ostream& out, const Molecule<Vector3>& molecule) {
+  for (const auto& atom : molecule) {
     out << atom;
   }
 

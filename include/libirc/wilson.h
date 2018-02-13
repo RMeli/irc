@@ -32,8 +32,8 @@ namespace wilson {
 /// \param p2 Point 2
 /// \return A pair of cartesian displacements
 template<typename Vector3>
-std::pair<Vector3, Vector3> bond_gradient(const Vector3 &p1,
-                                          const Vector3 &p2) {
+std::pair<Vector3, Vector3> bond_gradient(const Vector3& p1,
+                                          const Vector3& p2) {
   const double d{connectivity::distance(p1, p2)};
 
   const Vector3 v{(p1 - p2) / d};
@@ -62,7 +62,7 @@ std::pair<Vector3, Vector3> bond_gradient(const Vector3 &p1,
  */
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3>
-angle_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3) {
+angle_gradient(const Vector3& p1, const Vector3& p2, const Vector3& p3) {
   const double angle{connectivity::angle(p1, p2, p3)};
 
   const double sin_angle{std::sin(angle)};
@@ -117,10 +117,10 @@ angle_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3) {
  */
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3, Vector3>
-dihedral_gradient(const Vector3 &p1,
-                  const Vector3 &p2,
-                  const Vector3 &p3,
-                  const Vector3 &p4) {
+dihedral_gradient(const Vector3& p1,
+                  const Vector3& p2,
+                  const Vector3& p3,
+                  const Vector3& p4) {
 
   const double angle123{connectivity::angle(p1, p2, p3)};
   const double sin_angle123{std::sin(angle123)};
@@ -200,10 +200,10 @@ dihedral_gradient(const Vector3 &p1,
 /// More details can be found in Peng et al., J. Comp. Chem. 17, 49-56, 1996.
 template<typename Vector3, typename Vector, typename Matrix>
 Matrix
-wilson_matrix(const Vector &x_cartesian,
-              const std::vector<connectivity::Bond> &bonds,
-              const std::vector<connectivity::Angle> &angles = {},
-              const std::vector<connectivity::Dihedral> &dihedrals = {}) {
+wilson_matrix(const Vector& x_cartesian,
+              const std::vector<connectivity::Bond>& bonds,
+              const std::vector<connectivity::Angle>& angles = {},
+              const std::vector<connectivity::Dihedral>& dihedrals = {}) {
   // Get number of atoms
   const size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
 
@@ -289,10 +289,10 @@ wilson_matrix(const Vector &x_cartesian,
 
 template<typename Vector3, typename Vector, typename Matrix>
 Matrix wilson_matrix_numerical(
-    const Vector &x_c,
-    const std::vector<connectivity::Bond> &bonds,
-    const std::vector<connectivity::Angle> &angles = {},
-    const std::vector<connectivity::Dihedral> &dihedrals = {},
+    const Vector& x_c,
+    const std::vector<connectivity::Bond>& bonds,
+    const std::vector<connectivity::Angle>& angles = {},
+    const std::vector<connectivity::Dihedral>& dihedrals = {},
     double dx = 1.e-6) {
 
   // Number of cartesian coordinates
@@ -343,7 +343,7 @@ Matrix wilson_matrix_numerical(
 /// \param B Wilson's B matrix
 /// \return Projector
 template<typename Matrix>
-Matrix projector(const Matrix &B) {
+Matrix projector(const Matrix& B) {
   // TODO: Pass iB instead of computing it
   return B * linalg::pseudo_inverse(B);
 }

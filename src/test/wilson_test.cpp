@@ -37,7 +37,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
   SECTION("H2 stretching") {
     // Define molecule
     Molecule<vec3> mol{{"H", {0., 0., 0.}}, {"H", {1., 0., 0.}}};
-    
+
     // Molecular connectivity
     mat dd{distances<vec3, mat>(mol)};
     UGraph adj{adjacency_matrix(dd, mol)};

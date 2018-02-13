@@ -36,7 +36,7 @@ TEST_CASE("Molecule") {
 
     const auto pos = vec3{{0.0, 2.2, 4.4}};
 
-    for (const auto &atom : scaled_molecule) {
+    for (const auto& atom : scaled_molecule) {
       for (size_t i{0}; i < 3; i++) {
         CAPTURE(i);
         CHECK(atom.position(i) == Approx(pos(i)));
