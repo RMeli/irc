@@ -31,7 +31,7 @@ namespace wilson {
 /// \param p1 Point 1
 /// \param p2 Point 2
 /// \return A pair of cartesian displacements
-template <typename Vector3>
+template<typename Vector3>
 std::pair<Vector3, Vector3> bond_gradient(const Vector3 &p1,
                                           const Vector3 &p2) {
   const double d{connectivity::distance(p1, p2)};
@@ -59,7 +59,7 @@ std::pair<Vector3, Vector3> bond_gradient(const Vector3 &p1,
  * \param p3 Point 3
  * \return Angle gradients
  */
-template <typename Vector3>
+template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3>
 angle_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3) {
   const double angle{connectivity::angle(p1, p2, p3)};
@@ -114,9 +114,11 @@ angle_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3) {
  * \param p3 Point 4
  * \return Dihedral angle gradients
  */
-template <typename Vector3>
+template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3, Vector3>
-dihedral_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3,
+dihedral_gradient(const Vector3 &p1,
+                  const Vector3 &p2,
+                  const Vector3 &p3,
                   const Vector3 &p4) {
 
   const double angle123{connectivity::angle(p1, p2, p3)};
@@ -195,7 +197,7 @@ dihedral_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3,
 /// \f]
 ///
 /// More details can be found in Peng et al., J. Comp. Chem. 17, 49-56, 1996.
-template <typename Vector3, typename Vector, typename Matrix>
+template<typename Vector3, typename Vector, typename Matrix>
 Matrix
 wilson_matrix(const Vector &x_cartesian,
               const std::vector<connectivity::Bond> &bonds,
@@ -284,9 +286,10 @@ wilson_matrix(const Vector &x_cartesian,
   return B;
 }
 
-template <typename Vector3, typename Vector, typename Matrix>
+template<typename Vector3, typename Vector, typename Matrix>
 Matrix wilson_matrix_numerical(
-    const Vector &x_c, const std::vector<connectivity::Bond> &bonds,
+    const Vector &x_c,
+    const std::vector<connectivity::Bond> &bonds,
     const std::vector<connectivity::Angle> &angles = {},
     const std::vector<connectivity::Dihedral> &dihedrals = {},
     double dx = 1.e-6) {
@@ -338,7 +341,8 @@ Matrix wilson_matrix_numerical(
 /// \tparam Matrix
 /// \param B Wilson's B matrix
 /// \return Projector
-template <typename Matrix> Matrix projector(const Matrix &B) {
+template<typename Matrix>
+Matrix projector(const Matrix &B) {
   // TODO: Pass iB instead of computing it
   return B * linalg::pseudo_inverse(B);
 }

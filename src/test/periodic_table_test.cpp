@@ -6,7 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace irc{
+namespace irc {
 namespace pt = periodic_table;
 }
 

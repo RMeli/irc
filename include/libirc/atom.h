@@ -73,7 +73,8 @@ std::ostream &operator<<(std::ostream &out, const AtomicNumber &an);
 ///
 /// An atom is defined only by its atomic number and its position in space.
 /// Its properties can be looked up in \headerfile periodic_table.h
-template <typename Vector3> struct Atom {
+template<typename Vector3>
+struct Atom {
   /// Atomic number
   AtomicNumber atomic_number;
 
@@ -93,13 +94,13 @@ template <typename Vector3> struct Atom {
   Atom(const std::string &symbol, const Vector3 &pos = {0., 0., 0.});
 };
 
-template <typename Vector3>
+template<typename Vector3>
 Atom<Vector3>::Atom(const AtomicNumber &an, const Vector3 &pos)
-    : atomic_number(an), position(pos) {}
+  : atomic_number(an), position(pos) {}
 
-template <typename Vector3>
+template<typename Vector3>
 Atom<Vector3>::Atom(const std::string &symbol, const Vector3 &pos)
-    : atomic_number(symbol), position(pos) {}
+  : atomic_number(symbol), position(pos) {}
 
 /// Output operator for an atom
 ///
@@ -107,7 +108,7 @@ Atom<Vector3>::Atom(const std::string &symbol, const Vector3 &pos)
 /// \param out Output stream
 /// \param a \class Atom<T>
 /// \return Output stream
-template <typename Vector3>
+template<typename Vector3>
 std::ostream &operator<<(std::ostream &out, const Atom<Vector3> &a) {
   // Print top line
   out << std::left << std::setw(15) << std::setfill('-') << '+';

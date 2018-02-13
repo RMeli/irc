@@ -15,7 +15,7 @@ AtomicNumber::AtomicNumber(size_t an) {
 }
 
 AtomicNumber::AtomicNumber(const std::string &symbol)
-    : AtomicNumber(periodic_table::atomic_number(symbol)) {}
+  : AtomicNumber(periodic_table::atomic_number(symbol)) {}
 
 std::string symbol(const AtomicNumber &an) noexcept {
   return periodic_table::symbols[an.atomic_number];
@@ -40,7 +40,9 @@ bool is_NOFPSCl(const AtomicNumber &an) noexcept {
   return (n == 7 or n == 8 or n == 9 or n == 15 or n == 16 or n == 17);
 }
 
-bool is_H(const AtomicNumber &an) noexcept { return an.atomic_number == 1; }
+bool is_H(const AtomicNumber &an) noexcept {
+  return an.atomic_number == 1;
+}
 
 std::ostream &operator<<(std::ostream &out, const AtomicNumber &an) {
   out << an.atomic_number;

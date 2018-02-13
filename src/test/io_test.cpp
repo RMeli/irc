@@ -28,7 +28,7 @@ TEST_CASE("File not found") {
   using irc::io::load_xyz;
 
   REQUIRE_THROWS_AS(load_xyz<vec3>(irc::config::molecules_dir + "ABC.xyz"),
-                    std::runtime_error); 
+                    std::runtime_error);
 
   REQUIRE_NOTHROW(load_xyz<vec3>(irc::config::molecules_dir + "caffeine.xyz"));
 }

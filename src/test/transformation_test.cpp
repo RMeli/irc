@@ -16,14 +16,15 @@ using vec3 = arma::vec3;
 using vec = arma::vec;
 using mat = arma::mat;
 
-template <typename T> using Mat = arma::Mat<T>;
+template<typename T>
+using Mat = arma::Mat<T>;
 #elif HAVE_EIGEN3
 #include <Eigen3/Eigen/Dense>
 using vec3 = Eigen::Vector3d;
 using vec = Eigen::VectorXd;
 using mat = Eigen::MatrixXd;
 
-template <typename T>
+template<typename T>
 using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 #else
 #error

@@ -17,7 +17,8 @@ namespace transformation {
 /// \tparam Vector Vector
 /// \param v Vector
 /// \return Root mean square value of \param v
-template <typename Vector> double rms(const Vector &v) {
+template<typename Vector>
+double rms(const Vector &v) {
 
   const size_t size{linalg::size<Vector>(v)};
 
@@ -40,7 +41,7 @@ template <typename Vector> double rms(const Vector &v) {
 /// \param grad_c Gradient in cartesian coordinates
 /// \param B Wilson \f$\mathbf{B}\f$ matrix
 /// \return Gradient in internal redundant coordinates
-template <typename Vector, typename Matrix>
+template<typename Vector, typename Matrix>
 Vector gradient_cartesian_to_irc(const Vector &grad_c, const Matrix &B) {
   return linalg::pseudo_inverse(linalg::transpose(B)) * grad_c;
 }
@@ -54,12 +55,13 @@ Vector gradient_cartesian_to_irc(const Vector &grad_c, const Matrix &B) {
 /// \param grad_irc Gradient in internal redundant coordinates
 /// \param B Wilson \f$\mathbf{B}\f$ matrix
 /// \return Gradient in cartesian coordinates
-template <typename Vector, typename Matrix>
+template<typename Vector, typename Matrix>
 Vector gradient_irc_to_cartesian(const Vector &grad_irc, const Matrix &B) {
   return linalg::transpose(B) * grad_irc;
 }
 
-template <typename Vector> struct IrcToCartesianResult {
+template<typename Vector>
+struct IrcToCartesianResult {
   Vector x_c;
   bool converged;
   size_t n_iterations;
@@ -84,14 +86,16 @@ template <typename Vector> struct IrcToCartesianResult {
 ///
 /// Since Cartesian coordinates are rectilinear and the internal coordinates are
 /// curvilinear, the transformation must be done iteratively.
-template <typename Vector3, typename Vector, typename Matrix>
+template<typename Vector3, typename Vector, typename Matrix>
 IrcToCartesianResult<Vector>
-irc_to_cartesian(const Vector &q_irc_old, const Vector &dq_irc,
+irc_to_cartesian(const Vector &q_irc_old,
+                 const Vector &dq_irc,
                  const Vector &x_c_old,
                  const std::vector<connectivity::Bond> &bonds,
                  const std::vector<connectivity::Angle> &angles,
                  const std::vector<connectivity::Dihedral> &dihedrals,
-                 size_t max_iters = 25, double tolerance = 1e-6) {
+                 size_t max_iters = 25,
+                 double tolerance = 1e-6) {
   // Number of internal redundant coordinates
   const size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
@@ -146,8 +150,8 @@ irc_to_cartesian(const Vector &q_irc_old, const Vector &dq_irc,
     // iB = linalg::pseudo_inverse(B);
 
     // Compute new internal coordinates
-    q_new = connectivity::cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles,
-                                                            dihedrals);
+    q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
+        x_c, bonds, angles, dihedrals);
 
     // Check change in dihedral angles (in radians)
     for (size_t i{offset}; i < n_irc; i++) {

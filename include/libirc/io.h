@@ -22,7 +22,7 @@ namespace io {
 /// \tparam Vector3 3D vector
 /// \param in Input stream
 /// \return Molecule
-template <typename Vector3>
+template<typename Vector3>
 molecule::Molecule<Vector3> load_xyz(std::istream &in) {
   using irc::molecule::multiply_positions;
 
@@ -51,7 +51,7 @@ molecule::Molecule<Vector3> load_xyz(std::istream &in) {
 /// \tparam Vector3 3D vector
 /// \param in Input stream
 /// \return Molecule
-template <typename Vector3>
+template<typename Vector3>
 molecule::Molecule<Vector3> load_xyz(std::string fname) {
   std::ifstream in{fname};
 
@@ -63,7 +63,7 @@ molecule::Molecule<Vector3> load_xyz(std::string fname) {
 }
 
 /// Print bonds
-template <typename Vector3, typename Vector>
+template<typename Vector3, typename Vector>
 void print_bonds(const Vector &x_c,
                  const std::vector<connectivity::Bond> &bonds,
                  std::ostream &out = std::cout) {
@@ -107,7 +107,7 @@ void print_bonds(const Vector &x_c,
   }
 }
 
-template <typename Vector3, typename Vector>
+template<typename Vector3, typename Vector>
 void print_angles(const Vector &x_c,
                   const std::vector<connectivity::Angle> &angles,
                   std::ostream &out = std::cout) {
@@ -154,7 +154,7 @@ void print_angles(const Vector &x_c,
   }
 }
 
-template <typename Vector3, typename Vector>
+template<typename Vector3, typename Vector>
 void print_dihedrals(const Vector &x_c,
                      const std::vector<connectivity::Dihedral> &dihedrals,
                      std::ostream &out = std::cout) {

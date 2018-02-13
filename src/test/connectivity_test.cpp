@@ -17,14 +17,15 @@ using vec3 = arma::vec3;
 using vec = arma::vec;
 using mat = arma::mat;
 
-template <typename T> using Mat = arma::Mat<T>;
+template<typename T>
+using Mat = arma::Mat<T>;
 #elif HAVE_EIGEN3
 #include <Eigen3/Eigen/Dense>
 using vec3 = Eigen::Vector3d;
 using vec = Eigen::VectorXd;
 using mat = Eigen::MatrixXd;
 
-template <typename T>
+template<typename T>
 using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 #else
 #error
@@ -32,8 +33,9 @@ using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 
 using namespace irc;
 
-template <typename Vector3, typename Vector, typename Matrix>
-std::tuple<std::vector<connectivity::Bond>, std::vector<connectivity::Angle>,
+template<typename Vector3, typename Vector, typename Matrix>
+std::tuple<std::vector<connectivity::Bond>,
+           std::vector<connectivity::Angle>,
            std::vector<connectivity::Dihedral>>
 bad_from_molecule(const molecule::Molecule<Vector3> &mol) {
 
@@ -265,10 +267,12 @@ TEST_CASE("Connectivity for bent water dimer") {
   double sin_a{std::sin(a)};
 
   // Define compressed H2 molecule
-  Molecule<vec3> molecule{
-      {"O", {-1.464, 0.099, -0.300}}, {"H", {-1.956, 0.624, -0.340}},
-      {"H", {-1.797, -0.799, 0.206}}, {"O", {1.369, 0.146, -0.395}},
-      {"H", {1.894, 0.486, 0.335}},   {"H", {0.451, 0.165, -0.083}}};
+  Molecule<vec3> molecule{{"O", {-1.464, 0.099, -0.300}},
+                          {"H", {-1.956, 0.624, -0.340}},
+                          {"H", {-1.797, -0.799, 0.206}},
+                          {"O", {1.369, 0.146, -0.395}},
+                          {"H", {1.894, 0.486, 0.335}},
+                          {"H", {0.451, 0.165, -0.083}}};
 
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
@@ -338,11 +342,15 @@ TEST_CASE("Connectivity of molecule database") {
     size_t n_dihedrals;
   };
 
-  auto results = std::vector<ConnectivityResult>{
-      {"hydrogen_peroxide.xyz", 3, 2, 1}, {"ethanol.xyz", 8, 13, 12},
-      {"glycerol.xyz", 13, 21, 27},       {"octane.xyz", 25, 48, 63},
-      {"phenol.xyz", 13, 19, 26},         {"indene.xyz", 18, 30, 44},
-      {"toluene.xyz", 15, 24, 30},        {"caffeine.xyz", 25, 43, 54}};
+  auto results =
+      std::vector<ConnectivityResult>{{"hydrogen_peroxide.xyz", 3, 2, 1},
+                                      {"ethanol.xyz", 8, 13, 12},
+                                      {"glycerol.xyz", 13, 21, 27},
+                                      {"octane.xyz", 25, 48, 63},
+                                      {"phenol.xyz", 13, 19, 26},
+                                      {"indene.xyz", 18, 30, 44},
+                                      {"toluene.xyz", 15, 24, 30},
+                                      {"caffeine.xyz", 25, 43, 54}};
   for (const auto &molecule_parameters : results) {
     CAPTURE(molecule_parameters.filename);
 

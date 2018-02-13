@@ -41,8 +41,7 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
 
       REQUIRE(covalent_radius(a.atomic_number) ==
               Approx(periodic_table::covalent_radii[i]));
-      REQUIRE(covalent_radius(i) ==
-              Approx(periodic_table::covalent_radii[i]));
+      REQUIRE(covalent_radius(i) == Approx(periodic_table::covalent_radii[i]));
 
       REQUIRE(vdw_radius(a.atomic_number) ==
               Approx(periodic_table::vdw_radii[i]));
