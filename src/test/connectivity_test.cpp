@@ -48,17 +48,16 @@ bad_from_molecule(const molecule::Molecule<Vector3> &mol) {
   UGraph adj{adjacency_matrix(dd, mol)};
 
   // Compute distance matrix and predecessor matrix
-  Matrix dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Matrix>(adj);
+  Matrix dist{distance_matrix<Matrix>(adj)};
 
   // Compute bonds
   std::vector<Bond> B{bonds(dist, mol)};
 
   // Compute angles
-  std::vector<Angle> A{angles(dist, predecessors, mol)};
+  std::vector<Angle> A{angles(dist, mol)};
 
   // Compute dihedral angles
-  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+  std::vector<Dihedral> D{dihedrals(dist, mol)};
 
   // Return bonds, angles and dihedral angles
   return std::make_tuple(B, A, D);

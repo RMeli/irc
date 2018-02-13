@@ -522,22 +522,19 @@ UGraph adjacency_matrix(const Matrix &distances,
   return ug;
 }
 
-// TODO: Remove predecessor matrix (now useless)
 /// Find the distance and predecessors matrices of the graph \param ug
 /// \tparam Matrix
 /// \param ug Graph
-/// \return Distance and predecessors matrices
+/// \return Distance matrix
 ///
 /// The element \f$(i,j)\f$ of the distance matrix is an integer indicating
 /// how many bonds (along the shortest path) are between atom \f$i\f$ and atom
 /// \f$j\f$, since the weight of each edge is set to 1 in \function
 /// adjacency_matrix. This allow to easily determine if two atoms are connected
 /// via one bond, two bonds (they form an angle) or three bonds (they form a
-/// dihedral). The element \f$(i,j)\f% of the predecessors matrix is an integer
-/// indicating the index of the second to last vertex in the shortest path from
-/// i to j. This information allow to reconstruct the shortest path from i to j.
+/// dihedral).
 template<typename Matrix>
-std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
+Matrix distance_matrix(const UGraph &ug) {
 
   using namespace boost;
 
@@ -546,9 +543,6 @@ std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
 
   // Allocate distance matrix
   Matrix dist{linalg::zeros<Matrix>(n_vertices, n_vertices)};
-
-  // Allocate predecessors matrix
-  Matrix predecessors{linalg::zeros<Matrix>(n_vertices, n_vertices)};
 
   // Allocate distance map for single-source problem
   std::vector<int> d_map(n_vertices, 0);
@@ -566,18 +560,11 @@ std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
     for (size_t j{0}; j < n_vertices; j++) {
       // Fill distance matrix
       dist(i, j) = d_map[j];
-
-      // Fill predecessors matrix
-      if (i != j) {
-        predecessors(i, j) = p_map[j];
-      } else {
-        predecessors(i, j) = -1;
-      }
     }
   }
 
   // Return distance matrix
-  return std::make_pair(dist, predecessors);
+  return dist;
 }
 
 /// Returns the bonds in \param molecule
@@ -647,12 +634,10 @@ std::vector<Angle> angles(size_t i, size_t j, const Matrix &distance) {
 /// \tparam Vector3
 /// \tparam Matrix
 /// \param distance_m Distance matrix
-/// \param predecessors_m Matrix of predecessors
 /// \param molecule Molecule
 /// \return List of angles
 template<typename Vector3, typename Matrix>
 std::vector<Angle> angles(const Matrix &distance_m,
-                          const Matrix &predecessors_m,
                           const molecule::Molecule<Vector3> &molecule) {
 
   // Extract number of atoms
@@ -720,12 +705,10 @@ std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix &distance) {
 /// \tparam Vector3
 /// \tparam Matrix
 /// \param distance_m Distance matrix
-/// \param predecessors_m Matrix of predecessors
 /// \param molecule Molecule
 /// \return List of dihedral angles
 template<typename Vector3, typename Matrix>
 std::vector<Dihedral> dihedrals(const Matrix &distance_m,
-                                const Matrix &predecessors_m,
                                 const molecule::Molecule<Vector3> &molecule,
                                 double epsilon = 1.e-6) {
 

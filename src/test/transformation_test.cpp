@@ -54,8 +54,7 @@ TEST_CASE("Transformation") {
     UGraph adj{adjacency_matrix(dd, molecule)};
 
     // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, molecule)};
@@ -66,7 +65,7 @@ TEST_CASE("Transformation") {
     }
 
     // Compute angles
-    std::vector<Angle> A{angles(dist, predecessors, molecule)};
+    std::vector<Angle> A{angles(dist, molecule)};
 
     // Print angles
     if (verbose) {
@@ -74,7 +73,7 @@ TEST_CASE("Transformation") {
     }
 
     // Compute dihedral angles
-    std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
+    std::vector<Dihedral> D{dihedrals(dist, molecule)};
 
     // Print dihedral angles
     if (verbose) {
@@ -118,15 +117,10 @@ TEST_CASE("Transformation") {
     // Load molecule from file
     Molecule<vec3> molecule{{{"H", {0., 0., 0.}}, {"H", {1., 0., 0.}}}};
 
-    // Compute interatomic distance for formaldehyde molecule
+    // Connectivity
     mat dd{distances<vec3, mat>(molecule)};
-
-    // Build graph based on the adjacency matrix
     UGraph adj{adjacency_matrix(dd, molecule)};
-
-    // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, molecule)};
@@ -207,8 +201,7 @@ TEST_CASE("Transformation") {
     UGraph adj{adjacency_matrix(dd, molecule)};
 
     // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, molecule)};
@@ -222,7 +215,7 @@ TEST_CASE("Transformation") {
     REQUIRE(B.size() == 2);
 
     // Compute angle
-    std::vector<Angle> A{angles(dist, predecessors, molecule)};
+    std::vector<Angle> A{angles(dist, molecule)};
 
     // Print angles
     if (verbose) {
@@ -308,8 +301,7 @@ TEST_CASE("Transformation") {
     UGraph adj{adjacency_matrix(dd, molecule)};
 
     // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, molecule)};
@@ -323,7 +315,7 @@ TEST_CASE("Transformation") {
     REQUIRE(B.size() == 3);
 
     // Compute angles
-    std::vector<Angle> A{angles(dist, predecessors, molecule)};
+    std::vector<Angle> A{angles(dist, molecule)};
 
     // Print angles
     if (verbose) {
@@ -334,7 +326,7 @@ TEST_CASE("Transformation") {
     REQUIRE(A.size() == 2);
 
     // Compute dihedral angles
-    std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
+    std::vector<Dihedral> D{dihedrals(dist, molecule)};
 
     // Print dihedrals
     if (verbose) {

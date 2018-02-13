@@ -50,8 +50,7 @@ TEST_CASE("Print molecule") {
   const UGraph adj{adjacency_matrix(dd, mol)};
 
   // Compute distance matrix and predecessor matrix
-  mat dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+  mat dist{distance_matrix<mat>(adj)};
 
   // Compute bonds
   const std::vector<Bond> B{bonds(dist, mol)};
@@ -60,13 +59,13 @@ TEST_CASE("Print molecule") {
   print_bonds<vec3, vec>(to_cartesian<vec3, vec>(mol), B);
 
   // Compute angles
-  const std::vector<Angle> A{angles(dist, predecessors, mol)};
+  const std::vector<Angle> A{angles(dist, mol)};
 
   // Print angles to std::cout
   print_angles<vec3, vec>(to_cartesian<vec3, vec>(mol), A);
 
   // Compute dihedral angles
-  const std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+  const std::vector<Dihedral> D{dihedrals(dist, mol)};
 
   // Print dihedrals to std::cout
   print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(mol), D);

@@ -97,9 +97,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   const connectivity::UGraph adj{connectivity::adjacency_matrix(dd, molecule)};
 
   // Compute distance matrix and predecessor matrix
-  Matrix distance_m, predecessors_m;
-  std::tie(distance_m, predecessors_m) =
-      connectivity::distance_matrix<Matrix>(adj);
+  Matrix distance_m{connectivity::distance_matrix<Matrix>(adj)};
 
   // Compute bonds
   bonds = connectivity::bonds(distance_m, molecule);
@@ -110,7 +108,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   }
 
   // Compute angles
-  angles = connectivity::angles(distance_m, predecessors_m, molecule);
+  angles = connectivity::angles(distance_m, molecule);
 
   // Add user-defined angles
   if (myangles.size() != 0) { // For CodeCov, can be removed after tests
@@ -118,7 +116,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   }
 
   // Compute dihedrals
-  dihedrals = connectivity::dihedrals(distance_m, predecessors_m, molecule);
+  dihedrals = connectivity::dihedrals(distance_m, molecule);
 
   // Add user-defined dihedrals
   if (mydihedrals.size() != 0) { // For CodeCov, can be removed after tests
