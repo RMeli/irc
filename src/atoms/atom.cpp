@@ -40,12 +40,6 @@ bool is_NOFPSCl(const AtomicNumber& an) noexcept {
   return (n == 7 or n == 8 or n == 9 or n == 15 or n == 16 or n == 17);
 }
 
-std::ostream& operator<<(std::ostream& out, const AtomicNumber& an) {
-  out << an.atomic_number;
-
-  return out;
-}
-
 } // namespace atom
 
 } // namespace irc
