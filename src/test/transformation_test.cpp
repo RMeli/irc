@@ -44,11 +44,7 @@ TEST_CASE("Transformation") {
     using namespace std;
 
     // Load molecule from file
-    Molecule<vec3> molecule{
-        load_xyz<vec3>(config::molecules_dir + "ethanol.xyz")};
-
-    // Transform molecular coordinates from angstrom to bohr
-    multiply_positions(molecule, angstrom_to_bohr);
+    const auto molecule = load_xyz<vec3>(config::molecules_dir + "ethanol.xyz");
 
     // Compute interatomic distance for formaldehyde molecule
     mat dd{distances<vec3, mat>(molecule)};
@@ -201,11 +197,7 @@ TEST_CASE("Transformation") {
     using namespace wilson;
 
     // Load molecule from file
-    Molecule<vec3> molecule{
-        load_xyz<vec3>(config::molecules_dir + "water.xyz")};
-
-    // Transform molecular coordinates from angstrom to bohr
-    multiply_positions(molecule, angstrom_to_bohr);
+    const auto molecule = load_xyz<vec3>(config::molecules_dir + "water.xyz");
 
     // Compute interatomic distance for formaldehyde molecule
     mat dd{distances<vec3, mat>(molecule)};
@@ -305,11 +297,8 @@ TEST_CASE("Transformation") {
     using namespace wilson;
 
     // Load molecule from file
-    Molecule<vec3> molecule{
-        load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz")};
-
-    // Transform molecular coordinates from angstrom to bohr
-    multiply_positions(molecule, angstrom_to_bohr);
+    const auto molecule =
+        load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz");
 
     // Compute interatomic distance for formaldehyde molecule
     mat dd{distances<vec3, mat>(molecule)};

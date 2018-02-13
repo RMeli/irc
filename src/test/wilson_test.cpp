@@ -277,9 +277,7 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   using namespace wilson;
   using namespace io;
 
-  Molecule<vec3> mol =
-      load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz");
-  multiply_positions(mol, conversion::angstrom_to_bohr);
+  const auto mol = load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz");
 
   // Compute interatomic distances
   mat dd{distances<vec3, mat>(mol)};

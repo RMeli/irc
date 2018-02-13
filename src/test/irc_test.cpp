@@ -148,11 +148,8 @@ TEST_CASE("Internal Redundant Coordinates") {
   SECTION("IRC to Cartesian") {
 
     // Define formaldehyde molecule (CH2O)
-    Molecule<vec3> molecule{
-        io::load_xyz<vec3>(config::molecules_dir + "ethanol.xyz")};
-
-    // Transform molecular coordinates from angstrom to bohr
-    multiply_positions(molecule, angstrom_to_bohr);
+    const auto molecule =
+        io::load_xyz<vec3>(config::molecules_dir + "ethanol.xyz");
 
     // Build internal reaction coordinates
     IRC<vec3, vec, mat> irc(molecule);

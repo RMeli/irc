@@ -346,9 +346,8 @@ TEST_CASE("Connectivity of molecule database") {
   for (const auto &molecule_parameters : results) {
     CAPTURE(molecule_parameters.filename);
 
-    auto mol =
+    const auto mol =
         load_xyz<vec3>(config::molecules_dir + molecule_parameters.filename);
-    multiply_positions(mol, conversion::angstrom_to_bohr);
 
     std::vector<Bond> B;
     std::vector<Angle> A;

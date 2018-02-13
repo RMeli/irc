@@ -24,76 +24,49 @@ using mat = Eigen::MatrixXd;
 #error
 #endif
 
-using namespace irc;
-
 TEST_CASE("File not found") {
-  using namespace io;
-  using namespace molecule;
+  using irc::io::load_xyz;
 
-  bool exception{false};
+  REQUIRE_THROWS_AS(load_xyz<vec3>(irc::config::molecules_dir + "ABC.xyz"),
+                    std::runtime_error); 
 
-  try {
-    Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "ABC.xyz")};
-  } catch (const std::runtime_error &e) {
-    exception = true;
-  }
-
-  REQUIRE(exception == true);
-}
-
-TEST_CASE("Loading XYZ file") {
-
-  using namespace io;
-  using namespace molecule;
-
-  Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "caffeine.xyz")};
-
-  std::cout << mol << std::endl;
-
-  try {
-    Molecule<vec3> mol{load_xyz<vec3>(config::molecules_dir + "foo.xyz")};
-  } catch (const std::runtime_error &e) {
-  }
+  REQUIRE_NOTHROW(load_xyz<vec3>(irc::config::molecules_dir + "caffeine.xyz"));
 }
 
 TEST_CASE("Print molecule") {
+  using namespace irc;
   using namespace io;
-
   using namespace connectivity;
   using namespace molecule;
   using namespace tools;
 
   // Load toluene molecule
-  Molecule<vec3> mol{
-      load_xyz<vec3>(config::molecules_dir + "benzene_dimer.xyz")};
-
-  // Transform molecular coordinates from angstrom to bohr
-  multiply_positions(mol, conversion::angstrom_to_bohr);
+  const auto mol = load_xyz<vec3>(config::molecules_dir + "benzene_dimer.xyz");
 
   // Compute interatomic distance for formaldehyde molecule
-  mat dd{distances<vec3, mat>(mol)};
+  const mat dd{distances<vec3, mat>(mol)};
 
   // Build graph based on the adjacency matrix
-  UGraph adj{adjacency_matrix(dd, mol)};
+  const UGraph adj{adjacency_matrix(dd, mol)};
 
   // Compute distance matrix and predecessor matrix
   mat dist, predecessors;
   std::tie(dist, predecessors) = distance_matrix<mat>(adj);
 
   // Compute bonds
-  std::vector<Bond> B{bonds(dist, mol)};
+  const std::vector<Bond> B{bonds(dist, mol)};
 
   // Print bonds to std::cout
   print_bonds<vec3, vec>(to_cartesian<vec3, vec>(mol), B);
 
   // Compute angles
-  std::vector<Angle> A{angles(dist, predecessors, mol)};
+  const std::vector<Angle> A{angles(dist, predecessors, mol)};
 
   // Print angles to std::cout
   print_angles<vec3, vec>(to_cartesian<vec3, vec>(mol), A);
 
   // Compute dihedral angles
-  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+  const std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
 
   // Print dihedrals to std::cout
   print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(mol), D);
