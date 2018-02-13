@@ -16,15 +16,14 @@ using vec3 = arma::vec3;
 using vec = arma::vec;
 using mat = arma::mat;
 
-template<typename T>
-using Mat = arma::Mat<T>;
+template <typename T> using Mat = arma::Mat<T>;
 #elif HAVE_EIGEN3
 #include <Eigen3/Eigen/Dense>
 using vec3 = Eigen::Vector3d;
 using vec = Eigen::VectorXd;
 using mat = Eigen::MatrixXd;
 
-template<typename T>
+template <typename T>
 using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 #else
 #error
@@ -174,8 +173,9 @@ TEST_CASE("Transformation") {
     }
 
     // Compute new cartesian coordinates
-    vec x_c{
-        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {})};
+    const auto itc_result =
+        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {});
+    const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
     if (verbose) {
@@ -262,8 +262,9 @@ TEST_CASE("Transformation") {
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
 
     // Compute new cartesian coordinates
-    vec x_c{
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {})};
+    const auto itc_result =
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {});
+    const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
     if (verbose) {
@@ -379,8 +380,9 @@ TEST_CASE("Transformation") {
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
 
     // Compute new cartesian coordinates
-    vec x_c{
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D)};
+    const auto itc_result =
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D);
+    const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
     if (verbose) {

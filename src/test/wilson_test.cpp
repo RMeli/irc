@@ -190,16 +190,12 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     dx(2) = v(2);
 
     // Compute old dihedral (before rotation)
-    double d_old{dihedral<vec3>(molecule[0].position,
-                                molecule[1].position,
-                                molecule[2].position,
-                                molecule[3].position)};
+    double d_old{dihedral<vec3>(molecule[0].position, molecule[1].position,
+                                molecule[2].position, molecule[3].position)};
 
     // Compute new dihedral angle (after rotation)
-    double d_new{dihedral<vec3>(R * molecule[0].position,
-                                molecule[1].position,
-                                molecule[2].position,
-                                molecule[3].position)};
+    double d_new{dihedral<vec3>(R * molecule[0].position, molecule[1].position,
+                                molecule[2].position, molecule[3].position)};
 
     // Compute dihedral variation
     double d_diff{d_new - d_old};

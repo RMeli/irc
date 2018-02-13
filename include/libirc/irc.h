@@ -11,8 +11,7 @@
 
 namespace irc {
 
-template<typename Vector3, typename Vector, typename Matrix>
-class IRC {
+template <typename Vector3, typename Vector, typename Matrix> class IRC {
 public:
   IRC(const molecule::Molecule<Vector3> &molecule = {},
       const std::vector<connectivity::Bond> &mybonds = {},
@@ -51,11 +50,10 @@ public:
   /// \param max_iters Maximum number of iterations
   /// \param tolerance Convergence tolerance
   /// \return New cartesian coordinates
-  Vector irc_to_cartesian(const Vector &q_irc_old,
-                          const Vector &dq_irc,
-                          const Vector &x_c_old,
-                          size_t max_iters = 25,
-                          double tolerance = 1e-6);
+  Vector
+  irc_to_cartesian(const Vector &q_irc_old, const Vector &dq_irc,
+                   const Vector &x_c_old, size_t max_iters = 25,
+                   double tolerance = 1e-6);
 
 private:
   /// List of bonds
@@ -80,7 +78,7 @@ private:
   Matrix P;
 };
 
-template<typename Vector3, typename Vector, typename Matrix>
+template <typename Vector3, typename Vector, typename Matrix>
 IRC<Vector3, Vector, Matrix>::IRC(
     const molecule::Molecule<Vector3> &molecule,
     const std::vector<connectivity::Bond> &mybonds,
@@ -122,8 +120,8 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Add user-defined dihedrals
   if (mydihedrals.size() != 0) { // For CodeCov, can be removed after tests
-    dihedrals.insert(
-        dihedrals.cend(), mydihedrals.cbegin(), mydihedrals.cend());
+    dihedrals.insert(dihedrals.cend(), mydihedrals.cbegin(),
+                     mydihedrals.cend());
   }
 
   // Count the number of internal coordinates
@@ -131,9 +129,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Store initial Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-      molecule::to_cartesian<Vector3, Vector>(molecule),
-      bonds,
-      angles,
+      molecule::to_cartesian<Vector3, Vector>(molecule), bonds, angles,
       dihedrals);
 
   // Compute projector P
@@ -145,7 +141,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
 /// \return
 ///
 /// V. Bakken and T. Helgaker, J. Chem. Phys 117, 9160 (2002).
-template<typename Vector3, typename Vector, typename Matrix>
+template <typename Vector3, typename Vector, typename Matrix>
 Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
   Matrix H0(linalg::zeros<Matrix>(n_irc, n_irc));
 
@@ -168,7 +164,7 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
   return P * linalg::inv<Matrix>(H0) * P;
 }
 
-template<typename Vector3, typename Vector, typename Matrix>
+template <typename Vector3, typename Vector, typename Matrix>
 Matrix
 IRC<Vector3, Vector, Matrix>::projected_hessian_inv(const Matrix &Hinv) const {
 
@@ -195,7 +191,7 @@ IRC<Vector3, Vector, Matrix>::projected_hessian_inv(const Matrix &Hinv) const {
 /// coordinates. \f$\mathbf{B}\f$ is the Wilson B matrix, \f$\mathbf{G}\f$ is
 /// the matrix defined by \f$\mathbf{G} = \mathbf{B}\mathbf{B}^T\f$ and
 /// \f$\mathbf{G}^-\f$ is the pseudo-inverse of \f$\mathbf{G}\f$.
-template<typename Vector3, typename Vector, typename Matrix>
+template <typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
     const Vector &grad_c) const {
   if (linalg::size(grad_c) != n_c) {
@@ -206,17 +202,17 @@ Vector IRC<Vector3, Vector, Matrix>::grad_cartesian_to_projected_irc(
          transformation::gradient_cartesian_to_irc<Vector, Matrix>(grad_c, B);
 }
 
-template<typename Vector3, typename Vector, typename Matrix>
+template <typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector &x_c) const {
   if (linalg::size(x_c) != n_c) {
     throw std::length_error("ERROR: Wrong cartesian coordinates size.");
   }
 
-  return connectivity::cartesian_to_irc<Vector3, Vector>(
-      x_c, bonds, angles, dihedrals);
+  return connectivity::cartesian_to_irc<Vector3, Vector>(x_c, bonds, angles,
+                                                         dihedrals);
 }
 
-template<typename Vector3, typename Vector, typename Matrix>
+template <typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector &q_irc_old,
                                                       const Vector &dq_irc,
                                                       const Vector &x_c_old,
@@ -235,26 +231,20 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector &q_irc_old,
     throw std::length_error("ERROR: Wrong old cartesian coordinates size.");
   }
 
-  const Vector x_c_new{
-      transformation::irc_to_cartesian<Vector3, Vector, Matrix>(q_irc_old,
-                                                                dq_irc,
-                                                                x_c_old,
-                                                                bonds,
-                                                                angles,
-                                                                dihedrals,
-                                                                max_iters,
-                                                                tolerance)};
+  const auto itc_result = transformation::irc_to_cartesian<Vector3, Vector, Matrix>(
+          q_irc_old, dq_irc, x_c_old, bonds, angles, dihedrals, max_iters,
+          tolerance);
 
   // TODO: This computation can be avoided; B is computed in irc_to_cartesian
   // Update Wilson's B matrix
-  B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-      x_c_new, bonds, angles, dihedrals);
+  B = wilson::wilson_matrix<Vector3, Vector, Matrix>(itc_result.x_c, bonds, angles,
+                                                     dihedrals);
 
   // Update projector P
   P = wilson::projector(B);
 
   // Return new cartesian coordinates
-  return x_c_new;
+  return itc_result.x_c;
 }
 
 } // namespace irc

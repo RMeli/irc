@@ -16,15 +16,14 @@ using vec3 = arma::vec3;
 using vec = arma::vec;
 using mat = arma::mat;
 
-template<typename T>
-using Mat = arma::Mat<T>;
+template <typename T> using Mat = arma::Mat<T>;
 #elif HAVE_EIGEN3
 #include <Eigen3/Eigen/Dense>
 using vec3 = Eigen::Vector3d;
 using vec = Eigen::VectorXd;
 using mat = Eigen::MatrixXd;
 
-template<typename T>
+template <typename T>
 using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 #else
 #error
@@ -55,8 +54,8 @@ TEST_CASE("Internal Redundant Coordinates") {
     // Add H-H bond: (2,3)
     // Add H-O-H angle: (2,1,3)
     // Add H-H-O-C dihedral: (3,2,1,0)
-    IRC<vec3, vec, mat> irc(
-        molecule, {{1, 2}, {2, 3}}, {{2, 1, 3}}, {{3, 2, 1, 0}});
+    IRC<vec3, vec, mat> irc(molecule, {{1, 2}, {2, 3}}, {{2, 1, 3}},
+                            {{3, 2, 1, 0}});
 
     // Compute internal coordinates
     vec q_irc{
@@ -93,8 +92,8 @@ TEST_CASE("Internal Redundant Coordinates") {
       target.margin(1e-6);
 
       // Compute H-O-H angle
-      double a{angle(
-          molecule[2].position, molecule[1].position, molecule[3].position)};
+      double a{angle(molecule[2].position, molecule[1].position,
+                     molecule[3].position)};
 
       REQUIRE(a == target);
     }
@@ -105,10 +104,8 @@ TEST_CASE("Internal Redundant Coordinates") {
       target.margin(1e-6);
 
       // Compute H-H-O-C dihedral angle
-      double d{dihedral(molecule[3].position,
-                        molecule[2].position,
-                        molecule[1].position,
-                        molecule[0].position)};
+      double d{dihedral(molecule[3].position, molecule[2].position,
+                        molecule[1].position, molecule[0].position)};
 
       REQUIRE(d == target);
     }
