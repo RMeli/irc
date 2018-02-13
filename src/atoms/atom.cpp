@@ -22,15 +22,15 @@ std::string symbol(const AtomicNumber &an) noexcept {
 }
 
 double mass(const AtomicNumber &an) noexcept {
-  return periodic_table::pt_masses[an.atomic_number];
+  return periodic_table::masses[an.atomic_number];
 }
 
 double covalent_radius(const AtomicNumber &an) noexcept {
-  return periodic_table::pt_covalent_radii[an.atomic_number];
+  return periodic_table::covalent_radii[an.atomic_number];
 }
 
 double vdw_radius(const AtomicNumber &an) noexcept {
-  return periodic_table::pt_vdv_radii[an.atomic_number];
+  return periodic_table::vdw_radii[an.atomic_number];
 }
 
 // TODO: constexpr for C++14

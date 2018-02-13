@@ -28,7 +28,7 @@ TEST_CASE("Molecule") {
   const auto molecule = Molecule<vec3>{
       {{1, {0.0, 1.1, 2.2}}, {2, {0.0, 1.1, 2.2}}, {3, {0.0, 1.1, 2.2}}}};
 
-  CHECK(mass(molecule) == Approx(pt_masses[1] + pt_masses[2] + pt_masses[3]));
+  CHECK(mass(molecule) == Approx(masses[1] + masses[2] + masses[3]));
 
   SECTION("Positon multiplier") {
     auto scaled_molecule = molecule;

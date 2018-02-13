@@ -26,7 +26,7 @@ constexpr std::array<char[3], pt_size> symbols = {
      "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U",  "Np", "Pu", "Am"}};
 
 /// Atomic masses
-constexpr std::array<double, pt_size> pt_masses = {{
+constexpr std::array<double, pt_size> masses = {{
     0.0000,   //   Ghost Atom      X       0
     1.0079,   //   Hydrogen        H       1
     4.0026,   //   Helium          He      2
@@ -131,7 +131,7 @@ using tools::conversion::angstrom_to_bohr;
 ///
 /// J. C. Slater, "Atomic Radii in Crystals",
 /// J. Phys. Chem. 41, 3199-3204 (1964)
-constexpr std::array<double, pt_size> pt_covalent_radii = {{
+constexpr std::array<double, pt_size> covalent_radii = {{
     0.00 * angstrom_to_bohr, //   Ghost Atom      X       0
     0.25 * angstrom_to_bohr, //   Hydrogen        H       1
     0.00 * angstrom_to_bohr, //   Helium          He      2
@@ -234,7 +234,7 @@ constexpr std::array<double, pt_size> pt_covalent_radii = {{
 ///
 /// S. S. Batsanov, "Van der Waals Radii of Elements",
 /// Inorganic Materials 37, 871-855 (2001)
-constexpr std::array<double, pt_size> pt_vdv_radii = {{
+constexpr std::array<double, pt_size> vdw_radii = {{
     0.00 * angstrom_to_bohr, //   Ghost Atom      X       0
     1.20 * angstrom_to_bohr, //   Hydrogen        H       1
     0 * angstrom_to_bohr,    //   Helium          He      2
