@@ -40,24 +40,25 @@ std::pair<Vector3, Vector3> bond_gradient(const Vector3 &p1,
   return {v, -v};
 }
 
-/// Compute angle gradients
-///
-/// Three vectors act to increase the angle between \p p1, \p p2 and \p p3
-/// when added to their respective cartesian coordinates.
-/// The displacement vectors are:
-/// \f{eqnarray*}{
-///    v_1 &=& \frac{\cos \alpha b_{21} - b_{23} }{\sin \alpha d_{21}} \\
-///    v_3 &=& \frac{\cos \alpha b_{23} - b_{21} }{\sin \alpha d_{23}} \\
-///    v_2 &=& -v_1 -v_3
-/// \f}
-/// where \f$d_{ij} = \lVert p_i - p_j\rVert\f$ and
-/// \f$b_{ij} = \frac{p_i - p_j}{d_{ij}}\f$.
-///
-/// \tparam Vector3
-/// \param p1 Point 1
-/// \param p2 Point 2
-/// \param p3 Point 3
-/// \return Angle gradients
+/*! Compute angle gradients
+ *
+ * Three vectors act to increase the angle between \p p1, \p p2 and \p p3
+ * when added to their respective cartesian coordinates.
+ * The displacement vectors are:
+ * \f{eqnarray*}{
+ *    v_1 &=& \frac{\cos \alpha b_{21} - b_{23} }{\sin \alpha d_{21}} \\
+ *    v_3 &=& \frac{\cos \alpha b_{23} - b_{21} }{\sin \alpha d_{23}} \\
+ *    v_2 &=& -v_1 -v_3
+ * \f}
+ * where \f$d_{ij} = \lVert p_i - p_j\rVert\f$ and
+ * \f$b_{ij} = \frac{p_i - p_j}{d_{ij}}\f$.
+ *
+ * \tparam Vector3
+ * \param p1 Point 1
+ * \param p2 Point 2
+ * \param p3 Point 3
+ * \return Angle gradients
+ */
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3>
 angle_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3) {
@@ -82,36 +83,37 @@ angle_gradient(const Vector3 &p1, const Vector3 &p2, const Vector3 &p3) {
   return std::make_tuple(v1, v2, v3);
 }
 
-/// Compute dihedral angle gradients
-///
-/// Four vectors act to increase the dihedral angle between \p p1, \p p2, \p p3,
-/// and \p p4 when added to their respective cartesian coordinates.
-/// The dihedral is the rotation about \f$(p_3 - p_2)\f$ that maps \p p1 on to
-/// \p p4 when projected on to a plane with a normal vector \f$(p_3 - p_2)\f$.
-/// The displacement vectors are:
-/// \f{eqnarray*}{
-///    v_1 &=& - \frac{b_{12} \times b_{23}}{b_{12} \sin^2 \phi_2} \\
-///    v_2 &=& \frac{b_{23} - b_{12} \cos \phi_2 }{b_{23} b_{12} \sin \phi_2}
-///    \frac{b_{12} \times b_{23}}{\sin \phi_2}
-///            + \frac{\cos \phi_3 }{b_{23} \sin \phi_3} \frac{b_{43} \times
-///            b_{32}}{\sin \phi_3} \\
-///    v_3 &=& \frac{b_{23} - b_{43} \cos \phi_3 }{b_{32} b_{43} \sin \phi_3}
-///    \frac{b_{43} \times b_{32}}{\sin \phi_3}
-///            + \frac{\cos \phi_2 }{b_{32} \sin \phi_2} \frac{b_{12} \times
-///            b_{23}}{\sin \phi_2} \\
-///    v_4 &=& - \frac{b_{43} \times b_{32}}{b_{43} \sin^2 \phi_3} \\
-/// \f}
-/// where \f$d_{ij} = \lVert p_i - p_j\rVert\f$,
-/// \f$b_{ij} = \frac{p_i - p_j}{d_{ij}}\f$,
-/// \f$\phi_2 is the angle between \f$(p_1, p_2, p_3)\f$ and
-/// \f$\phi_3 is the angle between \f$(p_2, p_3, p_4)\f$.
-///
-/// \tparam Vector3
-/// \param p1 Point 1
-/// \param p2 Point 2
-/// \param p3 Point 3
-/// \param p3 Point 4
-/// \return Dihedral angle gradients
+/*! Compute dihedral angle gradients
+ * 
+ * Four vectors act to increase the dihedral angle between \p p1, \p p2, \p p3,
+ * and \p p4 when added to their respective cartesian coordinates.
+ * The dihedral is the rotation about \f$(p_3 - p_2)\f$ that maps \p p1 on to
+ * \p p4 when projected on to a plane with a normal vector \f$(p_3 - p_2)\f$.
+ * The displacement vectors are:
+ * \f{eqnarray*}{
+ *    v_1 &=& - \frac{b_{12} \times b_{23}}{b_{12} \sin^2 \phi_2} \\
+ *    v_2 &=& \frac{b_{23} - b_{12} \cos \phi_2 }{b_{23} b_{12} \sin \phi_2}
+ *            \frac{b_{12} \times b_{23}}{\sin \phi_2}
+ *            + \frac{\cos \phi_3 }{b_{23} \sin \phi_3}
+ *              \frac{b_{43} \times b_{32}}{\sin \phi_3} \\
+ *    v_3 &=& \frac{b_{23} - b_{43} \cos \phi_3 }{b_{32} b_{43} \sin \phi_3}
+ *            \frac{b_{43} \times b_{32}}{\sin \phi_3}
+ *            + \frac{\cos \phi_2 }{b_{32} \sin \phi_2}
+ *              \frac{b_{12} \times b_{23}}{\sin \phi_2} \\
+ *    v_4 &=& - \frac{b_{43} \times b_{32}}{b_{43} \sin^2 \phi_3}
+ * \f}
+ * where \f$d_{ij} = \lVert p_i - p_j\rVert\f$,
+ * \f$b_{ij} = \frac{p_i - p_j}{d_{ij}}\f$,
+ * \f$\phi_2 is the angle between \f$(p_1, p_2, p_3)\f$ and
+ * \f$\phi_3 is the angle between \f$(p_2, p_3, p_4)\f$.
+ *
+ * \tparam Vector3
+ * \param p1 Point 1
+ * \param p2 Point 2
+ * \param p3 Point 3
+ * \param p3 Point 4
+ * \return Dihedral angle gradients
+ */
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3, Vector3>
 dihedral_gradient(const Vector3 &p1,
