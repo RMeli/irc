@@ -15,7 +15,7 @@ namespace periodic_table {
 constexpr size_t pt_size{96};
 
 /// Atomic symbols
-constexpr std::array<char[3], pt_size> pt_symbols = {
+constexpr std::array<char[3], pt_size> symbols = {
     {"",   "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne", "Na",
      "Mg", "Al", "Si", "P",  "S",  "Cl", "Ar", "K",  "Ca", "Sc", "Ti", "V",
      "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br",

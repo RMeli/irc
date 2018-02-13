@@ -18,7 +18,7 @@ AtomicNumber::AtomicNumber(const std::string &symbol)
     : AtomicNumber(periodic_table::atomic_number(symbol)) {}
 
 std::string symbol(const AtomicNumber &an) noexcept {
-  return periodic_table::pt_symbols[an.atomic_number];
+  return periodic_table::symbols[an.atomic_number];
 }
 
 double mass(const AtomicNumber &an) noexcept {
