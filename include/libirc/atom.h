@@ -58,7 +58,9 @@ bool is_NOFPSCl(const AtomicNumber &an) noexcept;
 ///
 /// \param an \class AtomicNumber
 /// \return
-bool is_H(const AtomicNumber &an) noexcept;
+constexpr bool is_H(const AtomicNumber &an) noexcept{
+  return an.atomic_number == 1;
+}
 
 /// Print \class AtomicNumber
 ///
