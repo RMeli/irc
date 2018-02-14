@@ -3,11 +3,6 @@
 #include "libirc/io.h"
 
 #include "config.h"
-#include "libirc/conversion.h"
-#include "libirc/molecule.h"
-
-#include <iostream>
-#include <stdexcept>
 
 #ifdef HAVE_ARMA
 #include <armadillo>

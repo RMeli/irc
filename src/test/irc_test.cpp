@@ -8,8 +8,6 @@
 #include "libirc/io.h"
 #include "libirc/molecule.h"
 
-#include <iostream>
-
 #ifdef HAVE_ARMA
 #include <armadillo>
 using vec3 = arma::vec3;
@@ -138,7 +136,7 @@ TEST_CASE("Internal Redundant Coordinates") {
     // Check sizes
     REQUIRE(linalg::size(iH0) == linalg::size(iH));
 
-    // Chech that second projection has no effect
+    // Check that second projection has no effect
     size_t n{linalg::size(iH0)};
     for (size_t i{0}; i < n; i++) {
       Approx target(iH0(i));

@@ -71,7 +71,7 @@ struct Dihedral {
 ///
 /// \tparam Vector3
 /// \param v1 Point 1
-/// \param v2 Poin 2
+/// \param v2 Point 2
 /// \return Distance between point  1 and point 2
 ///
 /// The distance \f$d\f$ between two points \f$\vec{v}_1\f$ and \f$\vec{v}_2\f$
@@ -222,7 +222,7 @@ inline double dihedral(const Vector3& v1,
   const double x{linalg::dot(n1, n2)};
   const double y{linalg::dot(m, n2)};
 
-  // Compute dihedral angle in radians (in the intervale [-pi,pi])
+  // Compute dihedral angle in radians (in the interval [-pi,pi])
   const double angle{std::atan2(y, x)};
 
   return angle;
@@ -443,7 +443,7 @@ UGraph adjacency_matrix(const Matrix& distances,
     // throw std::logic_error("Fragment recognition not implemented.");
   }
 
-  // TODO: Better strategy to look for H-bonds (reglar bonds are known)
+  // TODO: Better strategy to look for H-bonds (regular bonds are known)
   // Search for hydrogen bonds
   double sum_vdw_radii{0.};
   for (size_t j{0}; j < n_atoms; j++) {
@@ -550,7 +550,7 @@ Matrix distance_matrix(const UGraph& ug) {
   // Allocate predecessors map for single-source problem
   std::vector<int> p_map(n_vertices, 0);
 
-  // Loop over vetrices
+  // Loop over vertices
   for (size_t i{0}; i < n_vertices; i++) {
     // Solve single-source problem for every vertex
     dijkstra_shortest_paths(
@@ -590,7 +590,7 @@ std::vector<Bond> bonds(const Matrix& distance_m,
     for (size_t i{0}; i < j; i++) {
 
       if (distance_m(i, j) == 1) {
-        // Store bond informations between atom i and atom j
+        // Store bond information between atom i and atom j
         b.push_back(Bond{i, j});
       }
     }
@@ -754,7 +754,7 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
   }
 
   // Check if dihedrals are found
-  if (n_atoms >= 4 && dih.size() == 0) {
+  if (n_atoms >= 4 && dih.empty()) {
     std::cerr << "ERROR: Out of plane bending not implemented yet."
               << std::endl;
   }

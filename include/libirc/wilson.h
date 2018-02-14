@@ -32,7 +32,8 @@ namespace wilson {
 /// \param p2 Point 2
 /// \return A pair of cartesian displacements
 template<typename Vector3>
-std::pair<Vector3, Vector3> bond_gradient(const Vector3& p1,
+std::pair<Vector3, Vector3> bond_gradient(
+    const Vector3& p1, ///< Point 1
                                           const Vector3& p2) {
   const double d{connectivity::distance(p1, p2)};
 
@@ -190,7 +191,7 @@ dihedral_gradient(const Vector3& p1,
 /// \f[
 ///   B_{ij} = \frac{\partial q_i}{\partial x_j}
 /// \f]
-/// defines the transfromation from Cartesia displacements
+/// defines the transformation from Cartesian displacements
 /// \f$\delta\mathbf{x}\f$ to redundant internal displacements
 /// \f$\delta\mathbf{q}\f$:
 /// \f[
@@ -322,7 +323,7 @@ Matrix wilson_matrix_numerical(
     // Compute negative displacement for cartesian coordinate j
     x_c_pm(j) -= 2 * dx;
 
-    // Compute IRC corresponding tonegative displacement of x_c(j)
+    // Compute IRC corresponding to negative displacement of x_c(j)
     q_irc_minus = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c_pm, bonds, angles, dihedrals);
 

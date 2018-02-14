@@ -105,10 +105,10 @@ TEST_CASE("Connectivity for compressed H2") {
   CHECK(B.size() == 1);
 
   // Check number of angles
-  CHECK(A.size() == 0);
+  CHECK(A.empty());
 
   // Check number of dihedral angles
-  CHECK(D.size() == 0);
+  CHECK(D.empty());
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -147,10 +147,10 @@ TEST_CASE("Connectivity for stretched H2") {
   CHECK(B.size() == 1);
 
   // Check number of angles
-  CHECK(A.size() == 0);
+  CHECK(A.empty());
 
   // Check number of dihedral angles
-  CHECK(D.size() == 0);
+  CHECK(D.empty());
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -201,7 +201,7 @@ TEST_CASE("Connectivity for compressed H2O") {
   CHECK(A.size() == 1);
 
   // Check number of dihedral angles
-  CHECK(D.size() == 0);
+  CHECK(D.empty());
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(

@@ -28,7 +28,7 @@ public:
   ///
   /// \param H Hessian
   /// \return Projected Hessian
-  Matrix projected_hessian_inv(const Matrix& H) const;
+  Matrix projected_hessian_inv(const Matrix& Hinv) const;
 
   /// Transform gradient from cartesian coordinates to projected redundant
   /// internal coordinates.
@@ -103,7 +103,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   bonds = connectivity::bonds(distance_m, molecule);
 
   // Add user-defined bonds
-  if (mybonds.size() != 0) { // For CodeCov, can be removed after tests
+  if (!mybonds.empty()) { // For CodeCov, can be removed after tests
     bonds.insert(bonds.cend(), mybonds.cbegin(), mybonds.cend());
   }
 
@@ -111,7 +111,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   angles = connectivity::angles(distance_m, molecule);
 
   // Add user-defined angles
-  if (myangles.size() != 0) { // For CodeCov, can be removed after tests
+  if (!myangles.empty()) { // For CodeCov, can be removed after tests
     angles.insert(angles.cend(), myangles.cbegin(), myangles.cend());
   }
 
@@ -119,7 +119,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   dihedrals = connectivity::dihedrals(distance_m, molecule);
 
   // Add user-defined dihedrals
-  if (mydihedrals.size() != 0) { // For CodeCov, can be removed after tests
+  if (!mydihedrals.empty()) { // For CodeCov, can be removed after tests
     dihedrals.insert(
         dihedrals.cend(), mydihedrals.cbegin(), mydihedrals.cend());
   }

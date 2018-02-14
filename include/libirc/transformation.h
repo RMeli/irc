@@ -72,14 +72,12 @@ struct IrcToCartesianResult {
 /// \tparam Vector3
 /// \tparam Vector
 /// \tparam Matrix
-/// \param q_irc_old Old internal reaction coordinates
-/// \param dq_irc Change in internar reaction coordinates
+/// \param q_irc_old Old internal redundant coordinates
+/// \param dq_irc Change in internal redundant coordinates
 /// \param x_c_old Old cartesian coordinates
 /// \param bonds List of bonds
 /// \param angles List of angles
 /// \param dihedrals List of dihedral angles
-/// \param B Wilson \f$\mathbf{B}\f$ matrix
-/// \param iG Pseudoinverse of the \f$\mathbf{G}\f$ matrix
 /// \param max_iters Maximum number of iterations
 /// \param tolerance Tolerance on change in cartesian coordinates
 /// \return New cartesian coordinates

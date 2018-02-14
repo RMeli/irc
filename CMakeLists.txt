@@ -22,7 +22,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # | COMPILATION FLAGS |
 # + ----------------- +
 
-add_compile_options(-Wall -Wextra -pedantic-errors) # DON'T USE
+add_compile_options(-Wall) # DON'T USE
 
 option(COVERAGE "Use code coverage if compiler is Clang" OFF)
 
