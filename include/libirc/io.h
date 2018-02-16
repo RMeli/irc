@@ -2,6 +2,7 @@
 #define IRC_IO_H
 
 #include "connectivity.h"
+#include "conversion.h"
 #include "molecule.h"
 
 #include <fstream>
@@ -15,11 +16,16 @@ namespace io {
 
 /// Load molecule in XYZ format from input stream
 ///
+/// Input units must be in Angstrom.
+/// Generated molecule is in Bohr
+///
 /// \tparam Vector3 3D vector
 /// \param in Input stream
 /// \return Molecule
 template<typename Vector3>
-molecule::Molecule<Vector3> load_xyz(std::istream &in) {
+molecule::Molecule<Vector3> load_xyz(std::istream& in) {
+  using irc::molecule::multiply_positions;
+
   size_t n_atoms{0};
   std::string dummy{""};
 
@@ -32,8 +38,10 @@ molecule::Molecule<Vector3> load_xyz(std::istream &in) {
 
   molecule::Molecule<Vector3> molecule;
   while (in >> atom >> x >> y >> z) {
-    molecule.push_back(atom::Atom<Vector3>{atom, {x, y, z}});
+    molecule.push_back({atom, {x, y, z}});
   }
+
+  multiply_positions(molecule, tools::conversion::angstrom_to_bohr);
 
   return molecule;
 }
@@ -44,7 +52,7 @@ molecule::Molecule<Vector3> load_xyz(std::istream &in) {
 /// \param in Input stream
 /// \return Molecule
 template<typename Vector3>
-molecule::Molecule<Vector3> load_xyz(std::string fname) {
+molecule::Molecule<Vector3> load_xyz(const std::string& fname) {
   std::ifstream in{fname};
 
   if (!in.is_open()) {
@@ -56,9 +64,9 @@ molecule::Molecule<Vector3> load_xyz(std::string fname) {
 
 /// Print bonds
 template<typename Vector3, typename Vector>
-void print_bonds(const Vector &x_c,
-                 const std::vector<connectivity::Bond> &bonds,
-                 std::ostream &out = std::cout) {
+void print_bonds(const Vector& x_c,
+                 const std::vector<connectivity::Bond>& bonds,
+                 std::ostream& out = std::cout) {
 
   // Total number of bonds
   const size_t n_bonds{bonds.size()};
@@ -100,9 +108,9 @@ void print_bonds(const Vector &x_c,
 }
 
 template<typename Vector3, typename Vector>
-void print_angles(const Vector &x_c,
-                  const std::vector<connectivity::Angle> &angles,
-                  std::ostream &out = std::cout) {
+void print_angles(const Vector& x_c,
+                  const std::vector<connectivity::Angle>& angles,
+                  std::ostream& out = std::cout) {
 
   // Total number of angles
   const size_t n_angles{angles.size()};
@@ -147,9 +155,9 @@ void print_angles(const Vector &x_c,
 }
 
 template<typename Vector3, typename Vector>
-void print_dihedrals(const Vector &x_c,
-                     const std::vector<connectivity::Dihedral> &dihedrals,
-                     std::ostream &out = std::cout) {
+void print_dihedrals(const Vector& x_c,
+                     const std::vector<connectivity::Dihedral>& dihedrals,
+                     std::ostream& out = std::cout) {
 
   // Total number of angles
   const size_t n_dihedrals{dihedrals.size()};

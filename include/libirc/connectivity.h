@@ -71,7 +71,7 @@ struct Dihedral {
 ///
 /// \tparam Vector3
 /// \param v1 Point 1
-/// \param v2 Poin 2
+/// \param v2 Point 2
 /// \return Distance between point  1 and point 2
 ///
 /// The distance \f$d\f$ between two points \f$\vec{v}_1\f$ and \f$\vec{v}_2\f$
@@ -80,7 +80,7 @@ struct Dihedral {
 ///   d = |\vec{v}_1 - \vec{v}_2|.
 /// \f]
 template<typename Vector3>
-inline double distance(const Vector3 &v1, const Vector3 &v2) {
+inline double distance(const Vector3& v1, const Vector3& v2) {
   return linalg::norm(v1 - v2);
 }
 
@@ -95,7 +95,7 @@ inline double distance(const Vector3 &v1, const Vector3 &v2) {
 /// Given a (linear) vector of cartesian atomic coordinates \param x_cartesian
 /// and a bond \param b, the corresponding bond length is computed.
 template<typename Vector3, typename Vector>
-inline double bond(const Bond &b, const Vector &x_cartesian) {
+inline double bond(const Bond& b, const Vector& x_cartesian) {
   // Temporary positions
   const Vector3 b1{x_cartesian(3 * b.i + 0),
                    x_cartesian(3 * b.i + 1),
@@ -115,7 +115,7 @@ inline double bond(const Bond &b, const Vector &x_cartesian) {
 /// \param molecule Molecule
 /// \return Bond length
 template<typename Vector3>
-inline double bond(const Bond &b, const molecule::Molecule<Vector3> &molecule) {
+inline double bond(const Bond& b, const molecule::Molecule<Vector3>& molecule) {
   const Vector3 b1{molecule[b.i].position};
   const Vector3 b2{molecule[b.j].position};
 
@@ -139,7 +139,7 @@ inline double bond(const Bond &b, const molecule::Molecule<Vector3> &molecule) {
 /// where \f$\vec{r}_{21}=\vec{v}_1-\vec{v}_2\f$ and
 /// \f$\vec{r}_{23}= \vec{v}_3-\vec{v}_2\f$
 template<typename Vector3>
-inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
+inline double angle(const Vector3& v1, const Vector3& v2, const Vector3& v3) {
   const Vector3 r1{v1 - v2};
   const Vector3 r2{v3 - v2};
 
@@ -161,7 +161,7 @@ inline double angle(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3) {
 /// Given a (linear) vector of cartesian atomic coordinates \param x_cartesian
 /// and a bond \param b, the corresponding bond length is computed.
 template<typename Vector3, typename Vector>
-inline double angle(const Angle &a, const Vector &x_cartesian) {
+inline double angle(const Angle& a, const Vector& x_cartesian) {
   // Temporary positions
   const Vector3 a1{x_cartesian(3 * a.i + 0),
                    x_cartesian(3 * a.i + 1),
@@ -185,8 +185,8 @@ inline double angle(const Angle &a, const Vector &x_cartesian) {
 /// \param molecule Molecule
 /// \return Angle
 template<typename Vector3>
-inline double angle(const Angle &a,
-                    const molecule::Molecule<Vector3> &molecule) {
+inline double angle(const Angle& a,
+                    const molecule::Molecule<Vector3>& molecule) {
   const Vector3 a1{molecule[a.i].position};
   const Vector3 a2{molecule[a.j].position};
   const Vector3 a3{molecule[a.k].position};
@@ -203,10 +203,10 @@ inline double angle(const Angle &a,
 /// \param v4 Point 4
 /// \return Dihedral angle
 template<typename Vector3>
-inline double dihedral(const Vector3 &v1,
-                       const Vector3 &v2,
-                       const Vector3 &v3,
-                       const Vector3 &v4) {
+inline double dihedral(const Vector3& v1,
+                       const Vector3& v2,
+                       const Vector3& v3,
+                       const Vector3& v4) {
   const Vector3 b1{v1 - v2};
   const Vector3 b2{v2 - v3};
   const Vector3 b3{v3 - v4};
@@ -222,7 +222,7 @@ inline double dihedral(const Vector3 &v1,
   const double x{linalg::dot(n1, n2)};
   const double y{linalg::dot(m, n2)};
 
-  // Compute dihedral angle in radians (in the intervale [-pi,pi])
+  // Compute dihedral angle in radians (in the interval [-pi,pi])
   const double angle{std::atan2(y, x)};
 
   return angle;
@@ -239,7 +239,7 @@ inline double dihedral(const Vector3 &v1,
 /// Given a (linear) vector of cartesian atomic coordinates \param x_cartesian
 /// and a bond \param b, the corresponding bond length is computed.
 template<typename Vector3, typename Vector>
-inline double dihedral(const Dihedral &d, const Vector &x_cartesian) {
+inline double dihedral(const Dihedral& d, const Vector& x_cartesian) {
   // Temporary positions
   const Vector3 d1{x_cartesian(3 * d.i + 0),
                    x_cartesian(3 * d.i + 1),
@@ -267,8 +267,8 @@ inline double dihedral(const Dihedral &d, const Vector &x_cartesian) {
 /// \param molecule Molecule
 /// \return Dihedral angle
 template<typename Vector3>
-inline double dihedral(const Dihedral &d,
-                       const molecule::Molecule<Vector3> &molecule) {
+inline double dihedral(const Dihedral& d,
+                       const molecule::Molecule<Vector3>& molecule) {
   const Vector3 d1{molecule[d.i].position};
   const Vector3 d2{molecule[d.j].position};
   const Vector3 d3{molecule[d.k].position};
@@ -291,7 +291,7 @@ inline double dihedral(const Dihedral &d,
 /// where the matrix element \f$D_{ij}\f$ is the distance between atom at
 /// position \f$\mathbf{r}_i\f$ and the atom at position \f$\mathbf{r}_j\f$.
 template<typename Vector3, typename Matrix>
-Matrix distances(const molecule::Molecule<Vector3> &molecule) {
+Matrix distances(const molecule::Molecule<Vector3>& molecule) {
   const size_t n_atoms{molecule.size()};
 
   Matrix distances_m{linalg::zeros<Matrix>(n_atoms, n_atoms)};
@@ -315,8 +315,8 @@ template<typename Matrix>
 std::tuple<size_t, size_t, double>
 min_interfragment_distance(size_t i,
                            size_t j,
-                           const std::vector<size_t> &fragments,
-                           const Matrix &distances) {
+                           const std::vector<size_t>& fragments,
+                           const Matrix& distances) {
 
   // Number of atoms
   const size_t n_atoms{fragments.size()};
@@ -359,8 +359,8 @@ min_interfragment_distance(size_t i,
 /// The number of vertices corresponds to the number of atoms, while the
 /// number of edges is determined by bonding.
 template<typename Vector3, typename Matrix>
-UGraph adjacency_matrix(const Matrix &distances,
-                        const molecule::Molecule<Vector3> &molecule) {
+UGraph adjacency_matrix(const Matrix& distances,
+                        const molecule::Molecule<Vector3>& molecule) {
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
 
@@ -443,7 +443,7 @@ UGraph adjacency_matrix(const Matrix &distances,
     // throw std::logic_error("Fragment recognition not implemented.");
   }
 
-  // TODO: Better strategy to look for H-bonds (reglar bonds are known)
+  // TODO: Better strategy to look for H-bonds (regular bonds are known)
   // Search for hydrogen bonds
   double sum_vdw_radii{0.};
   for (size_t j{0}; j < n_atoms; j++) {
@@ -522,22 +522,19 @@ UGraph adjacency_matrix(const Matrix &distances,
   return ug;
 }
 
-// TODO: Remove predecessor matrix (now useless)
 /// Find the distance and predecessors matrices of the graph \param ug
 /// \tparam Matrix
 /// \param ug Graph
-/// \return Distance and predecessors matrices
+/// \return Distance matrix
 ///
 /// The element \f$(i,j)\f$ of the distance matrix is an integer indicating
 /// how many bonds (along the shortest path) are between atom \f$i\f$ and atom
 /// \f$j\f$, since the weight of each edge is set to 1 in \function
 /// adjacency_matrix. This allow to easily determine if two atoms are connected
 /// via one bond, two bonds (they form an angle) or three bonds (they form a
-/// dihedral). The element \f$(i,j)\f% of the predecessors matrix is an integer
-/// indicating the index of the second to last vertex in the shortest path from
-/// i to j. This information allow to reconstruct the shortest path from i to j.
+/// dihedral).
 template<typename Matrix>
-std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
+Matrix distance_matrix(const UGraph& ug) {
 
   using namespace boost;
 
@@ -547,16 +544,13 @@ std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
   // Allocate distance matrix
   Matrix dist{linalg::zeros<Matrix>(n_vertices, n_vertices)};
 
-  // Allocate predecessors matrix
-  Matrix predecessors{linalg::zeros<Matrix>(n_vertices, n_vertices)};
-
   // Allocate distance map for single-source problem
   std::vector<int> d_map(n_vertices, 0);
 
   // Allocate predecessors map for single-source problem
   std::vector<int> p_map(n_vertices, 0);
 
-  // Loop over vetrices
+  // Loop over vertices
   for (size_t i{0}; i < n_vertices; i++) {
     // Solve single-source problem for every vertex
     dijkstra_shortest_paths(
@@ -566,18 +560,11 @@ std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
     for (size_t j{0}; j < n_vertices; j++) {
       // Fill distance matrix
       dist(i, j) = d_map[j];
-
-      // Fill predecessors matrix
-      if (i != j) {
-        predecessors(i, j) = p_map[j];
-      } else {
-        predecessors(i, j) = -1;
-      }
     }
   }
 
   // Return distance matrix
-  return std::make_pair(dist, predecessors);
+  return dist;
 }
 
 /// Returns the bonds in \param molecule
@@ -590,8 +577,8 @@ std::pair<Matrix, Matrix> distance_matrix(const UGraph &ug) {
 ///
 /// The bonds can be covalent bonds, hydrogen bonds or inter-fragment bonds.
 template<typename Vector3, typename Matrix>
-std::vector<Bond> bonds(const Matrix &distance_m,
-                        const molecule::Molecule<Vector3> &molecule) {
+std::vector<Bond> bonds(const Matrix& distance_m,
+                        const molecule::Molecule<Vector3>& molecule) {
 
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
@@ -603,8 +590,8 @@ std::vector<Bond> bonds(const Matrix &distance_m,
     for (size_t i{0}; i < j; i++) {
 
       if (distance_m(i, j) == 1) {
-        // Store bond informations between atom i and atom j
-        b.push_back(Bond{i, j});
+        // Store bond information between atom i and atom j
+        b.push_back({i, j});
       }
     }
   }
@@ -625,7 +612,7 @@ std::vector<Bond> bonds(const Matrix &distance_m,
 /// cases however, there might be two different angles between the same two
 /// end atoms.
 template<typename Matrix>
-std::vector<Angle> angles(size_t i, size_t j, const Matrix &distance) {
+std::vector<Angle> angles(size_t i, size_t j, const Matrix& distance) {
   // Declare empty vector of angles
   std::vector<Angle> angles;
 
@@ -647,13 +634,11 @@ std::vector<Angle> angles(size_t i, size_t j, const Matrix &distance) {
 /// \tparam Vector3
 /// \tparam Matrix
 /// \param distance_m Distance matrix
-/// \param predecessors_m Matrix of predecessors
 /// \param molecule Molecule
 /// \return List of angles
 template<typename Vector3, typename Matrix>
-std::vector<Angle> angles(const Matrix &distance_m,
-                          const Matrix &predecessors_m,
-                          const molecule::Molecule<Vector3> &molecule) {
+std::vector<Angle> angles(const Matrix& distance_m,
+                          const molecule::Molecule<Vector3>& molecule) {
 
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
@@ -672,7 +657,7 @@ std::vector<Angle> angles(const Matrix &distance_m,
 
         A = angles(i, j, distance_m);
 
-        for (const auto &aa : A) {
+        for (const auto& aa : A) {
           a = angle<Vector3>(aa, molecule);
 
           // Compute angle
@@ -693,7 +678,7 @@ std::vector<Angle> angles(const Matrix &distance_m,
 }
 
 template<typename Matrix>
-std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix &distance) {
+std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance) {
   // Declare empty vector of angles
   std::vector<Dihedral> dihedrals;
 
@@ -720,13 +705,11 @@ std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix &distance) {
 /// \tparam Vector3
 /// \tparam Matrix
 /// \param distance_m Distance matrix
-/// \param predecessors_m Matrix of predecessors
 /// \param molecule Molecule
 /// \return List of dihedral angles
 template<typename Vector3, typename Matrix>
-std::vector<Dihedral> dihedrals(const Matrix &distance_m,
-                                const Matrix &predecessors_m,
-                                const molecule::Molecule<Vector3> &molecule,
+std::vector<Dihedral> dihedrals(const Matrix& distance_m,
+                                const molecule::Molecule<Vector3>& molecule,
                                 double epsilon = 1.e-6) {
 
   // Extract number of atoms
@@ -750,7 +733,7 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
 
         D = dihedrals(i, j, distance_m);
 
-        for (const auto &dd : D) {
+        for (const auto& dd : D) {
           a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
           if (std::abs(a1 - 180) < epsilon) {
             linear = true;
@@ -771,7 +754,7 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
   }
 
   // Check if dihedrals are found
-  if (n_atoms >= 4 && dih.size() == 0) {
+  if (n_atoms >= 4 && dih.empty()) {
     std::cerr << "ERROR: Out of plane bending not implemented yet."
               << std::endl;
   }
@@ -792,10 +775,10 @@ std::vector<Dihedral> dihedrals(const Matrix &distance_m,
 /// \param dihedrals List of dihedral angles
 /// \return
 template<typename Vector3, typename Vector>
-Vector cartesian_to_irc(const Vector &x_c,
-                        const std::vector<connectivity::Bond> &bonds,
-                        const std::vector<connectivity::Angle> &angles,
-                        const std::vector<connectivity::Dihedral> &dihedrals) {
+Vector cartesian_to_irc(const Vector& x_c,
+                        const std::vector<connectivity::Bond>& bonds,
+                        const std::vector<connectivity::Angle>& angles,
+                        const std::vector<connectivity::Dihedral>& dihedrals) {
 
   // Get number of bonds, angles and dihedrals
   const auto n_bonds{bonds.size()};

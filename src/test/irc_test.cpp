@@ -8,8 +8,6 @@
 #include "libirc/io.h"
 #include "libirc/molecule.h"
 
-#include <iostream>
-
 #ifdef HAVE_ARMA
 #include <armadillo>
 using vec3 = arma::vec3;
@@ -138,7 +136,7 @@ TEST_CASE("Internal Redundant Coordinates") {
     // Check sizes
     REQUIRE(linalg::size(iH0) == linalg::size(iH));
 
-    // Chech that second projection has no effect
+    // Check that second projection has no effect
     size_t n{linalg::size(iH0)};
     for (size_t i{0}; i < n; i++) {
       Approx target(iH0(i));
@@ -151,11 +149,8 @@ TEST_CASE("Internal Redundant Coordinates") {
   SECTION("IRC to Cartesian") {
 
     // Define formaldehyde molecule (CH2O)
-    Molecule<vec3> molecule{
-        io::load_xyz<vec3>(config::molecules_dir + "ethanol.xyz")};
-
-    // Transform molecular coordinates from angstrom to bohr
-    multiply_positions(molecule, angstrom_to_bohr);
+    const auto molecule =
+        io::load_xyz<vec3>(config::molecules_dir + "ethanol.xyz");
 
     // Build internal reaction coordinates
     IRC<vec3, vec, mat> irc(molecule);

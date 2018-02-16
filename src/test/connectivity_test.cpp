@@ -37,7 +37,7 @@ template<typename Vector3, typename Vector, typename Matrix>
 std::tuple<std::vector<connectivity::Bond>,
            std::vector<connectivity::Angle>,
            std::vector<connectivity::Dihedral>>
-bad_from_molecule(const molecule::Molecule<Vector3> &mol) {
+bad_from_molecule(const molecule::Molecule<Vector3>& mol) {
 
   using namespace connectivity;
 
@@ -48,17 +48,16 @@ bad_from_molecule(const molecule::Molecule<Vector3> &mol) {
   UGraph adj{adjacency_matrix(dd, mol)};
 
   // Compute distance matrix and predecessor matrix
-  Matrix dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<Matrix>(adj);
+  Matrix dist{distance_matrix<Matrix>(adj)};
 
   // Compute bonds
   std::vector<Bond> B{bonds(dist, mol)};
 
   // Compute angles
-  std::vector<Angle> A{angles(dist, predecessors, mol)};
+  std::vector<Angle> A{angles(dist, mol)};
 
   // Compute dihedral angles
-  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+  std::vector<Dihedral> D{dihedrals(dist, mol)};
 
   // Return bonds, angles and dihedral angles
   return std::make_tuple(B, A, D);
@@ -73,11 +72,11 @@ TEST_CASE("Distance, angle and dihedral angle") {
   const auto p3 = vec3{0.00, 1.00, 1.50};
   const auto p4 = vec3{5.00, 1.00, 1.50};
 
-  REQUIRE(distance(p1, p2) == Approx(1.75));
+  CHECK(distance(p1, p2) == Approx(1.75));
 
-  REQUIRE(angle(p1, p2, p3) == Approx(tools::constants::pi / 2.));
+  CHECK(angle(p1, p2, p3) == Approx(tools::constants::pi / 2.));
 
-  REQUIRE(dihedral(p1, p2, p3, p4) == Approx(-tools::constants::pi / 2.));
+  CHECK(dihedral(p1, p2, p3, p4) == Approx(-tools::constants::pi / 2.));
 }
 
 // Regular bond
@@ -103,27 +102,23 @@ TEST_CASE("Connectivity for compressed H2") {
   std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
-  REQUIRE(B.size() == 1);
+  CHECK(B.size() == 1);
 
   // Check number of angles
-  REQUIRE(A.size() == 0);
+  CHECK(A.empty());
 
   // Check number of dihedral angles
-  REQUIRE(D.size() == 0);
+  CHECK(D.empty());
 
-  SECTION("Bond") {
-    // Compute IRC
-    vec q{connectivity::cartesian_to_irc<vec3, vec>(
-        to_cartesian<vec3, vec>(molecule), B, {}, {})};
+  // Compute IRC
+  vec q{connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(molecule), B, {}, {})};
 
-    // Check number of IRC
-    REQUIRE(linalg::size<vec>(q) == 1);
+  // Check number of IRC
+  REQUIRE(linalg::size<vec>(q) == 1);
 
-    // Check bond length
-    Approx bb(d * angstrom_to_bohr);
-    bb.margin(1e-12);
-    REQUIRE(q(0) == bb);
-  }
+  // Check bond length
+  CHECK(q(0) == Approx(d * angstrom_to_bohr));
 }
 
 // Interfragment bond
@@ -149,27 +144,23 @@ TEST_CASE("Connectivity for stretched H2") {
   std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
-  REQUIRE(B.size() == 1);
+  CHECK(B.size() == 1);
 
   // Check number of angles
-  REQUIRE(A.size() == 0);
+  CHECK(A.empty());
 
   // Check number of dihedral angles
-  REQUIRE(D.size() == 0);
+  CHECK(D.empty());
 
-  SECTION("Bond") {
-    // Compute IRC
-    vec q{connectivity::cartesian_to_irc<vec3, vec>(
-        to_cartesian<vec3, vec>(molecule), B, {}, {})};
+  // Compute IRC
+  vec q{connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(molecule), B, {}, {})};
 
-    // Check number of IRC
-    REQUIRE(linalg::size<vec>(q) == 1);
+  // Check number of IRC
+  REQUIRE(linalg::size<vec>(q) == 1);
 
-    // Check bond length
-    Approx bb(d * angstrom_to_bohr);
-    bb.margin(1e-12);
-    REQUIRE(q(0) == bb);
-  }
+  // Check bond length
+  CHECK(q(0) == Approx(d * angstrom_to_bohr));
 }
 
 // Angle
@@ -204,13 +195,13 @@ TEST_CASE("Connectivity for compressed H2O") {
   std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
-  REQUIRE(B.size() == 2);
+  CHECK(B.size() == 2);
 
   // Check number of angles
-  REQUIRE(A.size() == 1);
+  CHECK(A.size() == 1);
 
   // Check number of dihedral angles
-  REQUIRE(D.size() == 0);
+  CHECK(D.empty());
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -219,25 +210,20 @@ TEST_CASE("Connectivity for compressed H2O") {
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 3);
 
-  SECTION("Bonds") {
-    Approx bb1(d1 * angstrom_to_bohr);
-    bb1.margin(1e-12);
-    REQUIRE(q(0) == bb1);
+  // Check bond 1
+  CHECK(q(0) == Approx(d1 * angstrom_to_bohr));
 
-    Approx bb2(d2 * angstrom_to_bohr);
-    bb2.margin(1e-12);
-    REQUIRE(q(1) == bb2);
-  }
+  // Check bond 2
+  CHECK(q(1) == Approx(d2 * angstrom_to_bohr));
 
-  SECTION("Angle") {
-    Approx aa(angle_rad);
-    aa.margin(1e-12);
-    REQUIRE(q(2) == aa);
-  }
+  // Check angle
+  CHECK(q(2) == Approx(angle_rad));
 }
 
 // Angle from interfragment bonds
-TEST_CASE("Connectivity for stretched H2O") {}
+TEST_CASE("Connectivity for stretched H2O") {
+  // TODO
+}
 
 // Dihedral
 TEST_CASE("Connectivity for compressed H2O2") {
@@ -266,7 +252,7 @@ TEST_CASE("Connectivity for bent water dimer") {
   double cos_a{std::cos(a)};
   double sin_a{std::sin(a)};
 
-  // Define compressed H2 molecule
+  // Define water dimer
   Molecule<vec3> molecule{{"O", {-1.464, 0.099, -0.300}},
                           {"H", {-1.956, 0.624, -0.340}},
                           {"H", {-1.797, -0.799, 0.206}},
@@ -284,13 +270,13 @@ TEST_CASE("Connectivity for bent water dimer") {
   std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
-  REQUIRE(B.size() == 5);
+  CHECK(B.size() == 5);
 
   // Check number of angles
-  REQUIRE(A.size() == 5);
+  CHECK(A.size() == 5);
 
   // Check number of dihedral angles
-  REQUIRE(D.size() == 3);
+  CHECK(D.size() == 3);
 
   // TODO: Check wit other codes (where dihedral 2-1-3-6 is added).
 
@@ -299,19 +285,9 @@ TEST_CASE("Connectivity for bent water dimer") {
       cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D)};
 
   // Check number of IRC
-  REQUIRE(linalg::size<vec>(q) == 13);
+  CHECK(linalg::size<vec>(q) == 13);
 
-  SECTION("Bonds") {
-    // TODO
-  }
-
-  SECTION("Angles") {
-    // TODO
-  }
-
-  SECTION("Dihedrals") {
-    // TODO
-  }
+  // TODO: Check bonds, angles and dihedrals
 }
 
 // Quasi-linear angles
@@ -325,6 +301,10 @@ TEST_CASE("Connectivity for benzene dimer") {
 }
 
 TEST_CASE("Connectivity test for CH2O") {
+  // TODO
+}
+
+TEST_CASE("Connectivity test for 2-butyne") {
   // TODO
 }
 
@@ -351,12 +331,12 @@ TEST_CASE("Connectivity of molecule database") {
                                       {"indene.xyz", 18, 30, 44},
                                       {"toluene.xyz", 15, 24, 30},
                                       {"caffeine.xyz", 25, 43, 54}};
-  for (const auto &molecule_parameters : results) {
+
+  for (const auto& molecule_parameters : results) {
     CAPTURE(molecule_parameters.filename);
 
-    auto mol =
+    const auto mol =
         load_xyz<vec3>(config::molecules_dir + molecule_parameters.filename);
-    multiply_positions(mol, conversion::angstrom_to_bohr);
 
     std::vector<Bond> B;
     std::vector<Angle> A;

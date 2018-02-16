@@ -45,11 +45,7 @@ TEST_CASE("Transformation") {
     using namespace std;
 
     // Load molecule from file
-    Molecule<vec3> molecule{
-        load_xyz<vec3>(config::molecules_dir + "ethanol.xyz")};
-
-    // Transform molecular coordinates from angstrom to bohr
-    multiply_positions(molecule, angstrom_to_bohr);
+    const auto molecule = load_xyz<vec3>(config::molecules_dir + "ethanol.xyz");
 
     // Compute interatomic distance for formaldehyde molecule
     mat dd{distances<vec3, mat>(molecule)};
@@ -58,8 +54,7 @@ TEST_CASE("Transformation") {
     UGraph adj{adjacency_matrix(dd, molecule)};
 
     // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, molecule)};
@@ -70,7 +65,7 @@ TEST_CASE("Transformation") {
     }
 
     // Compute angles
-    std::vector<Angle> A{angles(dist, predecessors, molecule)};
+    std::vector<Angle> A{angles(dist, molecule)};
 
     // Print angles
     if (verbose) {
@@ -78,7 +73,7 @@ TEST_CASE("Transformation") {
     }
 
     // Compute dihedral angles
-    std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
+    std::vector<Dihedral> D{dihedrals(dist, molecule)};
 
     // Print dihedral angles
     if (verbose) {
@@ -122,15 +117,10 @@ TEST_CASE("Transformation") {
     // Load molecule from file
     Molecule<vec3> molecule{{{"H", {0., 0., 0.}}, {"H", {1., 0., 0.}}}};
 
-    // Compute interatomic distance for formaldehyde molecule
+    // Connectivity
     mat dd{distances<vec3, mat>(molecule)};
-
-    // Build graph based on the adjacency matrix
     UGraph adj{adjacency_matrix(dd, molecule)};
-
-    // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, molecule)};
@@ -174,8 +164,9 @@ TEST_CASE("Transformation") {
     }
 
     // Compute new cartesian coordinates
-    vec x_c{
-        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {})};
+    const auto itc_result =
+        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {});
+    const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
     if (verbose) {
@@ -201,11 +192,7 @@ TEST_CASE("Transformation") {
     using namespace wilson;
 
     // Load molecule from file
-    Molecule<vec3> molecule{
-        load_xyz<vec3>(config::molecules_dir + "water.xyz")};
-
-    // Transform molecular coordinates from angstrom to bohr
-    multiply_positions(molecule, angstrom_to_bohr);
+    const auto molecule = load_xyz<vec3>(config::molecules_dir + "water.xyz");
 
     // Compute interatomic distance for formaldehyde molecule
     mat dd{distances<vec3, mat>(molecule)};
@@ -214,8 +201,7 @@ TEST_CASE("Transformation") {
     UGraph adj{adjacency_matrix(dd, molecule)};
 
     // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, molecule)};
@@ -229,7 +215,7 @@ TEST_CASE("Transformation") {
     REQUIRE(B.size() == 2);
 
     // Compute angle
-    std::vector<Angle> A{angles(dist, predecessors, molecule)};
+    std::vector<Angle> A{angles(dist, molecule)};
 
     // Print angles
     if (verbose) {
@@ -262,8 +248,9 @@ TEST_CASE("Transformation") {
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
 
     // Compute new cartesian coordinates
-    vec x_c{
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {})};
+    const auto itc_result =
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {});
+    const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
     if (verbose) {
@@ -304,11 +291,8 @@ TEST_CASE("Transformation") {
     using namespace wilson;
 
     // Load molecule from file
-    Molecule<vec3> molecule{
-        load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz")};
-
-    // Transform molecular coordinates from angstrom to bohr
-    multiply_positions(molecule, angstrom_to_bohr);
+    const auto molecule =
+        load_xyz<vec3>(config::molecules_dir + "hydrogen_peroxide.xyz");
 
     // Compute interatomic distance for formaldehyde molecule
     mat dd{distances<vec3, mat>(molecule)};
@@ -317,8 +301,7 @@ TEST_CASE("Transformation") {
     UGraph adj{adjacency_matrix(dd, molecule)};
 
     // Compute distance matrix and predecessor matrix
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, molecule)};
@@ -332,7 +315,7 @@ TEST_CASE("Transformation") {
     REQUIRE(B.size() == 3);
 
     // Compute angles
-    std::vector<Angle> A{angles(dist, predecessors, molecule)};
+    std::vector<Angle> A{angles(dist, molecule)};
 
     // Print angles
     if (verbose) {
@@ -343,7 +326,7 @@ TEST_CASE("Transformation") {
     REQUIRE(A.size() == 2);
 
     // Compute dihedral angles
-    std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
+    std::vector<Dihedral> D{dihedrals(dist, molecule)};
 
     // Print dihedrals
     if (verbose) {
@@ -379,8 +362,9 @@ TEST_CASE("Transformation") {
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
 
     // Compute new cartesian coordinates
-    vec x_c{
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D)};
+    const auto itc_result =
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D);
+    const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
     if (verbose) {

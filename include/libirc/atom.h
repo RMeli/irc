@@ -21,51 +21,53 @@ struct AtomicNumber {
 
   AtomicNumber(size_t an);
 
-  AtomicNumber(const std::string &symbol);
+  AtomicNumber(const std::string& symbol);
 };
 
 /// Get an atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Atomic symbol corresponding to \class AtomicNumber
-std::string symbol(const AtomicNumber &an) noexcept;
+std::string symbol(const AtomicNumber& an) noexcept;
 
 /// Get atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Mass corresponding to \class AtomicNumber
-double mass(const AtomicNumber &an) noexcept;
+double mass(const AtomicNumber& an) noexcept;
 
 /// Get covalent radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Covalent radius corresponding to \class AtomicNumber
-double covalent_radius(const AtomicNumber &an) noexcept;
+double covalent_radius(const AtomicNumber& an) noexcept;
 
 /// Get Van der Waals radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Van der Waals radius corresponding to \class AtomicNumber
-double vdw_radius(const AtomicNumber &an) noexcept;
+double vdw_radius(const AtomicNumber& an) noexcept;
 
 /// Check if an atom is either N, O, F, P, S or Cl
 ///
 /// \param an \class AtomicNumber
 /// \return
-bool is_NOFPSCl(const AtomicNumber &an) noexcept;
+bool is_NOFPSCl(const AtomicNumber& an) noexcept;
 
 /// Check if an atom is a hydrogen atom
 ///
 /// \param an \class AtomicNumber
 /// \return
-bool is_H(const AtomicNumber &an) noexcept;
+constexpr bool is_H(const AtomicNumber& an) noexcept {
+  return an.atomic_number == 1;
+}
 
 /// Print \class AtomicNumber
 ///
 /// \param out Output stream
 /// \param an \class AtomicNumber
 /// \return Output stream
-std::ostream &operator<<(std::ostream &out, const AtomicNumber &an);
+std::ostream& operator<<(std::ostream& out, const AtomicNumber& an);
 
 /// Class representing an atom
 ///
@@ -85,21 +87,21 @@ struct Atom {
   ///
   /// \param an \class AtomicNumber
   /// \param pos Position (in 3D space)
-  Atom(const AtomicNumber &an, const Vector3 &pos = {0., 0., 0.});
+  Atom(const AtomicNumber& an, const Vector3& pos = {0., 0., 0.});
 
   /// Constructor from atomic symbol
   ///
   /// \param symbol Atomic symbol
   /// \param pos Position (in 3D space)
-  Atom(const std::string &symbol, const Vector3 &pos = {0., 0., 0.});
+  Atom(const std::string& symbol, const Vector3& pos = {0., 0., 0.});
 };
 
 template<typename Vector3>
-Atom<Vector3>::Atom(const AtomicNumber &an, const Vector3 &pos)
+Atom<Vector3>::Atom(const AtomicNumber& an, const Vector3& pos)
   : atomic_number(an), position(pos) {}
 
 template<typename Vector3>
-Atom<Vector3>::Atom(const std::string &symbol, const Vector3 &pos)
+Atom<Vector3>::Atom(const std::string& symbol, const Vector3& pos)
   : atomic_number(symbol), position(pos) {}
 
 /// Output operator for an atom
@@ -109,7 +111,7 @@ Atom<Vector3>::Atom(const std::string &symbol, const Vector3 &pos)
 /// \param a \class Atom<T>
 /// \return Output stream
 template<typename Vector3>
-std::ostream &operator<<(std::ostream &out, const Atom<Vector3> &a) {
+std::ostream& operator<<(std::ostream& out, const Atom<Vector3>& a) {
   // Print top line
   out << std::left << std::setw(15) << std::setfill('-') << '+';
   out << ' ';
