@@ -591,7 +591,7 @@ std::vector<Bond> bonds(const Matrix& distance_m,
 
       if (distance_m(i, j) == 1) {
         // Store bond information between atom i and atom j
-        b.push_back(Bond{i, j});
+        b.push_back({i, j});
       }
     }
   }
