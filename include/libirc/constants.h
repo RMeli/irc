@@ -18,7 +18,7 @@ constexpr double covalent_bond_multiplier{1.3};
 /// Van der Waals bond multiplier
 constexpr double vdw_bond_multiplier{0.9};
 
-/// Interfragment bond multiplyer
+/// Interfragment bond multipier
 constexpr double interfragment_bond_multiplier{1.3};
 
 /// Quasi-linear angle

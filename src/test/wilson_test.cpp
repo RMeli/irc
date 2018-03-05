@@ -37,11 +37,11 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
   SECTION("H2 stretching") {
     // Define molecule
     Molecule<vec3> mol{{"H", {0., 0., 0.}}, {"H", {1., 0., 0.}}};
+
     // Molecular connectivity
     mat dd{distances<vec3, mat>(mol)};
     UGraph adj{adjacency_matrix(dd, mol)};
-    mat dist, pred;
-    std::tie(dist, pred) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     std::vector<Bond> B{bonds(dist, mol)};
@@ -124,15 +124,14 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     // Molecular connectivity
     mat dd{distances<vec3, mat>(mol)};
     UGraph adj{adjacency_matrix(dd, mol)};
-    mat dist, pred;
-    std::tie(dist, pred) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds
     const auto B = bonds(dist, mol);
     REQUIRE(B.size() == 2);
 
     // Compute angles
-    const auto A = angles(dist, pred, mol);
+    const auto A = angles(dist, mol);
     REQUIRE(A.size() == 1);
 
     // Compute Wilson B matrix for H2O analytically
@@ -207,16 +206,15 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     // Compute interatomic distances
     mat dd{distances<vec3, mat>(molecule)};
     UGraph adj{adjacency_matrix(dd, molecule)};
-    mat dist, predecessors;
-    std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+    mat dist{distance_matrix<mat>(adj)};
 
     // Compute bonds, angles and dihedrals
     const std::vector<Bond> B{bonds(dist, molecule)};
-    REQUIRE(B.size() == 3);
-    const std::vector<Angle> A{angles(dist, predecessors, molecule)};
-    REQUIRE(A.size() == 2);
-    const std::vector<Dihedral> D{dihedrals(dist, predecessors, molecule)};
-    REQUIRE(D.size() == 1);
+    CHECK(B.size() == 3);
+    const std::vector<Angle> A{angles(dist, molecule)};
+    CHECK(A.size() == 2);
+    const std::vector<Dihedral> D{dihedrals(dist, molecule)};
+    CHECK(D.size() == 1);
 
     // Compute Wilson's B matrix
     const mat Bwilson = wilson_matrix<vec3, vec, mat>(
@@ -281,20 +279,17 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   using namespace wilson;
   using namespace io;
 
-  Molecule<vec3> mol =
-      load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz");
-  multiply_positions(mol, conversion::angstrom_to_bohr);
+  const auto mol = load_xyz<vec3>(config::molecules_dir + "water_dimer_2.xyz");
 
   // Compute interatomic distances
   mat dd{distances<vec3, mat>(mol)};
   UGraph adj{adjacency_matrix(dd, mol)};
-  mat dist, predecessors;
-  std::tie(dist, predecessors) = distance_matrix<mat>(adj);
+  mat dist{distance_matrix<mat>(adj)};
 
   // Compute bonds
   std::vector<Bond> B{bonds(dist, mol)};
-  std::vector<Angle> A{angles(dist, predecessors, mol)};
-  std::vector<Dihedral> D{dihedrals(dist, predecessors, mol)};
+  std::vector<Angle> A{angles(dist, mol)};
+  std::vector<Dihedral> D{dihedrals(dist, mol)};
 
   const auto q = connectivity::cartesian_to_irc<vec3, vec>(
       to_cartesian<vec3, vec>(mol), B, A, D);

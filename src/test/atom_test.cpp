@@ -33,20 +33,19 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
 
       const auto a = Atom<vec3>{i};
 
-      REQUIRE(symbol(a.atomic_number) == periodic_table::pt_symbols[i]);
-      REQUIRE(symbol(i) == periodic_table::pt_symbols[i]);
+      REQUIRE(symbol(a.atomic_number) == periodic_table::symbols[i]);
+      REQUIRE(symbol(i) == periodic_table::symbols[i]);
 
-      REQUIRE(mass(a.atomic_number) == Approx(periodic_table::pt_masses[i]));
-      REQUIRE(mass(i) == Approx(periodic_table::pt_masses[i]));
+      REQUIRE(mass(a.atomic_number) == Approx(periodic_table::masses[i]));
+      REQUIRE(mass(i) == Approx(periodic_table::masses[i]));
 
       REQUIRE(covalent_radius(a.atomic_number) ==
-              Approx(periodic_table::pt_covalent_radii[i]));
-      REQUIRE(covalent_radius(i) ==
-              Approx(periodic_table::pt_covalent_radii[i]));
+              Approx(periodic_table::covalent_radii[i]));
+      REQUIRE(covalent_radius(i) == Approx(periodic_table::covalent_radii[i]));
 
       REQUIRE(vdw_radius(a.atomic_number) ==
-              Approx(periodic_table::pt_vdv_radii[i]));
-      REQUIRE(vdw_radius(i) == Approx(periodic_table::pt_vdv_radii[i]));
+              Approx(periodic_table::vdw_radii[i]));
+      REQUIRE(vdw_radius(i) == Approx(periodic_table::vdw_radii[i]));
 
       if (i == 1) {
         REQUIRE(is_H(a.atomic_number));
@@ -63,25 +62,25 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
 
       REQUIRE(periodic_table::valid_atomic_number(i));
 
-      const auto a = Atom<vec3>{periodic_table::pt_symbols[i]};
+      const auto a = Atom<vec3>{periodic_table::symbols[i]};
 
-      REQUIRE(symbol(a.atomic_number) == periodic_table::pt_symbols[i]);
-      REQUIRE(symbol(AtomicNumber(periodic_table::pt_symbols[i])) ==
-              periodic_table::pt_symbols[i]);
+      REQUIRE(symbol(a.atomic_number) == periodic_table::symbols[i]);
+      REQUIRE(symbol(AtomicNumber(periodic_table::symbols[i])) ==
+              periodic_table::symbols[i]);
 
-      REQUIRE(mass(a.atomic_number) == Approx(periodic_table::pt_masses[i]));
-      REQUIRE(mass(AtomicNumber(periodic_table::pt_symbols[i])) ==
-              Approx(periodic_table::pt_masses[i]));
+      REQUIRE(mass(a.atomic_number) == Approx(periodic_table::masses[i]));
+      REQUIRE(mass(AtomicNumber(periodic_table::symbols[i])) ==
+              Approx(periodic_table::masses[i]));
 
       REQUIRE(covalent_radius(a.atomic_number) ==
-              Approx(periodic_table::pt_covalent_radii[i]));
-      REQUIRE(covalent_radius(AtomicNumber(periodic_table::pt_symbols[i])) ==
-              Approx(periodic_table::pt_covalent_radii[i]));
+              Approx(periodic_table::covalent_radii[i]));
+      REQUIRE(covalent_radius(AtomicNumber(periodic_table::symbols[i])) ==
+              Approx(periodic_table::covalent_radii[i]));
 
       REQUIRE(vdw_radius(a.atomic_number) ==
-              Approx(periodic_table::pt_vdv_radii[i]));
-      REQUIRE(vdw_radius(AtomicNumber(periodic_table::pt_symbols[i])) ==
-              Approx(periodic_table::pt_vdv_radii[i]));
+              Approx(periodic_table::vdw_radii[i]));
+      REQUIRE(vdw_radius(AtomicNumber(periodic_table::symbols[i])) ==
+              Approx(periodic_table::vdw_radii[i]));
 
       // Atom in H-bond
       if (i == 1) {
