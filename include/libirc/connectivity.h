@@ -437,10 +437,6 @@ UGraph adjacency_matrix(const Matrix& distances,
                   << "): " << min_d << std::endl;
       }
     }
-
-    // TODO: Support fragments
-    std::cerr << "WARNING: Fragments not yet fully supported!" << std::endl;
-    // throw std::logic_error("Fragment recognition not implemented.");
   }
 
   // TODO: Better strategy to look for H-bonds (regular bonds are known)
@@ -681,9 +677,9 @@ template<typename Matrix>
 std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance) {
   // Declare empty vector of angles
   std::vector<Dihedral> dihedrals;
-
+  
   // Number of atoms
-  const size_t n_atoms{static_cast<size_t>(std::sqrt(linalg::size(distance)))};
+  const size_t n_atoms{linalg::n_rows(distance)};
 
   // Compute possible (i,k,l,j) dihedral angles
   for (size_t k{0}; k < n_atoms; k++) {

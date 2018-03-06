@@ -17,6 +17,26 @@ namespace irc {
 
 namespace wilson {
 
+// TODO: Move elsewhere? (tools::math?)
+template<typename Vector3>
+bool collinear(Vector3 v1, Vector3 v2, double tolerance = 1e-6){
+  const double l1{linalg::norm(v1)};
+  const double l2{linalg::norm(v2)};
+  
+  const double angle{ std::acos(linalg::dot(v1 / l1, v2 / l2)) };
+  
+  bool c{false};
+  
+  if( std::abs(angle) < tolerance){
+    c = true;
+  }
+  else if( std::abs(angle - tools::constants::pi) < tolerance){
+    c = true;
+  }
+  
+  return c;
+}
+
 /// Compute bond gradients
 ///
 /// A pair of vectors act to increase the distance between \p p1 and \p p2
@@ -34,26 +54,20 @@ namespace wilson {
 template<typename Vector3>
 std::pair<Vector3, Vector3> bond_gradient(
     const Vector3& p1, ///< Point 1
-                                          const Vector3& p2) {
+    const Vector3& p2) {
   const double d{connectivity::distance(p1, p2)};
 
-  const Vector3 v{(p1 - p2) / d};
-
-  return {v, -v};
+  const Vector3 u{(p1 - p2) / d};
+  
+  return {u, -u};
 }
 
 /*! Compute angle gradients
  *
  * Three vectors act to increase the angle between \p p1, \p p2 and \p p3
  * when added to their respective cartesian coordinates.
- * The displacement vectors are:
- * \f{eqnarray*}{
- *    v_1 &=& \frac{\cos \alpha b_{21} - b_{23} }{\sin \alpha d_{21}} \\
- *    v_3 &=& \frac{\cos \alpha b_{23} - b_{21} }{\sin \alpha d_{23}} \\
- *    v_2 &=& -v_1 -v_3
- * \f}
- * where \f$d_{ij} = \lVert p_i - p_j\rVert\f$ and
- * \f$b_{ij} = \frac{p_i - p_j}{d_{ij}}\f$.
+ *
+ * Bakken and Helgaker, J. Chem. Phys., 117, 9160 (2002).
  *
  * \tparam Vector3
  * \param p1 Point 1
@@ -63,24 +77,39 @@ std::pair<Vector3, Vector3> bond_gradient(
  */
 template<typename Vector3>
 std::tuple<Vector3, Vector3, Vector3>
-angle_gradient(const Vector3& p1, const Vector3& p2, const Vector3& p3) {
+angle_gradient(const Vector3& p1, const Vector3& p2, const Vector3& p3, double tolerance = 1e-6) {
   const double angle{connectivity::angle(p1, p2, p3)};
 
-  const double sin_angle{std::sin(angle)};
-  const double cos_angle{std::cos(angle)};
+  Vector3 u{p1 - p2};
+  Vector3 v{p3 - p2};
 
-  Vector3 b21{p1 - p2};
-  Vector3 b23{p3 - p2};
+  const double bond21{linalg::norm(u)};
+  const double bond23{linalg::norm(v)};
 
-  const double bond21{linalg::norm(b21)};
-  const double bond23{linalg::norm(b23)};
-
-  b21 = b21 / bond21;
-  b23 = b23 / bond23;
-
-  const Vector3 v1{(cos_angle * b21 - b23) / (sin_angle * bond21)};
-  const Vector3 v3{(cos_angle * b23 - b21) / (sin_angle * bond23)};
-  const Vector3 v2{-v1 - v3};
+  u = u / bond21;
+  v = v / bond23;
+  
+  // Deal with linear angles
+  Vector3 w;
+  Vector3 pmp{1,-1,1}, mpp{-1,1,1};
+  if( std::abs(angle - tools::constants::pi) > tolerance ){
+    w = linalg::cross(u, v);
+  }
+  else if(collinear(u,pmp, tolerance) && collinear(v,pmp, tolerance) ) {
+    w = linalg::cross(u, pmp);
+  }
+  else if( collinear(u,mpp, tolerance) && collinear(v,mpp, tolerance)) {
+    w = linalg::cross(u, mpp);
+  }
+  else{
+    throw std::runtime_error("Problem with linear angle.");
+  }
+  
+  w = w / linalg::norm(w);
+  
+  const Vector3 v1{ linalg::cross(u, w) / bond21 };
+  const Vector3 v3{ linalg::cross(w, v) / bond23 };
+  const Vector3 v2{ -v1 - v3 };
 
   return std::make_tuple(v1, v2, v3);
 }
