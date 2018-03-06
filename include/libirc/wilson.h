@@ -19,21 +19,20 @@ namespace wilson {
 
 // TODO: Move elsewhere? (tools::math?)
 template<typename Vector3>
-bool collinear(Vector3 v1, Vector3 v2, double tolerance = 1e-6){
+bool collinear(Vector3 v1, Vector3 v2, double tolerance = 1e-6) {
   const double l1{linalg::norm(v1)};
   const double l2{linalg::norm(v2)};
-  
-  const double angle{ std::acos(linalg::dot(v1 / l1, v2 / l2)) };
-  
+
+  const double angle{std::acos(linalg::dot(v1 / l1, v2 / l2))};
+
   bool c{false};
-  
-  if( std::abs(angle) < tolerance){
+
+  if (std::abs(angle) < tolerance) {
+    c = true;
+  } else if (std::abs(angle - tools::constants::pi) < tolerance) {
     c = true;
   }
-  else if( std::abs(angle - tools::constants::pi) < tolerance){
-    c = true;
-  }
-  
+
   return c;
 }
 
@@ -52,13 +51,12 @@ bool collinear(Vector3 v1, Vector3 v2, double tolerance = 1e-6){
 /// \param p2 Point 2
 /// \return A pair of cartesian displacements
 template<typename Vector3>
-std::pair<Vector3, Vector3> bond_gradient(
-    const Vector3& p1, ///< Point 1
-    const Vector3& p2) {
+std::pair<Vector3, Vector3> bond_gradient(const Vector3& p1, ///< Point 1
+                                          const Vector3& p2) {
   const double d{connectivity::distance(p1, p2)};
 
   const Vector3 u{(p1 - p2) / d};
-  
+
   return {u, -u};
 }
 
@@ -76,8 +74,10 @@ std::pair<Vector3, Vector3> bond_gradient(
  * \return Angle gradients
  */
 template<typename Vector3>
-std::tuple<Vector3, Vector3, Vector3>
-angle_gradient(const Vector3& p1, const Vector3& p2, const Vector3& p3, double tolerance = 1e-6) {
+std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
+                                                     const Vector3& p2,
+                                                     const Vector3& p3,
+                                                     double tolerance = 1e-6) {
   const double angle{connectivity::angle(p1, p2, p3)};
 
   Vector3 u{p1 - p2};
@@ -88,28 +88,25 @@ angle_gradient(const Vector3& p1, const Vector3& p2, const Vector3& p3, double t
 
   u = u / bond21;
   v = v / bond23;
-  
+
   // Deal with linear angles
   Vector3 w;
-  Vector3 pmp{1,-1,1}, mpp{-1,1,1};
-  if( std::abs(angle - tools::constants::pi) > tolerance ){
+  Vector3 pmp{1, -1, 1}, mpp{-1, 1, 1};
+  if (std::abs(angle - tools::constants::pi) > tolerance) {
     w = linalg::cross(u, v);
-  }
-  else if(collinear(u,pmp, tolerance) && collinear(v,pmp, tolerance) ) {
+  } else if (collinear(u, pmp, tolerance) && collinear(v, pmp, tolerance)) {
     w = linalg::cross(u, pmp);
-  }
-  else if( collinear(u,mpp, tolerance) && collinear(v,mpp, tolerance)) {
+  } else if (collinear(u, mpp, tolerance) && collinear(v, mpp, tolerance)) {
     w = linalg::cross(u, mpp);
-  }
-  else{
+  } else {
     throw std::runtime_error("Problem with linear angle.");
   }
-  
+
   w = w / linalg::norm(w);
-  
-  const Vector3 v1{ linalg::cross(u, w) / bond21 };
-  const Vector3 v3{ linalg::cross(w, v) / bond23 };
-  const Vector3 v2{ -v1 - v3 };
+
+  const Vector3 v1{linalg::cross(u, w) / bond21};
+  const Vector3 v3{linalg::cross(w, v) / bond23};
+  const Vector3 v2{-v1 - v3};
 
   return std::make_tuple(v1, v2, v3);
 }

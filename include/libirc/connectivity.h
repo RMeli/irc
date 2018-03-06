@@ -677,7 +677,7 @@ template<typename Matrix>
 std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance) {
   // Declare empty vector of angles
   std::vector<Dihedral> dihedrals;
-  
+
   // Number of atoms
   const size_t n_atoms{linalg::n_rows(distance)};
 
