@@ -2,6 +2,7 @@
 #define IRC_MATH_H
 
 #include "constants.h"
+#include "linalg.h"
 
 namespace irc {
 
@@ -20,6 +21,32 @@ double pirange_rad(double angle) noexcept;
 /// \param angle
 /// \return
 double pirange_deg(double angle) noexcept;
+
+/*! Check if two vectors @param v1 and @param v2 are collinear
+ *
+ * @tparam Vector3
+ * @param v1 Vector 1
+ * @param v2 Vector 2
+ * @param tolerance
+ * @return True if @param v1 and @param v2 are collinear, false othwerwise
+ */
+template<typename Vector3>
+bool collinear(Vector3 v1, Vector3 v2, double tolerance = 1e-6) {
+  const double l1{linalg::norm(v1)};
+  const double l2{linalg::norm(v2)};
+  
+  const double angle{std::acos(linalg::dot(v1 / l1, v2 / l2))};
+  
+  bool c{false};
+  
+  if (std::abs(angle) < tolerance) {
+    c = true;
+  } else if (std::abs(angle - tools::constants::pi) < tolerance) {
+    c = true;
+  }
+  
+  return c;
+}
 
 } // namespace math
 

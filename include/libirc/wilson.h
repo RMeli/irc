@@ -17,25 +17,6 @@ namespace irc {
 
 namespace wilson {
 
-// TODO: Move elsewhere? (tools::math?)
-template<typename Vector3>
-bool collinear(Vector3 v1, Vector3 v2, double tolerance = 1e-6) {
-  const double l1{linalg::norm(v1)};
-  const double l2{linalg::norm(v2)};
-
-  const double angle{std::acos(linalg::dot(v1 / l1, v2 / l2))};
-
-  bool c{false};
-
-  if (std::abs(angle) < tolerance) {
-    c = true;
-  } else if (std::abs(angle - tools::constants::pi) < tolerance) {
-    c = true;
-  }
-
-  return c;
-}
-
 /// Compute bond gradients
 ///
 /// A pair of vectors act to increase the distance between \p p1 and \p p2
@@ -78,6 +59,8 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
                                                      const Vector3& p2,
                                                      const Vector3& p3,
                                                      double tolerance = 1e-6) {
+  using tools::math::collinear;
+  
   const double angle{connectivity::angle(p1, p2, p3)};
 
   Vector3 u{p1 - p2};
