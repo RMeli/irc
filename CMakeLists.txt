@@ -141,18 +141,6 @@ else()
 endif()
 
 # + ------- +
-# | INSTALL |
-# + ------- +
-
-install (TARGETS irc
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib)
-
-install(DIRECTORY include/
-        DESTINATION include/${PROJECT_NAME}
-        FILES_MATCHING PATTERN "*.h*")
-
-# + ------- +
 # | TESTING |
 # + ------- +
 
