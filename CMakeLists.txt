@@ -68,7 +68,7 @@ set(IRC_HEADERS
 set(IRC_SOURCES
         src/atoms/atom.cpp
         src/atoms/periodic_table.cpp
-        src/tools/mathtools.cpp)
+        )
 
 add_library( irc SHARED ${IRC_HEADERS} ${IRC_SOURCES})
 
