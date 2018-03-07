@@ -18,6 +18,7 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/exterior_property.hpp>
 #include <boost/graph/graph_traits.hpp>
+#include <boost/math/special_functions/round.hpp>
 
 namespace irc {
 
@@ -576,6 +577,8 @@ template<typename Vector3, typename Matrix>
 std::vector<Bond> bonds(const Matrix& distance_m,
                         const molecule::Molecule<Vector3>& molecule) {
 
+  using boost::math::iround;
+  
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
 
@@ -585,7 +588,7 @@ std::vector<Bond> bonds(const Matrix& distance_m,
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
 
-      if (distance_m(i, j) == 1) {
+      if (iround(distance_m(i, j)) == 1) {
         // Store bond information between atom i and atom j
         b.push_back({i, j});
       }
@@ -609,15 +612,18 @@ std::vector<Bond> bonds(const Matrix& distance_m,
 /// end atoms.
 template<typename Matrix>
 std::vector<Angle> angles(size_t i, size_t j, const Matrix& distance) {
+  
+  using boost::math::iround;
+  
   // Declare empty vector of angles
   std::vector<Angle> angles;
 
   // Number of atoms
-  const size_t n_atoms{static_cast<size_t>(std::sqrt(linalg::size(distance)))};
+  const size_t n_atoms{linalg::n_rows(distance)};
 
   // Compute possible (i,k,j) angles
   for (size_t k{0}; k < n_atoms; k++) {
-    if (distance(k, i) == 1 and distance(k, j) == 1) {
+    if (iround(distance(k, i)) == 1 and iround(distance(k, j)) == 1) {
       angles.push_back({i, k, j});
     }
   }
@@ -636,6 +642,8 @@ template<typename Vector3, typename Matrix>
 std::vector<Angle> angles(const Matrix& distance_m,
                           const molecule::Molecule<Vector3>& molecule) {
 
+  using boost::math::iround;
+  
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
 
@@ -649,7 +657,7 @@ std::vector<Angle> angles(const Matrix& distance_m,
   for (size_t j{0}; j < n_atoms; j++) {
     for (size_t i{0}; i < j; i++) {
 
-      if (distance_m(i, j) <= 2) {
+      if (iround(distance_m(i, j)) <= 2) {
 
         A = angles(i, j, distance_m);
 
@@ -675,6 +683,9 @@ std::vector<Angle> angles(const Matrix& distance_m,
 
 template<typename Matrix>
 std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance) {
+  
+  using boost::math::iround;
+  
   // Declare empty vector of angles
   std::vector<Dihedral> dihedrals;
 
@@ -683,10 +694,11 @@ std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance) {
 
   // Compute possible (i,k,l,j) dihedral angles
   for (size_t k{0}; k < n_atoms; k++) {
-    if (distance(k, i) == 1 and distance(k, j) == 2) {
+    if (iround(distance(k, i)) == 1 && iround(distance(k, j)) == 2) {
       for (size_t l{0}; l < n_atoms; l++) {
-        if (distance(l, i) == 2 and distance(l, j) == 1 and
-            distance(l, k) == 1) {
+        if (iround(distance(l, i)) == 2 &&
+            iround(distance(l, j)) == 1 &&
+            iround(distance(l, k)) == 1) {
           dihedrals.push_back({i, k, l, j});
         }
       }
@@ -708,6 +720,8 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
                                 const molecule::Molecule<Vector3>& molecule,
                                 double epsilon = 1.e-6) {
 
+  using boost::math::iround;
+  
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
 
@@ -725,7 +739,7 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
       // A dihedral angle with terminal atoms i and j can still be present
       // when the shortest path between i and j is smaller than 3. This
       // happen when a pentagon is present (i.e. in caffeine)
-      if (distance_m(i, j) <= 3) {
+      if (iround(distance_m(i, j)) <= 3) {
 
         D = dihedrals(i, j, distance_m);
 
