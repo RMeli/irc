@@ -54,7 +54,7 @@ template<typename Vector>
 struct IrcToCartesianResult {
   Vector x_c;
   bool converged;
-  size_t n_iterations;
+  std::size_t n_iterations;
 };
 
 /// Transform internal redundant displacements to cartesian coordinates
@@ -82,10 +82,10 @@ irc_to_cartesian(const Vector& q_irc_old,
                  const std::vector<connectivity::Bond>& bonds,
                  const std::vector<connectivity::Angle>& angles,
                  const std::vector<connectivity::Dihedral>& dihedrals,
-                 size_t max_iters = 25,
+                 std::size_t max_iters = 25,
                  double tolerance = 1e-6) {
   // Number of internal redundant coordinates
-  const size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
   // Convergence flag
   bool converged{false};
@@ -112,10 +112,10 @@ irc_to_cartesian(const Vector& q_irc_old,
   double RMS{0};
 
   // Offset for dihedral angles in q_irc
-  const size_t offset{bonds.size() + angles.size()};
+  const std::size_t offset{bonds.size() + angles.size()};
 
   // Start iterative search
-  size_t n_iterations{0};
+  std::size_t n_iterations{0};
   for (; n_iterations < max_iters; n_iterations++) {
     // Compute displacement in cartesian coordinates
     dx = iB * dq;
@@ -135,7 +135,7 @@ irc_to_cartesian(const Vector& q_irc_old,
         x_c, bonds, angles, dihedrals);
 
     // Check change in dihedral angles (in radians)
-    for (size_t i{offset}; i < n_irc; i++) {
+    for (std::size_t i{offset}; i < n_irc; i++) {
       // Restrain dihedral angle on the interval [-pi,pi]
       q_new(i) = tools::math::pirange_rad(q_new(i));
     }

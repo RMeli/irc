@@ -28,7 +28,7 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
   }
 
   SECTION("atom from atomic number") {
-    for (size_t i{1}; i < periodic_table::pt_size; i++) {
+    for (std::size_t i{1}; i < periodic_table::pt_size; i++) {
       REQUIRE(periodic_table::valid_atomic_number(i));
 
       const auto a = Atom<vec3>{i};
@@ -58,7 +58,7 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
   }
 
   SECTION("atom from atomic symbol") {
-    for (size_t i{1}; i < periodic_table::pt_size; i++) {
+    for (std::size_t i{1}; i < periodic_table::pt_size; i++) {
 
       REQUIRE(periodic_table::valid_atomic_number(i));
 

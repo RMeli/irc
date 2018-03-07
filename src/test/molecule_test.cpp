@@ -36,24 +36,24 @@ TEST_CASE("Molecule") {
     auto scaled_molecule = molecule;
     multiply_positions(scaled_molecule, multiplier);
 
-    for (size_t i{0}; i < scaled_molecule.size(); i++) {
-      for (size_t j{0}; j < 3; j++) {
+    for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
+      for (std::size_t j{0}; j < 3; j++) {
         CHECK(
             scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
       }
     }
     
     scaled_molecule = molecule * multiplier;
-    for (size_t i{0}; i < scaled_molecule.size(); i++) {
-      for (size_t j{0}; j < 3; j++) {
+    for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
+      for (std::size_t j{0}; j < 3; j++) {
         CHECK(
             scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
       }
     }
   
     scaled_molecule = multiplier * molecule;
-    for (size_t i{0}; i < scaled_molecule.size(); i++) {
-      for (size_t j{0}; j < 3; j++) {
+    for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
+      for (std::size_t j{0}; j < 3; j++) {
         CHECK(
             scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
       }

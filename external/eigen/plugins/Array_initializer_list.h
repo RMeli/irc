@@ -36,7 +36,7 @@ EIGEN_STRONG_INLINE Array(std::initializer_list<double> initlist) : Base()
   Base::_check_template_params();
   
   // Get std::initializer_list size
-  size_t size{initlist.size()};
+  std::size_t size{initlist.size()};
 
   // Resize array, if empty
   if (base().size() == 0) {
@@ -47,7 +47,7 @@ EIGEN_STRONG_INLINE Array(std::initializer_list<double> initlist) : Base()
   eigen_assert(size == base().size());
   
   // Fill array from INITLIST
-  size_t i{0};
+  std::size_t i{0};
   for(const auto& x : initlist){
     coeffRef(i) = Scalar(x);
     i++;
@@ -59,8 +59,8 @@ EIGEN_STRONG_INLINE Array(std::initializer_list<std::initializer_list<double>> i
   // Check template parameters
   Base::_check_template_params();
   
-  size_t rows{initlist.size()};
-  size_t cols{initlist.begin()->size()};
+  std::size_t rows{initlist.size()};
+  std::size_t cols{initlist.begin()->size()};
   
   // Resize array, if empty
   if (base().size() == 0) {
@@ -71,9 +71,9 @@ EIGEN_STRONG_INLINE Array(std::initializer_list<std::initializer_list<double>> i
   eigen_assert(rows * cols == base().size());
   
   // Fill array from INITLIST
-  size_t i{0};
+  std::size_t i{0};
   for(const auto& x : initlist){
-    size_t j{0};
+    std::size_t j{0};
     for(const auto& y : x){
       coeffRef(j * rows + i) = Scalar(y);
       j++;

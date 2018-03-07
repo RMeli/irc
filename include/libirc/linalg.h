@@ -21,7 +21,7 @@ namespace linalg {
 /// \param a Container
 /// \return Size of \param a
 template<typename T>
-size_t size(const T& a) {
+std::size_t size(const T& a) {
   return a.size();
 }
 
@@ -31,7 +31,7 @@ size_t size(const T& a) {
 /// \param a Matrix
 /// \return Number of rows of \param a
 template<typename T>
-size_t n_rows(const T& a) {
+std::size_t n_rows(const T& a) {
 #ifdef HAVE_ARMA
   return a.n_rows;
 #elif HAVE_EIGEN3
@@ -47,7 +47,7 @@ size_t n_rows(const T& a) {
 /// \param a Matrix
 /// \return Number of columns of \param a
 template<typename T>
-size_t n_cols(const T& a) {
+std::size_t n_cols(const T& a) {
 #ifdef HAVE_ARMA
   return a.n_cols;
 #elif HAVE_EIGEN3
@@ -112,7 +112,7 @@ Vector3 cross(const Vector3& a, const Vector3& b) {
 /// \param nelements Vector size
 /// \return Column vector full of zeros
 template<typename Vector>
-Vector zeros(size_t nelements) {
+Vector zeros(std::size_t nelements) {
 #ifdef HAVE_ARMA
   return arma::zeros<Vector>(nelements);
 #elif HAVE_EIGEN3
@@ -129,7 +129,7 @@ Vector zeros(size_t nelements) {
 /// \param ncols Number of columns
 /// \return Matrix full of zeros
 template<typename Matrix>
-Matrix zeros(size_t nrows, size_t ncols) {
+Matrix zeros(std::size_t nrows, std::size_t ncols) {
 #ifdef HAVE_ARMA
   return arma::zeros<Matrix>(nrows, ncols);
 #elif HAVE_EIGEN3
@@ -145,7 +145,7 @@ Matrix zeros(size_t nrows, size_t ncols) {
 /// \param ncols Number of columns
 /// \return Matrix full of ones
 template<typename Matrix>
-Matrix ones(size_t nrows, size_t ncols) {
+Matrix ones(std::size_t nrows, std::size_t ncols) {
 #ifdef HAVE_ARMA
   return arma::ones<Matrix>(nrows, ncols);
 #elif HAVE_EIGEN3
@@ -161,7 +161,7 @@ Matrix ones(size_t nrows, size_t ncols) {
 /// \param n Linear size of the identity matrix
 /// \return Identity matrix
 template<typename Matrix>
-Matrix identity(size_t n) {
+Matrix identity(std::size_t n) {
 #ifdef HAVE_ARMA
   return arma::eye(n, n);
 #elif HAVE_EIGEN3

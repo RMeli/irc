@@ -446,9 +446,9 @@ TEST_CASE("Connectivity of molecule database") {
 
   struct ConnectivityResult {
     std::string filename;
-    size_t n_bonds;
-    size_t n_angles;
-    size_t n_dihedrals;
+    std::size_t n_bonds;
+    std::size_t n_angles;
+    std::size_t n_dihedrals;
   };
 
   auto results =

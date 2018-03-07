@@ -89,13 +89,13 @@ TEST_CASE("Transformation") {
     }
 
     // Compute number of cartesian coordinates
-    size_t n_c{3 * molecule.size()};
+    std::size_t n_c{3 * molecule.size()};
 
     // Allocate vector for cartesian positions
     vec x_c{linalg::zeros<vec>(n_c)};
 
     // Fill vector with cartesian positions
-    for (size_t i{0}; i < molecule.size(); i++) {
+    for (std::size_t i{0}; i < molecule.size(); i++) {
       x_c(3 * i + 0) = molecule[i].position(0);
       x_c(3 * i + 1) = molecule[i].position(1);
       x_c(3 * i + 2) = molecule[i].position(2);
@@ -159,13 +159,13 @@ TEST_CASE("Transformation") {
     }
 
     // Compute number of cartesian coordinates
-    size_t n_c{3 * molecule.size()};
+    std::size_t n_c{3 * molecule.size()};
 
     // Allocate vector for cartesian positions
     vec x_c_old{linalg::zeros<vec>(n_c)};
 
     // Fill vector with cartesian positions
-    for (size_t i{0}; i < molecule.size(); i++) {
+    for (std::size_t i{0}; i < molecule.size(); i++) {
       x_c_old(3 * i + 0) = molecule[i].position(0);
       x_c_old(3 * i + 1) = molecule[i].position(1);
       x_c_old(3 * i + 2) = molecule[i].position(2);
@@ -250,7 +250,7 @@ TEST_CASE("Transformation") {
     }
 
     // Compute number of cartesian coordinates
-    size_t n_c{3 * molecule.size()};
+    std::size_t n_c{3 * molecule.size()};
 
     // Allocate vector for cartesian positions
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
@@ -364,7 +364,7 @@ TEST_CASE("Transformation") {
     }
 
     // Compute number of cartesian coordinates
-    size_t n_c{3 * molecule.size()};
+    std::size_t n_c{3 * molecule.size()};
 
     // Allocate vector for cartesian positions
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};

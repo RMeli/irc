@@ -17,14 +17,14 @@ namespace atom {
 /// all the quantities accessible with dedicated functions are available
 /// in \headerfile periodic_table.h
 struct AtomicNumber {
-  size_t atomic_number;
+  std::size_t atomic_number;
 
-  AtomicNumber(size_t an);
+  AtomicNumber(std::size_t an);
 
   AtomicNumber(const std::string& symbol);
 };
 
-AtomicNumber::AtomicNumber(size_t an) {
+AtomicNumber::AtomicNumber(std::size_t an) {
   if (!periodic_table::valid_atomic_number(an)) {
     throw std::logic_error("Invalid atomic number.");
   }
@@ -76,7 +76,7 @@ double vdw_radius(const AtomicNumber& an) noexcept {
 /// \param an \class AtomicNumber
 /// \return
 bool is_NOFPSCl(const AtomicNumber& an) noexcept {
-  const size_t n{an.atomic_number};
+  const std::size_t n{an.atomic_number};
 
   return (n == 7 or n == 8 or n == 9 or n == 15 or n == 16 or n == 17);
 }

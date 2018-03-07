@@ -215,10 +215,10 @@ wilson_matrix(const Vector& x_cartesian,
               const std::vector<connectivity::Angle>& angles = {},
               const std::vector<connectivity::Dihedral>& dihedrals = {}) {
   // Get number of atoms
-  const size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
+  const std::size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
 
   // Get the total number of internal redundant coordinates
-  const size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
   // Allocate Wilson's B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, 3 * n_atoms)};
@@ -230,21 +230,21 @@ wilson_matrix(const Vector& x_cartesian,
   Vector3 g1, g2, g3, g4;
 
   // B-matrix rows offset
-  size_t offset{0};
+  std::size_t offset{0};
 
   // Populate B matrix's rows corresponding to bonds
   connectivity::Bond bond;
-  for (size_t i{0}; i < bonds.size(); i++) {
+  for (std::size_t i{0}; i < bonds.size(); i++) {
     bond = bonds[i];
 
-    for (size_t m{0}; m < 3; m++) {
+    for (std::size_t m{0}; m < 3; m++) {
       p1(m) = x_cartesian(3 * bond.i + m);
       p2(m) = x_cartesian(3 * bond.j + m);
     }
 
     std::tie(g1, g2) = bond_gradient(p1, p2);
 
-    for (size_t idx{0}; idx < 3; idx++) {
+    for (std::size_t idx{0}; idx < 3; idx++) {
       B(i, 3 * bond.i + idx) = g1(idx);
       B(i, 3 * bond.j + idx) = g2(idx);
     }
@@ -253,10 +253,10 @@ wilson_matrix(const Vector& x_cartesian,
   // Populate B matrix's rows corresponding to angles
   offset = bonds.size();
   connectivity::Angle angle;
-  for (size_t i{0}; i < angles.size(); i++) {
+  for (std::size_t i{0}; i < angles.size(); i++) {
     angle = angles[i];
 
-    for (size_t m{0}; m < 3; m++) {
+    for (std::size_t m{0}; m < 3; m++) {
       p1(m) = x_cartesian(3 * angle.i + m);
       p2(m) = x_cartesian(3 * angle.j + m);
       p3(m) = x_cartesian(3 * angle.k + m);
@@ -264,7 +264,7 @@ wilson_matrix(const Vector& x_cartesian,
 
     std::tie(g1, g2, g3) = angle_gradient(p1, p2, p3);
 
-    for (size_t idx{0}; idx < 3; idx++) {
+    for (std::size_t idx{0}; idx < 3; idx++) {
       B(i + offset, 3 * angle.i + idx) = g1(idx);
       B(i + offset, 3 * angle.j + idx) = g2(idx);
       B(i + offset, 3 * angle.k + idx) = g3(idx);
@@ -274,10 +274,10 @@ wilson_matrix(const Vector& x_cartesian,
   // Populate B matrix's rows corresponding to dihedrals
   offset = bonds.size() + angles.size();
   connectivity::Dihedral dihedral;
-  for (size_t i{0}; i < dihedrals.size(); i++) {
+  for (std::size_t i{0}; i < dihedrals.size(); i++) {
     dihedral = dihedrals[i];
 
-    for (size_t m{0}; m < 3; m++) {
+    for (std::size_t m{0}; m < 3; m++) {
       p1(m) = x_cartesian(3 * dihedral.i + m);
       p2(m) = x_cartesian(3 * dihedral.j + m);
       p3(m) = x_cartesian(3 * dihedral.k + m);
@@ -286,7 +286,7 @@ wilson_matrix(const Vector& x_cartesian,
 
     std::tie(g1, g2, g3, g4) = dihedral_gradient(p1, p2, p3, p4);
 
-    for (size_t idx{0}; idx < 3; idx++) {
+    for (std::size_t idx{0}; idx < 3; idx++) {
       B(i + offset, 3 * dihedral.i + idx) = g1(idx);
       B(i + offset, 3 * dihedral.j + idx) = g2(idx);
       B(i + offset, 3 * dihedral.k + idx) = g3(idx);
@@ -306,10 +306,10 @@ Matrix wilson_matrix_numerical(
     double dx = 1.e-6) {
 
   // Number of cartesian coordinates
-  const size_t n_c{linalg::size(x_c)};
+  const std::size_t n_c{linalg::size(x_c)};
 
   // Number of IRC
-  const size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
   // Allocate Wilson B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, n_c)};
@@ -321,7 +321,7 @@ Matrix wilson_matrix_numerical(
   Vector q_irc_plus{linalg::zeros<Vector>(n_irc)};
   Vector q_irc_minus{linalg::zeros<Vector>(n_irc)};
 
-  for (size_t j{0}; j < n_c; j++) {
+  for (std::size_t j{0}; j < n_c; j++) {
     // Compute positive displacement for cartesian coordinate j
     x_c_pm(j) += dx;
 
@@ -336,7 +336,7 @@ Matrix wilson_matrix_numerical(
     q_irc_minus = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c_pm, bonds, angles, dihedrals);
 
-    for (size_t i{0}; i < n_irc; i++) {
+    for (std::size_t i{0}; i < n_irc; i++) {
       // Compute derivative (centered finite difference)
       B(i, j) = (q_irc_plus(i) - q_irc_minus(i)) / (2 * dx);
     }

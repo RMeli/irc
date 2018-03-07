@@ -84,12 +84,12 @@ Molecule<Vector3> operator*(T multiplier, Molecule<Vector3> molecule){
 /// three entries are the (x,y,z) coordinates of the first atom and so on.
 template<typename Vector3, typename Vector>
 Vector to_cartesian(const Molecule<Vector3>& molecule) {
-  const size_t n_atoms{molecule.size()};
+  const std::size_t n_atoms{molecule.size()};
 
   Vector x_cartesian{linalg::zeros<Vector>(3 * n_atoms)};
 
-  for (size_t i{0}; i < n_atoms; i++) {
-    for (size_t idx{0}; idx < 3; idx++) {
+  for (std::size_t i{0}; i < n_atoms; i++) {
+    for (std::size_t idx{0}; idx < 3; idx++) {
       x_cartesian(3 * i + idx) = molecule[i].position(idx);
     }
   }
