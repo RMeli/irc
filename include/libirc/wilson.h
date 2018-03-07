@@ -60,7 +60,7 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
                                                      const Vector3& p3,
                                                      double tolerance = 1e-6) {
   using tools::math::collinear;
-  
+
   const double angle{connectivity::angle(p1, p2, p3)};
 
   Vector3 u{p1 - p2};

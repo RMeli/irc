@@ -578,7 +578,7 @@ std::vector<Bond> bonds(const Matrix& distance_m,
                         const molecule::Molecule<Vector3>& molecule) {
 
   using boost::math::iround;
-  
+
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
 
@@ -612,9 +612,9 @@ std::vector<Bond> bonds(const Matrix& distance_m,
 /// end atoms.
 template<typename Matrix>
 std::vector<Angle> angles(size_t i, size_t j, const Matrix& distance) {
-  
+
   using boost::math::iround;
-  
+
   // Declare empty vector of angles
   std::vector<Angle> angles;
 
@@ -643,7 +643,7 @@ std::vector<Angle> angles(const Matrix& distance_m,
                           const molecule::Molecule<Vector3>& molecule) {
 
   using boost::math::iround;
-  
+
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
 
@@ -683,9 +683,9 @@ std::vector<Angle> angles(const Matrix& distance_m,
 
 template<typename Matrix>
 std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance) {
-  
+
   using boost::math::iround;
-  
+
   // Declare empty vector of angles
   std::vector<Dihedral> dihedrals;
 
@@ -696,8 +696,7 @@ std::vector<Dihedral> dihedrals(size_t i, size_t j, const Matrix& distance) {
   for (size_t k{0}; k < n_atoms; k++) {
     if (iround(distance(k, i)) == 1 && iround(distance(k, j)) == 2) {
       for (size_t l{0}; l < n_atoms; l++) {
-        if (iround(distance(l, i)) == 2 &&
-            iround(distance(l, j)) == 1 &&
+        if (iround(distance(l, i)) == 2 && iround(distance(l, j)) == 1 &&
             iround(distance(l, k)) == 1) {
           dihedrals.push_back({i, k, l, j});
         }
@@ -721,7 +720,7 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
                                 double epsilon = 1.e-6) {
 
   using boost::math::iround;
-  
+
   // Extract number of atoms
   const size_t n_atoms{molecule.size()};
 

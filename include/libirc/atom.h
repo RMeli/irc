@@ -24,17 +24,16 @@ struct AtomicNumber {
   AtomicNumber(const std::string& symbol);
 };
 
-
 AtomicNumber::AtomicNumber(size_t an) {
   if (!periodic_table::valid_atomic_number(an)) {
     throw std::logic_error("Invalid atomic number.");
   }
-  
+
   atomic_number = an;
 }
 
 AtomicNumber::AtomicNumber(const std::string& symbol)
-    : AtomicNumber(periodic_table::atomic_number(symbol)) {}
+  : AtomicNumber(periodic_table::atomic_number(symbol)) {}
 
 /// Get an atomic symbol from \class AtomicNumber
 ///
@@ -48,7 +47,7 @@ std::string symbol(const AtomicNumber& an) noexcept {
 ///
 /// \param an \class AtomicNumber
 /// \return Mass corresponding to \class AtomicNumber
-double mass(const AtomicNumber& an) noexcept{
+double mass(const AtomicNumber& an) noexcept {
   return periodic_table::masses[an.atomic_number];
 }
 
@@ -75,7 +74,7 @@ double vdw_radius(const AtomicNumber& an) noexcept {
 /// \return
 bool is_NOFPSCl(const AtomicNumber& an) noexcept {
   const size_t n{an.atomic_number};
-  
+
   return (n == 7 or n == 8 or n == 9 or n == 15 or n == 16 or n == 17);
 }
 
