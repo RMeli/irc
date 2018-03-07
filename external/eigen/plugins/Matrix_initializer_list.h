@@ -41,10 +41,11 @@ EIGEN_STRONG_INLINE Matrix(std::initializer_list<_Scalar> initlist) : Base()
   
   // Resize array, if empty
   if (base().size() == 0) {
+    // TODO: Assumes column vector
     this->resize(size, 1);
   }
   else{
-    // Check size compatibility between array and INITLIST
+    // Check size compatibility between matrix and INITLIST
     eigen_assert(size == base().size());
   }
   
@@ -69,8 +70,9 @@ EIGEN_STRONG_INLINE Matrix(std::initializer_list<std::initializer_list<_Scalar>>
     this->resize(rows, cols);
   }
   else{
-    // Check size compatibility between array and INITLIST
-    eigen_assert(rows * cols == base().size());
+    // Check size compatibility between matrix and INITLIST
+    eigen_assert(rows == _Rows);
+    eigen_assert(cols == _Cols);
   }
   
   // Fill array from INITLIST
