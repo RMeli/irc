@@ -94,7 +94,7 @@ TEST_CASE("Connectivity for compressed H2") {
 
   // Transform molecular coordinates from angstrom to bohr
   multiply_positions(molecule, angstrom_to_bohr);
-
+  
   // Get bonds, angles and dihedrals
   std::vector<Bond> B;
   std::vector<Angle> A;
@@ -154,7 +154,7 @@ TEST_CASE("Connectivity for stretched H2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, {}, {})};
+      to_cartesian<vec3, vec>(molecule), B, A, D)};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 1);
@@ -205,7 +205,7 @@ TEST_CASE("Connectivity for compressed H2O") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, {})};
+      to_cartesian<vec3, vec>(molecule), B, A, D)};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 3);
@@ -222,17 +222,146 @@ TEST_CASE("Connectivity for compressed H2O") {
 
 // Angle from interfragment bonds
 TEST_CASE("Connectivity for stretched H2O") {
-  // TODO
 }
 
 // Dihedral
 TEST_CASE("Connectivity for compressed H2O2") {
-  // TODO
+  using namespace std;
+  
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  // Define H2O2 molecule
+  Molecule<vec3> molecule{
+      {"O", { 0.000000,  0.734058, -0.052750}},
+      {"O", { 0.000000, -0.734058, -0.052750}},
+      {"H", { 0.839547,  0.880752,  0.422001}},
+      {"H", {-0.839547, -0.880752,  0.422001}}};
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  
+  // Check number of bonds
+  CHECK(B.size() == 3);
+  
+  // Check number of angles
+  CHECK(A.size() == 2);
+  
+  // Check number of dihedral angles
+  CHECK(D.size() == 1);
+  
+  // Compute IRC
+  vec q{connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(molecule), B, A, D)};
+  
+  // Check number of IRC
+  REQUIRE(linalg::size<vec>(q) == 6);
+  
+  // Atomic positions
+  vec3 p1{ molecule[0].position };
+  vec3 p2{ molecule[1].position };
+  vec3 p3{ molecule[2].position };
+  vec3 p4{ molecule[3].position };
+  
+  // Check bond 1
+  CHECK(q(0) == Approx(distance(p1,p2)));
+  
+  // Check bond 2
+  std::cout << distance(p1,p3) * bohr_to_angstrom << std::endl;
+  CHECK(q(1) == Approx(distance(p1,p3)));
+  
+  // Check bond 3
+  CHECK(q(2) == Approx(distance(p2,p4)));
+  
+  // Check angle 1
+  CHECK(q(3) == Approx(angle(p2,p1,p3)));
+  
+  // Check angle 2
+  CHECK(q(4) == Approx(angle(p1,p2,p4)));
+  
+  // Check dihedral
+  CHECK(q(5) == Approx(dihedral(p3,p1,p2,p4)));
 }
 
 // Dihedral from interfragment bonds
 TEST_CASE("Connectivity for stretched H2O2") {
-  // TODO
+  // TODO: Fix fragments
+/*
+  using namespace std;
+  
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  // Define H2O2 molecule
+  Molecule<vec3> molecule{
+      {"O", { 0.000000,  0.734058, -0.052750}},
+      {"O", { 0.000000, -0.734058, -0.052750}},
+      {"H", { 1.839547,  1.880752,  0.422001}},
+      {"H", {-1.839547, -1.880752,  0.422001}}};
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  
+  // Check number of bonds
+  CHECK(B.size() == 3);
+  
+  // Check number of angles
+  CHECK(A.size() == 2);
+  
+  // Check number of dihedral angles
+  CHECK(D.size() == 1);
+  
+  // Compute IRC
+  vec q{connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(molecule), B, A, D)};
+  
+  // Check number of IRC
+  REQUIRE(linalg::size<vec>(q) == 6);
+  
+  // Atomic positions
+  vec3 p1{ molecule[0].position };
+  vec3 p2{ molecule[1].position };
+  vec3 p3{ molecule[2].position };
+  vec3 p4{ molecule[3].position };
+  
+  // Check bond 1
+  std::cout << distance(p1,p2) * bohr_to_angstrom << std::endl;
+  CHECK(q(0) == Approx(distance(p1,p2)));
+  
+  // Check bond 2
+  std::cout << distance(p1,p3) * bohr_to_angstrom << std::endl;
+  CHECK(q(1) == Approx(distance(p1,p3)));
+  
+  // Check bond 3
+  std::cout << distance(p2,p4) * bohr_to_angstrom << std::endl;
+  CHECK(q(2) == Approx(distance(p2,p4)));
+  
+  // Check angle 1
+  std::cout << angle(p2,p1,p3) * rad_to_deg << std::endl;
+  CHECK(q(3) == Approx(angle(p2,p1,p3)));
+  
+  // Check angle 2
+  std::cout << angle(p1,p2,p4) * rad_to_deg << std::endl;
+  CHECK(q(4) == Approx(angle(p1,p2,p4)));
+  
+  // Check dihedral
+  std::cout << dihedral(p3,p1,p2,p4) * rad_to_deg << std::endl;
+  CHECK(q(5) == Approx(dihedral(p3,p1,p2,p4)));
+*/
 }
 
 // Hydrogen bond (without quasi-linear angles)

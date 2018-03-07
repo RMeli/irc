@@ -49,8 +49,6 @@ set(IRC_MOLECULES_DIR ${CMAKE_SOURCE_DIR}/molecules/)
 
 add_library( irc INTERFACE )
 
-#set_target_properties(irc PROPERTIES LINKER_LANGUAGE CXX)
-
 # + -------- +
 # | INCLUDES |
 # + -------- +

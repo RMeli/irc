@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -399,40 +400,66 @@ UGraph adjacency_matrix(const Matrix& distances,
 
   // The system if made up of multiple fragments
   if (num_fragments > 1) {
+    
+    std::cerr << "WARNING: Fragments not yet fully supported." << std::endl;
+    
     // Print fragments
     std::cout << "\nFragments: " << std::endl;
     for (size_t idx : fragments) {
       std::cout << idx << ' ';
     }
     std::cout << std::endl;
-
-    // Intefragment minimal distance
+    
+    /*
+    // Minimum interfragment distances
+    Matrix min_dist_fragments{linalg::zeros<Matrix>(num_fragments,num_fragments)};
+  
+    // Determine minimal interfragment distances
+    size_t i_min{0}, j_min{0};
+    double min_d{0};
+    for(size_t j{0}; j < num_fragments; j++){
+      for(size_t i{0}; i < j; i++) {
+        std::tie(i_min, j_min, min_d) =
+            min_interfragment_distance<Matrix>(i, j, fragments, distances);
+        
+        min_dist_fragments(i,j) = min_d;
+        min_dist_fragments(j,i) = min_d;
+      }
+    }
+    
+    // Print minimal interfragment distances
+    std::vector<std::vector<bool>> bonded_fragments(num_fragments, std::vector<bool>(num_fragments, false));
+    std::cout << "MIN_DIST_FRAGMENTS=\n" << min_dist_fragments * tools::conversion::bohr_to_angstrom << std::endl;
+    */
+    
+    // Interfragment minimal distances
     size_t i_min{0}, j_min{0};
     double min_d{0};
     for (size_t i{0}; i < num_fragments; i++) {
       for (size_t j{i + 1}; j < num_fragments; j++) {
         std::tie(i_min, j_min, min_d) =
             min_interfragment_distance<Matrix>(i, j, fragments, distances);
-
+    
         // Add shortest interfragment bond
         boost::add_edge(i_min, j_min, 1, ug);
-
+    
         for (size_t k{0}; k < n_atoms; k++) {
           for (size_t l{0}; l < n_atoms; l++) {
             if (k != l and fragments[k] == i and fragments[l] == j) {
               d = distances(l, k);
-
+          
               // TODO: Check
               if (d <
                   std::min(min_d *
-                               tools::constants::interfragment_bond_multiplier,
+                           tools::constants::interfragment_bond_multiplier,
                            2. * tools::conversion::angstrom_to_bohr)) {
                 boost::add_edge(l, k, 1, ug);
               }
             }
           }
         }
-
+    
+    
         std::cout << "min(" << i << ',' << j << ';' << i_min << ',' << j_min
                   << "): " << min_d << std::endl;
       }
