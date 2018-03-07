@@ -31,7 +31,6 @@ double mass(const Molecule<Vector3>& molecule) noexcept {
   return m;
 }
 
-// TODO: Avoid modification to the molecule and define operator*
 /// Multiply all atomic positions within a molecule by a given \param multiplier
 ///
 /// \tparam T 3D vector
@@ -42,6 +41,36 @@ void multiply_positions(Molecule<Vector3>& molecule, T multiplier) {
   for (auto& atom : molecule) {
     atom.position = atom.position * multiplier;
   }
+}
+
+/*! Multiply all atomic positions within a molecule by a given @param multiplier
+ *
+ * @tparam T
+ * @tparam Vector3
+ * @param molecule Molecule
+ * @param multiplier Multiplier for atomic positions
+ * @return Molecule with multiplied atomic positions
+ */
+template<typename T, typename Vector3>
+Molecule<Vector3> operator*(Molecule<Vector3> molecule, T multiplier){
+  multiply_positions(molecule, multiplier);
+  
+  return molecule;
+}
+
+/*! Multiply all atomic positions within a molecule by a given @param multiplier
+ *
+ * @tparam T
+ * @tparam Vector3
+ * @param multiplier Multiplier for atomic positions
+ * @param molecule Molecule
+ * @return Molecule with multiplied atomic positions
+ */
+template<typename T, typename Vector3>
+Molecule<Vector3> operator*(T multiplier, Molecule<Vector3> molecule){
+  multiply_positions(molecule, multiplier);
+  
+  return molecule;
 }
 
 /// Get cartesian coordinates of all atoms in \param molecule

@@ -14,6 +14,7 @@ namespace periodic_table {
 /// Number of atomic species in the periodic table
 constexpr size_t pt_size{96};
 
+// TODO: Get rid of C-style string
 /// Atomic symbols
 constexpr std::array<char[3], pt_size> symbols = {
     {"",   "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne", "Na",
@@ -336,7 +337,7 @@ constexpr std::array<double, pt_size> vdw_radii = {{
 /// Check if atomic number \param an is valid
 ///
 /// \param an Atomic number
-bool valid_atomic_number(size_t an) noexcept {
+constexpr bool valid_atomic_number(size_t an) noexcept {
   return an > 0 && an < pt_size;
 }
 

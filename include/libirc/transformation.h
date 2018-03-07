@@ -19,17 +19,7 @@ namespace transformation {
 /// \return Root mean square value of \param v
 template<typename Vector>
 double rms(const Vector& v) {
-
-  const size_t size{linalg::size<Vector>(v)};
-
-  double sum{0};
-
-  // TODO: Use linalg::norm instead
-  for (size_t i{0}; i < size; i++) {
-    sum += v(i) * v(i);
-  }
-
-  return std::sqrt(sum / size);
+  return linalg::norm(v) / std::sqrt(linalg::size(v));
 }
 
 // TODO: Avoid transpose?
@@ -140,13 +130,6 @@ irc_to_cartesian(const Vector& q_irc_old,
     // Update cartesian coordinates
     x_c += dx;
 
-    // Update Wilson B matrix
-    // B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-    //    x_c, bonds, angles, dihedrals);
-
-    // Update transpose of the Wilson B matrix
-    // iB = linalg::pseudo_inverse(B);
-
     // Compute new internal coordinates
     q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c, bonds, angles, dihedrals);
@@ -164,10 +147,6 @@ irc_to_cartesian(const Vector& q_irc_old,
   // TODO: Store first iteration to avoid computation
   // If iteration does not converge, use first estimate
   if (!converged) {
-    // Re-compute original B matrix
-    // B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-    //    x_c_old, bonds, angles, dihedrals);
-
     // Compute first estimate
     x_c = x_c_old + iB * dq_irc;
   }

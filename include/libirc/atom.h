@@ -35,7 +35,6 @@ AtomicNumber::AtomicNumber(size_t an) {
 AtomicNumber::AtomicNumber(const std::string& symbol)
   : AtomicNumber(periodic_table::atomic_number(symbol)) {}
 
-// TODO: constexpr for C++14
 /// Get an atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber

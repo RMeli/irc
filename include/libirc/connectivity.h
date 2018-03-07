@@ -382,7 +382,6 @@ UGraph adjacency_matrix(const Matrix& distances,
                            atom::covalent_radius(molecule[j].atomic_number);
 
       // Determine if atoms i and j are bonded
-      // TODO: Neglect H-H bond? (Bad for H2, H2+H->H+H2, ...)
       if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
         // Add edge to boost::adjacency_list between vertices i and j
         // The weights are set to 1 for all edges.
@@ -514,7 +513,7 @@ UGraph adjacency_matrix(const Matrix& distances,
     }
   } // End search for hydrogen bonds
 
-  // TODO: Extra redundant coordinates?
+  // TODO: Extra redundant coordinates.
 
   return ug;
 }
