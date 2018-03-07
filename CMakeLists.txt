@@ -105,9 +105,6 @@ elseif(WITH_EIGEN)
         add_definitions(
                 -DEIGEN_MATRIX_PLUGIN="eigen/plugins/Matrix_initializer_list.h"
         )
-        add_definitions(
-                -DEIGEN_ARRAY_PLUGIN="eigen/plugins/Array_initializer_list.h"
-        )
 
         message("-- Eigen3 version: " ${EIGEN3_VERSION_STRING})
     endif()

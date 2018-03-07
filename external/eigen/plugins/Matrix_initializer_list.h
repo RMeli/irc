@@ -30,7 +30,7 @@
 
 #include <initializer_list>
 
-EIGEN_STRONG_INLINE Matrix(std::initializer_list<double> initlist) : Base()
+EIGEN_STRONG_INLINE Matrix(std::initializer_list<_Scalar> initlist) : Base()
 {
   
   // Check template parameters
@@ -43,19 +43,20 @@ EIGEN_STRONG_INLINE Matrix(std::initializer_list<double> initlist) : Base()
   if (base().size() == 0) {
     this->resize(size, 1);
   }
-  
-  // Check size compatibility between array and INITLIST
-  eigen_assert(size == base().size());
+  else{
+    // Check size compatibility between array and INITLIST
+    eigen_assert(size == base().size());
+  }
   
   // Fill array from INITLIST
   std::size_t i{0};
   for(const auto& x : initlist){
-    coeffRef(i) = Scalar(x);
+    this->operator[](i) = x;
     i++;
   }
 }
 
-EIGEN_STRONG_INLINE Matrix(std::initializer_list<std::initializer_list<double>> initlist) : Base()
+EIGEN_STRONG_INLINE Matrix(std::initializer_list<std::initializer_list<_Scalar>> initlist) : Base()
 {
   // Check template parameters
   Base::_check_template_params();
@@ -67,16 +68,17 @@ EIGEN_STRONG_INLINE Matrix(std::initializer_list<std::initializer_list<double>> 
   if (base().size() == 0) {
     this->resize(rows, cols);
   }
-  
-  // Check size compatibility between array and INITLIST
-  eigen_assert(rows * cols == base().size());
+  else{
+    // Check size compatibility between array and INITLIST
+    eigen_assert(rows * cols == base().size());
+  }
   
   // Fill array from INITLIST
   std::size_t i{0};
   for(const auto& x : initlist){
     std::size_t j{0};
     for(const auto& y : x){
-      coeffRef(j * rows + i) = Scalar(y);
+      this->operator()(i,j) = y;
       j++;
     }
     i++;
