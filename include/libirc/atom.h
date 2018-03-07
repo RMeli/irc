@@ -35,6 +35,7 @@ AtomicNumber::AtomicNumber(size_t an) {
 AtomicNumber::AtomicNumber(const std::string& symbol)
   : AtomicNumber(periodic_table::atomic_number(symbol)) {}
 
+// TODO: constexpr for C++14
 /// Get an atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
@@ -43,6 +44,7 @@ std::string symbol(const AtomicNumber& an) noexcept {
   return periodic_table::symbols[an.atomic_number];
 }
 
+// TODO: constexpr for C++14
 /// Get atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
@@ -51,6 +53,7 @@ double mass(const AtomicNumber& an) noexcept {
   return periodic_table::masses[an.atomic_number];
 }
 
+// TODO: constexpr for C++14
 /// Get covalent radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
@@ -59,6 +62,7 @@ double covalent_radius(const AtomicNumber& an) noexcept {
   return periodic_table::covalent_radii[an.atomic_number];
 }
 
+// TODO: constexpr for C++14
 /// Get Van der Waals radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
