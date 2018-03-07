@@ -47,42 +47,19 @@ set(IRC_MOLECULES_DIR ${CMAKE_SOURCE_DIR}/molecules/)
 # | IRC LIBRARY |
 # + ----------- +
 
-configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
-                ${CMAKE_BINARY_DIR}/src/config.h)
+add_library( irc INTERFACE )
 
-set(IRC_HEADERS
-        include/libirc.h
-        include/libirc/atom.h
-        include/libirc/connectivity.h
-        include/libirc/constants.h
-        include/libirc/conversion.h
-        include/libirc/io.h
-        include/libirc/irc.h
-        include/libirc/linalg.h
-        include/libirc/mathtools.h
-        include/libirc/molecule.h
-        include/libirc/periodic_table.h
-        include/libirc/transformation.h
-        include/libirc/wilson.h)
-
-set(IRC_SOURCES
-        src/atoms/atom.cpp
-        src/atoms/periodic_table.cpp
-        )
-
-add_library( irc SHARED ${IRC_HEADERS} ${IRC_SOURCES})
-
-set_target_properties(irc PROPERTIES LINKER_LANGUAGE CXX)
+#set_target_properties(irc PROPERTIES LINKER_LANGUAGE CXX)
 
 # + -------- +
 # | INCLUDES |
 # + -------- +
 
-target_include_directories( irc PUBLIC include )
-target_include_directories( irc PUBLIC include/libirc )
-target_include_directories( irc PUBLIC ${CMAKE_BINARY_DIR}/src)
+target_include_directories( irc INTERFACE include )
+target_include_directories( irc INTERFACE include/libirc )
+target_include_directories( irc INTERFACE ${CMAKE_BINARY_DIR}/src)
 
-target_include_directories( irc PUBLIC external )
+target_include_directories( irc INTERFACE external )
 
 # + ----------------------- +
 # | FIND EXTERNAL LIBRARIES |
@@ -95,7 +72,7 @@ find_package(
         REQUIRED
     )
 include_directories(irc ${Boost_INCLUDE_DIRS}) # DON'T USE
-target_link_libraries(irc ${Boost_LIBRARIES})
+target_link_libraries(irc INTERFACE ${Boost_LIBRARIES})
 #endif()
 
 option(WITH_ARMA "Use Armadillo for the linear algebra library" OFF)
@@ -110,7 +87,7 @@ if(WITH_ARMA)
 
     if( ${ARMADILLO_FOUND})
         include_directories(irc ${ARMADILLO_INCLUDE_DIRS}) # DON'T USE
-        target_link_libraries(irc ${ARMADILLO_LIBRARIES})
+        target_link_libraries(irc INTERFACE ${ARMADILLO_LIBRARIES})
         add_definitions(-DHAVE_ARMA)
 
         message("-- Armadillo version: " ${ARMADILLO_VERSION_STRING})
@@ -124,7 +101,7 @@ elseif(WITH_EIGEN)
 
     if( ${EIGEN3_FOUND})
         include_directories(${EIGEN3_INCLUDE_DIRS})
-        target_link_libraries(irc ${EIGEN3_LIBRARIES})
+        target_link_libraries(irc INTERFACE ${EIGEN3_LIBRARIES})
         add_definitions(-DHAVE_EIGEN3)
 
         add_definitions(
