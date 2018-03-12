@@ -300,8 +300,8 @@ Matrix distances(const molecule::Molecule<Vector3>& molecule) {
   Matrix distances_m{linalg::zeros<Matrix>(n_atoms, n_atoms)};
 
   double r{0.};
-  for (std::size_t i{0}; i < n_atoms; i++) {
-    for (std::size_t j{0}; j < n_atoms; j++) {
+  for (std::size_t j{0}; j < n_atoms; j++) {
+    for (std::size_t i{0}; i < j; i++) {
 
       r = distance(molecule[i].position, molecule[j].position);
 
@@ -489,7 +489,6 @@ UGraph adjacency_matrix(const Matrix& distances,
   double sum_covalent_radii{0.};
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{j + 1}; i < n_atoms; i++) {
-
       // Extract distance between atom i and atom j
       d = distances(i, j);
 

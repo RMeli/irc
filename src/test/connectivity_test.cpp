@@ -583,6 +583,53 @@ TEST_CASE("Connectivity for benzene dimer") {
 
 TEST_CASE("Connectivity test for CH2O") {
   // TODO
+  /*
+  using namespace std;
+  
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+  
+  double d1{1.3};
+  double d2{1.4};
+  double a_deg{102.03};
+  
+  double a{(180. - a_deg) * deg_to_rad};
+  
+  double cos_a{std::cos(a)};
+  double sin_a{std::sin(a)};
+  
+  // Define water dimer
+  Molecule<vec3> molecule{{"H", { 1.0686, -0.1411,  1.0408}},
+                          {"C", { 0.5979,  0.0151,  0.0688}},
+                          {"H", { 1.2687,  0.2002, -0.7717}},
+                          {"O", {-0.5960, -0.0151, -0.0686}}};
+  
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+  
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  
+  // Check number of bonds
+  CHECK(B.size() == 3);
+  
+  // Check number of angles
+  CHECK(A.size() == 3);
+  
+  // Check number of dihedral angles
+  CHECK(D.size() == 1);
+  
+  // Compute IRC
+  vec q{
+      cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D)};
+  
+  // Check number of IRC
+  REQUIRE(linalg::size<vec>(q) == 7);
+   */
 }
 
 TEST_CASE("Connectivity test for 2-butyne") {
