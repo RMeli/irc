@@ -57,6 +57,7 @@ struct Angle {
   std::size_t i;
   std::size_t j;
   std::size_t k;
+  //enum class linear{NONE, XY, YZ}; // Use switch
 };
 
 /// Quadruplet of atoms forming an angle
@@ -313,6 +314,7 @@ Matrix distances(const molecule::Molecule<Vector3>& molecule) {
 }
 
 // TODO: Improve algorithm
+// TODO: Test
 template<typename Matrix>
 std::tuple<std::size_t, std::size_t, double>
 min_interfragment_distance(std::size_t i,
@@ -324,7 +326,7 @@ min_interfragment_distance(std::size_t i,
   const std::size_t n_atoms{fragments.size()};
 
   // Interfragment distance
-  double distance{0};
+  double d{0};
 
   // Minimal interfragment distance
   double min_distance{std::numeric_limits<double>::max()};
@@ -334,10 +336,10 @@ min_interfragment_distance(std::size_t i,
     for (std::size_t l{0}; l < n_atoms; l++) {
       if (k != l and fragments[k] == i and fragments[l] == j) {
 
-        distance = distances(l, k);
+        d = distances(l, k);
 
-        if (distance < min_distance) {
-          min_distance = distance;
+        if (d < min_distance) {
+          min_distance = d;
           k_min = k;
           l_min = l;
         }
@@ -346,6 +348,119 @@ min_interfragment_distance(std::size_t i,
   }
 
   return std::make_tuple(k_min, l_min, min_distance);
+}
+
+// TODO: Test
+/*! Identify fragments (connected components)
+ *
+ * The function returns the number of fragments and a vector containing
+ * the index of the fragment each atom belongs to.
+ *
+ * @param ug Unsigned graph
+ * @return Number of fragments and fragments indices
+ */
+std::pair<std::size_t,std::vector<std::size_t>> identify_fragments(const UGraph& ug){
+  // Allocate storage for fragment indices
+  std::vector<std::size_t> fragments(boost::num_vertices(ug));
+  
+  // Fill component std::vector and return number of different fragments
+  // If num_fragments == 1 the graph is connected
+  const std::size_t num_fragments{boost::connected_components(ug, &fragments[0])};
+  
+  return {num_fragments, fragments};
+}
+
+// TODO: Improve algorithm
+// TODO: Test
+/*! Recursive search of interfragment bonds
+ *
+ * At each iteration of the recursive search the interfragment bonds (and
+ * auxiliary interfragment bonds) are added between closest fragments.
+ *
+ * @tparam Matrix
+ * @param ug Adjacency matrix
+ * @param distances Distance matrix
+ */
+template <typename Matrix>
+void add_interfragment_bonds(UGraph& ug, const Matrix& distances){
+  
+  const size_t n_atoms{boost::num_vertices(ug)};
+  
+  std::size_t num_fragments;
+  std::vector<std::size_t> fragments;
+  
+  // Get number of fragments and fragment indices
+  std::tie(num_fragments, fragments) = identify_fragments(ug);
+  
+  while(num_fragments > 1){
+    
+    struct InterfragmentDistance{
+      double d;
+      size_t i;
+      size_t j;
+    };
+    
+    // Minimum interfragment distances
+    //Matrix min_dist_fragments{linalg::zeros<Matrix>(num_fragments,num_fragments)};
+    std::vector<std::vector<InterfragmentDistance>> min_dist_fragments(num_fragments,std::vector<InterfragmentDistance>(num_fragments));
+  
+    // Determine minimal interfragment distances
+    std::size_t i_min{0}, j_min{0};
+    double min_d{0};
+    for(std::size_t j{0}; j < num_fragments; j++){
+      for(std::size_t i{0}; i < j; i++) {
+        std::tie(i_min, j_min, min_d) =
+            min_interfragment_distance<Matrix>(i, j, fragments, distances);
+      
+        min_dist_fragments[i][j] = {min_d, i_min, j_min};
+        min_dist_fragments[j][i] = {min_d, i_min, j_min};
+      }
+    }
+    
+    // Add interfragment distances between closest fragments
+    double d{0.};
+    for(std::size_t j{0}; j < num_fragments; j++){
+      size_t i_min_fragment{0};
+      double d_min{std::numeric_limits<double>::max()};
+      for(std::size_t i{0}; i < num_fragments; i++) {
+        d = min_dist_fragments[i][j].d;
+        if( d < d_min && i != j){
+          i_min_fragment = i;
+          i_min = min_dist_fragments[i][j].i;
+          j_min = min_dist_fragments[i][j].j;
+          d_min = d;
+        }
+      }
+      
+      // Add shortest interfragment bond
+      boost::add_edge(i_min, j_min, 1, ug);
+  
+      // Add auxiliary interfragment distances
+      double d{0};
+      for (std::size_t k{0}; k < n_atoms; k++) {
+        for (std::size_t l{0}; l < n_atoms; l++) {
+          if (k != l and fragments[k] == i_min_fragment and fragments[l] == j) {
+            d = distances(l, k);
+        
+            // TODO: Check
+            if (d <
+                std::min(min_d *
+                         tools::constants::interfragment_bond_multiplier,
+                         2. * tools::conversion::angstrom_to_bohr)) {
+              boost::add_edge(l, k, 1, ug);
+            }
+          }
+        }
+      }
+    }
+    
+    // Recursive search of fragments
+    //add_interfragment_bonds(ug, distances);
+    // Get number of fragments and fragment indices
+    std::tie(num_fragments, fragments) = identify_fragments(ug);
+  }
+  
+  return;
 }
 
 /// Compute adjacency matrix for \param molecule
@@ -390,13 +505,16 @@ UGraph adjacency_matrix(const Matrix& distances,
       }
     }
   } // End search for regular bonds
-
-  // Allocate storage for fragment indices
-  std::vector<std::size_t> fragments(boost::num_vertices(ug));
-
-  // Fill component std::vector and return number of different fragments
-  // If num_fragments == 1 the graph is connected
-  const std::size_t num_fragments{boost::connected_components(ug, &fragments[0])};
+  
+  // Add interfragment bonds to graph
+  add_interfragment_bonds(ug, distances);
+  
+  /*
+  std::size_t num_fragments;
+  std::vector<std::size_t> fragments;
+  
+  // Get number of fragments and fragment indices
+  std::tie(num_fragments, fragments) = identify_fragments(ug);
 
   // The system if made up of multiple fragments
   if (num_fragments > 1) {
@@ -410,7 +528,6 @@ UGraph adjacency_matrix(const Matrix& distances,
     }
     std::cout << std::endl;
     
-    /*
     // Minimum interfragment distances
     Matrix min_dist_fragments{linalg::zeros<Matrix>(num_fragments,num_fragments)};
   
@@ -430,7 +547,7 @@ UGraph adjacency_matrix(const Matrix& distances,
     // Print minimal interfragment distances
     std::vector<std::vector<bool>> bonded_fragments(num_fragments, std::vector<bool>(num_fragments, false));
     std::cout << "MIN_DIST_FRAGMENTS=\n" << min_dist_fragments * tools::conversion::bohr_to_angstrom << std::endl;
-    */
+    
     
     // Interfragment minimal distances
     std::size_t i_min{0}, j_min{0};
@@ -465,6 +582,7 @@ UGraph adjacency_matrix(const Matrix& distances,
       }
     }
   }
+  */
 
   // TODO: Better strategy to look for H-bonds (regular bonds are known)
   // Search for hydrogen bonds

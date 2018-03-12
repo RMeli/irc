@@ -97,7 +97,7 @@ elseif(WITH_EIGEN)
         REQUIRED
     )
 
-    if( ${EIGEN3_FOUND})
+    if( ${EIGEN3_FOUND} )
         include_directories(${EIGEN3_INCLUDE_DIRS})
         target_link_libraries(irc INTERFACE ${EIGEN3_LIBRARIES})
         add_definitions(-DHAVE_EIGEN3)
