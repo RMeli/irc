@@ -19,17 +19,7 @@ namespace transformation {
 /// \return Root mean square value of \param v
 template<typename Vector>
 double rms(const Vector& v) {
-
-  const size_t size{linalg::size<Vector>(v)};
-
-  double sum{0};
-
-  // TODO: Use linalg::norm instead
-  for (size_t i{0}; i < size; i++) {
-    sum += v(i) * v(i);
-  }
-
-  return std::sqrt(sum / size);
+  return linalg::norm(v) / std::sqrt(linalg::size(v));
 }
 
 // TODO: Avoid transpose?
@@ -64,7 +54,7 @@ template<typename Vector>
 struct IrcToCartesianResult {
   Vector x_c;
   bool converged;
-  size_t n_iterations;
+  std::size_t n_iterations;
 };
 
 /// Transform internal redundant displacements to cartesian coordinates
@@ -92,10 +82,10 @@ irc_to_cartesian(const Vector& q_irc_old,
                  const std::vector<connectivity::Bond>& bonds,
                  const std::vector<connectivity::Angle>& angles,
                  const std::vector<connectivity::Dihedral>& dihedrals,
-                 size_t max_iters = 25,
+                 std::size_t max_iters = 25,
                  double tolerance = 1e-6) {
   // Number of internal redundant coordinates
-  const size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
   // Convergence flag
   bool converged{false};
@@ -122,10 +112,10 @@ irc_to_cartesian(const Vector& q_irc_old,
   double RMS{0};
 
   // Offset for dihedral angles in q_irc
-  const size_t offset{bonds.size() + angles.size()};
+  const std::size_t offset{bonds.size() + angles.size()};
 
   // Start iterative search
-  size_t n_iterations{0};
+  std::size_t n_iterations{0};
   for (; n_iterations < max_iters; n_iterations++) {
     // Compute displacement in cartesian coordinates
     dx = iB * dq;
@@ -140,19 +130,12 @@ irc_to_cartesian(const Vector& q_irc_old,
     // Update cartesian coordinates
     x_c += dx;
 
-    // Update Wilson B matrix
-    // B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-    //    x_c, bonds, angles, dihedrals);
-
-    // Update transpose of the Wilson B matrix
-    // iB = linalg::pseudo_inverse(B);
-
     // Compute new internal coordinates
     q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c, bonds, angles, dihedrals);
 
     // Check change in dihedral angles (in radians)
-    for (size_t i{offset}; i < n_irc; i++) {
+    for (std::size_t i{offset}; i < n_irc; i++) {
       // Restrain dihedral angle on the interval [-pi,pi]
       q_new(i) = tools::math::pirange_rad(q_new(i));
     }
@@ -164,10 +147,6 @@ irc_to_cartesian(const Vector& q_irc_old,
   // TODO: Store first iteration to avoid computation
   // If iteration does not converge, use first estimate
   if (!converged) {
-    // Re-compute original B matrix
-    // B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-    //    x_c_old, bonds, angles, dihedrals);
-
     // Compute first estimate
     x_c = x_c_old + iB * dq_irc;
   }

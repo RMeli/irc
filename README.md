@@ -58,7 +58,20 @@ Release with Eigen:
   make -j test
 ```
 
-### Include in a CMake project
+### Include IRC in your project
+
+IRC is an header-only library and its inclusion is quite straightforward.
+
+### With CMake
+
+### Without CMake
+
+If you are using Armadillo as linear algebra library you just need to include the header files in `include/` and define the variable `HAVE_ARMA`.
+
+
+If you are using Eigen3 as linear algebra library, you need to include the header files in `include/` as well as the extension to Eigen3's matrix constructors to support `std::initializer_list`s located in `external/eigen/plugins/`. The content of the file `Matrix_initializer_list.h` must be included Eigen3's matrix class as described [here](http://eigen.tuxfamily.org/dox-3.2/TopicCustomizingEigen.html), therefore you need to set the variable `EIGEN_MATRIXBASE_PLUGIN` to `"path_to/Matrix_initializer_list.h"`. Finally, you have to define the variable `HAVE_EIGEN3`.
+
+If your are using a custom linear algebra library supporting the initialization of vectors and matrices from `std::initializer_list`s, you have to implement the linear algebra functions in `include/libirc/linalg.h` and you are good to go.
 
 ## Usage
 

@@ -1,4 +1,11 @@
 # + ------------- +
+# | CONFIGURATION |
+# + ------------- +
+
+configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
+                ${CMAKE_BINARY_DIR}/src/config.h)
+
+# + ------------- +
 # | CATCH LIBRARY |
 # + ------------- +
 add_library(catch INTERFACE)

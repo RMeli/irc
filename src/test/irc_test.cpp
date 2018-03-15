@@ -137,8 +137,8 @@ TEST_CASE("Internal Redundant Coordinates") {
     REQUIRE(linalg::size(iH0) == linalg::size(iH));
 
     // Check that second projection has no effect
-    size_t n{linalg::size(iH0)};
-    for (size_t i{0}; i < n; i++) {
+    std::size_t n{linalg::size(iH0)};
+    for (std::size_t i{0}; i < n; i++) {
       Approx target(iH0(i));
       target.margin(1e-6);
 
@@ -167,8 +167,8 @@ TEST_CASE("Internal Redundant Coordinates") {
     // Compute cartesian coordinate from IRC
     vec x_c_from_irc{irc.irc_to_cartesian(q_irc, dq, x_c)};
 
-    size_t n{linalg::size(x_c)};
-    for (size_t i{0}; i < n; i++) {
+    std::size_t n{linalg::size(x_c)};
+    for (std::size_t i{0}; i < n; i++) {
       Approx target(x_c(i));
       target.margin(1e-6);
 

@@ -54,7 +54,7 @@ public:
   Vector irc_to_cartesian(const Vector& q_irc_old,
                           const Vector& dq_irc,
                           const Vector& x_c_old,
-                          size_t max_iters = 25,
+                          std::size_t max_iters = 25,
                           double tolerance = 1e-6);
 
 private:
@@ -68,10 +68,10 @@ private:
   std::vector<connectivity::Dihedral> dihedrals;
 
   /// Number of internal coordinates
-  size_t n_irc;
+  std::size_t n_irc;
 
   /// Number of cartesian coordinates
-  size_t n_c;
+  std::size_t n_c;
 
   /// Wilson B matrix
   Matrix B;
@@ -147,19 +147,19 @@ template<typename Vector3, typename Vector, typename Matrix>
 Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
   Matrix H0(linalg::zeros<Matrix>(n_irc, n_irc));
 
-  size_t offset{0};
+  std::size_t offset{0};
 
-  for (size_t i{0}; i < bonds.size(); i++) {
+  for (std::size_t i{0}; i < bonds.size(); i++) {
     H0(i, i) = 0.5;
   }
 
   offset = bonds.size();
-  for (size_t i{0}; i < angles.size(); i++) {
+  for (std::size_t i{0}; i < angles.size(); i++) {
     H0(i + offset, i + offset) = 0.2;
   }
 
   offset = bonds.size() + angles.size();
-  for (size_t i{0}; i < dihedrals.size(); i++) {
+  for (std::size_t i{0}; i < dihedrals.size(); i++) {
     H0(i + offset, i + offset) = 0.1;
   }
 
@@ -218,7 +218,7 @@ template<typename Vector3, typename Vector, typename Matrix>
 Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
                                                       const Vector& dq_irc,
                                                       const Vector& x_c_old,
-                                                      size_t max_iters,
+                                                      std::size_t max_iters,
                                                       double tolerance) {
 
   if (linalg::size(q_irc_old) != n_irc) {

@@ -26,7 +26,7 @@ template<typename Vector3>
 molecule::Molecule<Vector3> load_xyz(std::istream& in) {
   using irc::molecule::multiply_positions;
 
-  size_t n_atoms{0};
+  std::size_t n_atoms{0};
   std::string dummy{""};
 
   // Read header
@@ -69,7 +69,7 @@ void print_bonds(const Vector& x_c,
                  std::ostream& out = std::cout) {
 
   // Total number of bonds
-  const size_t n_bonds{bonds.size()};
+  const std::size_t n_bonds{bonds.size()};
 
   out << n_bonds << " bonds (\u212B):" << std::endl;
 
@@ -77,12 +77,12 @@ void print_bonds(const Vector& x_c,
   Vector3 p1{0., 0., 0.}, p2{0., 0., 0.};
 
   // Indices
-  size_t idx_i{0}, idx_j{0};
+  std::size_t idx_i{0}, idx_j{0};
 
   out.precision(3);
   out.fill(' ');
 
-  for (size_t i{0}; i < n_bonds; i++) {
+  for (std::size_t i{0}; i < n_bonds; i++) {
     // Get indices
     idx_i = bonds[i].i;
     idx_j = bonds[i].j;
@@ -113,7 +113,7 @@ void print_angles(const Vector& x_c,
                   std::ostream& out = std::cout) {
 
   // Total number of angles
-  const size_t n_angles{angles.size()};
+  const std::size_t n_angles{angles.size()};
 
   out << n_angles << " angles (\u00B0):" << std::endl;
 
@@ -121,12 +121,12 @@ void print_angles(const Vector& x_c,
   Vector3 p1{0., 0., 0.}, p2{0., 0., 0.}, p3{0., 0., 0.};
 
   // Indices
-  size_t idx_i{0}, idx_j{0}, idx_k{0};
+  std::size_t idx_i{0}, idx_j{0}, idx_k{0};
 
   out.precision(2);
   out.fill(' ');
 
-  for (size_t i{0}; i < n_angles; i++) {
+  for (std::size_t i{0}; i < n_angles; i++) {
     // Get indices
     idx_i = angles[i].i;
     idx_j = angles[i].j;
@@ -160,7 +160,7 @@ void print_dihedrals(const Vector& x_c,
                      std::ostream& out = std::cout) {
 
   // Total number of angles
-  const size_t n_dihedrals{dihedrals.size()};
+  const std::size_t n_dihedrals{dihedrals.size()};
 
   out << n_dihedrals << " dihedrals (\u00B0):" << std::endl;
 
@@ -168,12 +168,12 @@ void print_dihedrals(const Vector& x_c,
   Vector3 p1{0., 0., 0.}, p2{0., 0., 0.}, p3{0., 0., 0.}, p4{0., 0., 0.};
 
   // Indices
-  size_t idx_i{0}, idx_j{0}, idx_k{0}, idx_l{0};
+  std::size_t idx_i{0}, idx_j{0}, idx_k{0}, idx_l{0};
 
   out.precision(2);
   out.fill(' ');
 
-  for (size_t i{0}; i < n_dihedrals; i++) {
+  for (std::size_t i{0}; i < n_dihedrals; i++) {
     // Get indices
     idx_i = dihedrals[i].i;
     idx_j = dihedrals[i].j;
