@@ -22,9 +22,9 @@ using namespace irc;
 TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
 
   using namespace atom;
-
+  
   SECTION("invalid atom") {
-    CHECK_THROWS_AS(Atom<vec3>(periodic_table::pt_size + 1), std::logic_error);
+    CHECK_THROWS_AS(Atom<vec3>{AtomicNumber{0}}, std::logic_error);
   }
 
   SECTION("atom from atomic number") {

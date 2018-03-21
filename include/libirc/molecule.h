@@ -97,21 +97,6 @@ Vector to_cartesian(const Molecule<Vector3>& molecule) {
   return x_cartesian;
 }
 
-/// Print a molecule
-///
-/// \tparam T 3D vector
-/// \param out Output stream
-/// \param molecule Molecule
-/// \return Output stream
-template<typename Vector3>
-std::ostream& operator<<(std::ostream& out, const Molecule<Vector3>& molecule) {
-  for (const auto& atom : molecule) {
-    out << atom;
-  }
-
-  return out;
-}
-
 } // namespace molecule
 
 } // namespace irc
