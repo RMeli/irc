@@ -52,9 +52,9 @@ void multiply_positions(Molecule<Vector3>& molecule, T multiplier) {
  * @return Molecule with multiplied atomic positions
  */
 template<typename T, typename Vector3>
-Molecule<Vector3> operator*(Molecule<Vector3> molecule, T multiplier){
+Molecule<Vector3> operator*(Molecule<Vector3> molecule, T multiplier) {
   multiply_positions(molecule, multiplier);
-  
+
   return molecule;
 }
 
@@ -67,9 +67,9 @@ Molecule<Vector3> operator*(Molecule<Vector3> molecule, T multiplier){
  * @return Molecule with multiplied atomic positions
  */
 template<typename T, typename Vector3>
-Molecule<Vector3> operator*(T multiplier, Molecule<Vector3> molecule){
+Molecule<Vector3> operator*(T multiplier, Molecule<Vector3> molecule) {
   multiply_positions(molecule, multiplier);
-  
+
   return molecule;
 }
 

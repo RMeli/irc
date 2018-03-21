@@ -57,7 +57,7 @@ struct Angle {
   std::size_t i;
   std::size_t j;
   std::size_t k;
-  //enum class linear{NONE, XY, YZ}; // Use switch
+  // enum class linear{NONE, XY, YZ}; // Use switch
 };
 
 /// Quadruplet of atoms forming an angle
@@ -359,14 +359,16 @@ min_interfragment_distance(std::size_t i,
  * @param ug Unsigned graph
  * @return Number of fragments and fragments indices
  */
-std::pair<std::size_t,std::vector<std::size_t>> identify_fragments(const UGraph& ug){
+std::pair<std::size_t, std::vector<std::size_t>>
+identify_fragments(const UGraph& ug) {
   // Allocate storage for fragment indices
   std::vector<std::size_t> fragments(boost::num_vertices(ug));
-  
+
   // Fill component std::vector and return number of different fragments
   // If num_fragments == 1 the graph is connected
-  const std::size_t num_fragments{boost::connected_components(ug, &fragments[0])};
-  
+  const std::size_t num_fragments{
+      boost::connected_components(ug, &fragments[0])};
+
   return {num_fragments, fragments};
 }
 
@@ -381,85 +383,86 @@ std::pair<std::size_t,std::vector<std::size_t>> identify_fragments(const UGraph&
  * @param ug Adjacency matrix
  * @param distances Distance matrix
  */
-template <typename Matrix>
-void add_interfragment_bonds(UGraph& ug, const Matrix& distances){
-  
+template<typename Matrix>
+void add_interfragment_bonds(UGraph& ug, const Matrix& distances) {
+
   const size_t n_atoms{boost::num_vertices(ug)};
-  
+
   std::size_t num_fragments;
   std::vector<std::size_t> fragments;
-  
+
   // Get number of fragments and fragment indices
   std::tie(num_fragments, fragments) = identify_fragments(ug);
-  
-  while(num_fragments > 1){
-    
-    struct InterfragmentDistance{
+
+  while (num_fragments > 1) {
+
+    struct InterfragmentDistance {
       double d;
       size_t i;
       size_t j;
     };
-    
+
     // Minimum interfragment distances
-    //Matrix min_dist_fragments{linalg::zeros<Matrix>(num_fragments,num_fragments)};
-    std::vector<std::vector<InterfragmentDistance>> min_dist_fragments(num_fragments,std::vector<InterfragmentDistance>(num_fragments));
-  
+    // Matrix
+    // min_dist_fragments{linalg::zeros<Matrix>(num_fragments,num_fragments)};
+    std::vector<std::vector<InterfragmentDistance>> min_dist_fragments(
+        num_fragments, std::vector<InterfragmentDistance>(num_fragments));
+
     // Determine minimal interfragment distances
     std::size_t i_min{0}, j_min{0};
     double min_d{0};
-    for(std::size_t j{0}; j < num_fragments; j++){
-      for(std::size_t i{0}; i < j; i++) {
+    for (std::size_t j{0}; j < num_fragments; j++) {
+      for (std::size_t i{0}; i < j; i++) {
         std::tie(i_min, j_min, min_d) =
             min_interfragment_distance<Matrix>(i, j, fragments, distances);
-      
+
         min_dist_fragments[i][j] = {min_d, i_min, j_min};
         min_dist_fragments[j][i] = {min_d, i_min, j_min};
       }
     }
-    
+
     // Add interfragment distances between closest fragments
     double d{0.};
-    for(std::size_t j{0}; j < num_fragments; j++){
+    for (std::size_t j{0}; j < num_fragments; j++) {
       size_t i_min_fragment{0};
       double d_min{std::numeric_limits<double>::max()};
-      for(std::size_t i{0}; i < num_fragments; i++) {
+      for (std::size_t i{0}; i < num_fragments; i++) {
         d = min_dist_fragments[i][j].d;
-        if( d < d_min && i != j){
+        if (d < d_min && i != j) {
           i_min_fragment = i;
           i_min = min_dist_fragments[i][j].i;
           j_min = min_dist_fragments[i][j].j;
           d_min = d;
         }
       }
-      
+
       // Add shortest interfragment bond
       boost::add_edge(i_min, j_min, 1, ug);
-  
+
       // Add auxiliary interfragment distances
       double d{0};
       for (std::size_t k{0}; k < n_atoms; k++) {
         for (std::size_t l{0}; l < n_atoms; l++) {
           if (k != l and fragments[k] == i_min_fragment and fragments[l] == j) {
             d = distances(l, k);
-        
+
             // TODO: Check
-            if (d <
-                std::min(min_d *
-                         tools::constants::interfragment_bond_multiplier,
-                         2. * tools::conversion::angstrom_to_bohr)) {
+            if (d < std::min(
+                        min_d * tools::constants::interfragment_bond_multiplier,
+                        2. * tools::conversion::angstrom_to_bohr)) {
               boost::add_edge(l, k, 1, ug);
             }
           }
         }
       }
     }
-    
+
     // Recursive search of fragments
-    //add_interfragment_bonds(ug, distances);
+    // add_interfragment_bonds(ug, distances);
     // Get number of fragments and fragment indices
     std::tie(num_fragments, fragments) = identify_fragments(ug);
   }
-  
+
   return;
 }
 
@@ -504,32 +507,33 @@ UGraph adjacency_matrix(const Matrix& distances,
       }
     }
   } // End search for regular bonds
-  
+
   // Add interfragment bonds to graph
   add_interfragment_bonds(ug, distances);
-  
+
   /*
   std::size_t num_fragments;
   std::vector<std::size_t> fragments;
-  
+
   // Get number of fragments and fragment indices
   std::tie(num_fragments, fragments) = identify_fragments(ug);
 
   // The system if made up of multiple fragments
   if (num_fragments > 1) {
-    
+
     std::cerr << "WARNING: Fragments not yet fully supported." << std::endl;
-    
+
     // Print fragments
     std::cout << "\nFragments: " << std::endl;
     for (std::size_t idx : fragments) {
       std::cout << idx << ' ';
     }
     std::cout << std::endl;
-    
+
     // Minimum interfragment distances
-    Matrix min_dist_fragments{linalg::zeros<Matrix>(num_fragments,num_fragments)};
-  
+    Matrix
+  min_dist_fragments{linalg::zeros<Matrix>(num_fragments,num_fragments)};
+
     // Determine minimal interfragment distances
     std::size_t i_min{0}, j_min{0};
     double min_d{0};
@@ -537,17 +541,18 @@ UGraph adjacency_matrix(const Matrix& distances,
       for(std::size_t i{0}; i < j; i++) {
         std::tie(i_min, j_min, min_d) =
             min_interfragment_distance<Matrix>(i, j, fragments, distances);
-        
+
         min_dist_fragments(i,j) = min_d;
         min_dist_fragments(j,i) = min_d;
       }
     }
-    
+
     // Print minimal interfragment distances
-    std::vector<std::vector<bool>> bonded_fragments(num_fragments, std::vector<bool>(num_fragments, false));
-    std::cout << "MIN_DIST_FRAGMENTS=\n" << min_dist_fragments * tools::conversion::bohr_to_angstrom << std::endl;
-    
-    
+    std::vector<std::vector<bool>> bonded_fragments(num_fragments,
+  std::vector<bool>(num_fragments, false)); std::cout << "MIN_DIST_FRAGMENTS=\n"
+  << min_dist_fragments * tools::conversion::bohr_to_angstrom << std::endl;
+
+
     // Interfragment minimal distances
     std::size_t i_min{0}, j_min{0};
     double min_d{0};
@@ -555,15 +560,15 @@ UGraph adjacency_matrix(const Matrix& distances,
       for (std::size_t j{i + 1}; j < num_fragments; j++) {
         std::tie(i_min, j_min, min_d) =
             min_interfragment_distance<Matrix>(i, j, fragments, distances);
-    
+
         // Add shortest interfragment bond
         boost::add_edge(i_min, j_min, 1, ug);
-    
+
         for (std::size_t k{0}; k < n_atoms; k++) {
           for (std::size_t l{0}; l < n_atoms; l++) {
             if (k != l and fragments[k] == i and fragments[l] == j) {
               d = distances(l, k);
-          
+
               // TODO: Check
               if (d <
                   std::min(min_d *
@@ -574,8 +579,8 @@ UGraph adjacency_matrix(const Matrix& distances,
             }
           }
         }
-    
-    
+
+
         std::cout << "min(" << i << ',' << j << ';' << i_min << ',' << j_min
                   << "): " << min_d << std::endl;
       }
@@ -754,7 +759,8 @@ std::vector<Bond> bonds(const Matrix& distance_m,
 /// cases however, there might be two different angles between the same two
 /// end atoms.
 template<typename Matrix>
-std::vector<Angle> angles(std::size_t i, std::size_t j, const Matrix& distance) {
+std::vector<Angle>
+angles(std::size_t i, std::size_t j, const Matrix& distance) {
 
   using boost::math::iround;
 
@@ -825,7 +831,8 @@ std::vector<Angle> angles(const Matrix& distance_m,
 }
 
 template<typename Matrix>
-std::vector<Dihedral> dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
+std::vector<Dihedral>
+dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
 
   using boost::math::iround;
 
