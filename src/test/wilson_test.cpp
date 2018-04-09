@@ -65,7 +65,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
 
     // Check analytical and numerical Wilson matrices are the same
     INFO("Analytical vs Numerical");
-    for (size_t i{0}; i < 6; i++)
+    for (std::size_t i{0}; i < 6; i++)
       REQUIRE(Bwilson(i) == Approx(BwilsonN(i)).margin(1e-6));
 
     INFO("Transformation with bond stretch");
@@ -113,7 +113,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     vec dx{linalg::zeros<vec>(3 * mol.size())};
 
     // Compute displacements
-    for (size_t i{0}; i < 3; i++) {
+    for (std::size_t i{0}; i < 3; i++) {
       vec3 v{R[i] * mol[i].position - mol[i].position};
 
       dx(3 * i + 0) = v(0);
@@ -147,7 +147,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     INFO("Wilson B matrix (numerical):\n" << BwilsonN);
 
     // Check analytical and numerical Wilson matrices are the same
-    for (size_t i{0}; i < 27; i++)
+    for (std::size_t i{0}; i < 27; i++)
       REQUIRE(Bwilson(i) == Approx(BwilsonN(i)).margin(1e-6));
 
     INFO("Compute displacements in internal coordinates");
@@ -230,7 +230,7 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
 
     // Check analytical and numerical Wilson matrices are the same
     INFO("Check Analytical vs Numerical Wilson B matrix");
-    for (size_t i{0}; i < 72; i++) {
+    for (std::size_t i{0}; i < 72; i++) {
       REQUIRE(Bwilson(i) == Approx(BwilsonN(i)).margin(1e-6));
     }
 
@@ -306,8 +306,8 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   REQUIRE(linalg::size(wilson_b_analytical) ==
           linalg::size(wilson_b_numerical));
 
-  const size_t n = linalg::size(wilson_b_analytical);
-  for (size_t i{0}; i < n; i++) {
+  const std::size_t n = linalg::size(wilson_b_analytical);
+  for (std::size_t i{0}; i < n; i++) {
     REQUIRE(wilson_b_analytical(i) ==
             Approx(wilson_b_numerical(i)).margin(1e-5));
   }

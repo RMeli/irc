@@ -31,16 +31,33 @@ TEST_CASE("Molecule") {
   CHECK(mass(molecule) == Approx(masses[1] + masses[2] + masses[3]));
 
   SECTION("Position multiplier") {
+    auto multiplier = 2.;
+    
     auto scaled_molecule = molecule;
-    multiply_positions(scaled_molecule, 2.);
+    multiply_positions(scaled_molecule, multiplier);
 
-    const auto pos = vec3{0.0, 2.2, 4.4};
-
-    for (const auto& atom : scaled_molecule) {
-      for (size_t i{0}; i < 3; i++) {
-        CAPTURE(i);
-        CHECK(atom.position(i) == Approx(pos(i)));
+    for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
+      for (std::size_t j{0}; j < 3; j++) {
+        CHECK(
+            scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
       }
     }
+    
+    scaled_molecule = molecule * multiplier;
+    for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
+      for (std::size_t j{0}; j < 3; j++) {
+        CHECK(
+            scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
+      }
+    }
+  
+    scaled_molecule = multiplier * molecule;
+    for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
+      for (std::size_t j{0}; j < 3; j++) {
+        CHECK(
+            scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
+      }
+    }
+    
   }
 }

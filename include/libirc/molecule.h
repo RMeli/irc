@@ -31,7 +31,6 @@ double mass(const Molecule<Vector3>& molecule) noexcept {
   return m;
 }
 
-// TODO: Avoid modification to the molecule and define operator*
 /// Multiply all atomic positions within a molecule by a given \param multiplier
 ///
 /// \tparam T 3D vector
@@ -42,6 +41,36 @@ void multiply_positions(Molecule<Vector3>& molecule, T multiplier) {
   for (auto& atom : molecule) {
     atom.position = atom.position * multiplier;
   }
+}
+
+/*! Multiply all atomic positions within a molecule by a given @param multiplier
+ *
+ * @tparam T
+ * @tparam Vector3
+ * @param molecule Molecule
+ * @param multiplier Multiplier for atomic positions
+ * @return Molecule with multiplied atomic positions
+ */
+template<typename T, typename Vector3>
+Molecule<Vector3> operator*(Molecule<Vector3> molecule, T multiplier){
+  multiply_positions(molecule, multiplier);
+  
+  return molecule;
+}
+
+/*! Multiply all atomic positions within a molecule by a given @param multiplier
+ *
+ * @tparam T
+ * @tparam Vector3
+ * @param multiplier Multiplier for atomic positions
+ * @param molecule Molecule
+ * @return Molecule with multiplied atomic positions
+ */
+template<typename T, typename Vector3>
+Molecule<Vector3> operator*(T multiplier, Molecule<Vector3> molecule){
+  multiply_positions(molecule, multiplier);
+  
+  return molecule;
 }
 
 /// Get cartesian coordinates of all atoms in \param molecule
@@ -55,12 +84,12 @@ void multiply_positions(Molecule<Vector3>& molecule, T multiplier) {
 /// three entries are the (x,y,z) coordinates of the first atom and so on.
 template<typename Vector3, typename Vector>
 Vector to_cartesian(const Molecule<Vector3>& molecule) {
-  const size_t n_atoms{molecule.size()};
+  const std::size_t n_atoms{molecule.size()};
 
   Vector x_cartesian{linalg::zeros<Vector>(3 * n_atoms)};
 
-  for (size_t i{0}; i < n_atoms; i++) {
-    for (size_t idx{0}; idx < 3; idx++) {
+  for (std::size_t i{0}; i < n_atoms; i++) {
+    for (std::size_t idx{0}; idx < 3; idx++) {
       x_cartesian(3 * i + idx) = molecule[i].position(idx);
     }
   }

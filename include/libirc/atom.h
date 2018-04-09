@@ -17,42 +17,69 @@ namespace atom {
 /// all the quantities accessible with dedicated functions are available
 /// in \headerfile periodic_table.h
 struct AtomicNumber {
-  size_t atomic_number;
+  std::size_t atomic_number;
 
-  AtomicNumber(size_t an);
+  AtomicNumber(std::size_t an);
 
   AtomicNumber(const std::string& symbol);
 };
+
+AtomicNumber::AtomicNumber(std::size_t an) {
+  if (!periodic_table::valid_atomic_number(an)) {
+    throw std::logic_error("Invalid atomic number.");
+  }
+
+  atomic_number = an;
+}
+
+AtomicNumber::AtomicNumber(const std::string& symbol)
+  : AtomicNumber(periodic_table::atomic_number(symbol)) {}
 
 /// Get an atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Atomic symbol corresponding to \class AtomicNumber
-std::string symbol(const AtomicNumber& an) noexcept;
+std::string symbol(const AtomicNumber& an) noexcept {
+  return periodic_table::symbols[an.atomic_number];
+}
 
+// TODO: constexpr for C++14
 /// Get atomic symbol from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Mass corresponding to \class AtomicNumber
-double mass(const AtomicNumber& an) noexcept;
+double mass(const AtomicNumber& an) noexcept {
+  return periodic_table::masses[an.atomic_number];
+}
 
+// TODO: constexpr for C++14
 /// Get covalent radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Covalent radius corresponding to \class AtomicNumber
-double covalent_radius(const AtomicNumber& an) noexcept;
+double covalent_radius(const AtomicNumber& an) noexcept {
+  return periodic_table::covalent_radii[an.atomic_number];
+}
 
+// TODO: constexpr for C++14
 /// Get Van der Waals radius from \class AtomicNumber
 ///
 /// \param an \class AtomicNumber
 /// \return Van der Waals radius corresponding to \class AtomicNumber
-double vdw_radius(const AtomicNumber& an) noexcept;
+double vdw_radius(const AtomicNumber& an) noexcept {
+  return periodic_table::vdw_radii[an.atomic_number];
+}
 
+// TODO: constexpr for C++14
 /// Check if an atom is either N, O, F, P, S or Cl
 ///
 /// \param an \class AtomicNumber
 /// \return
-bool is_NOFPSCl(const AtomicNumber& an) noexcept;
+bool is_NOFPSCl(const AtomicNumber& an) noexcept {
+  const std::size_t n{an.atomic_number};
+
+  return (n == 7 or n == 8 or n == 9 or n == 15 or n == 16 or n == 17);
+}
 
 /// Check if an atom is a hydrogen atom
 ///
