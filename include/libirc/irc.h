@@ -22,7 +22,16 @@ public:
   /// Compute initial projected inverted Hessian estimate
   ///
   /// \return Projected inverted initial Hessian
-  Matrix projected_initial_hessian_inv() const;
+  Matrix projected_initial_hessian_inv(double k_bond = 0.5,
+                                       double k_angle = 0.2,
+                                       double k_dihedral = 0.1) const;
+
+  /// Compute initial projected Hessian estimate
+  ///
+  /// \return Projected initial Hessian
+  Matrix projected_initial_hessian(double k_bond = 0.5,
+                                   double k_angle = 0.2,
+                                   double k_dihedral = 0.1) const;
 
   /// Project Hessian
   ///
@@ -138,32 +147,66 @@ IRC<Vector3, Vector, Matrix>::IRC(
   P = wilson::projector(B);
 }
 
+/// Initial estimate of the inverte Hessian in internal redundant coordinates
+///
+/// \return
+///
+/// V. Bakken and T. Helgaker, J. Chem. Phys 117, 9160 (2002).
+template<typename Vector3, typename Vector, typename Matrix>
+Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
+    double k_bond,
+    double k_angle,
+    double k_dihedral) const {
+  Matrix iH0(linalg::zeros<Matrix>(n_irc, n_irc));
+
+  std::size_t offset{0};
+
+  for (std::size_t i{0}; i < bonds.size(); i++) {
+    iH0(i, i) = 1. / k_bond;
+  }
+
+  offset = bonds.size();
+  for (std::size_t i{0}; i < angles.size(); i++) {
+    iH0(i + offset, i + offset) = 1. / k_angle;
+  }
+
+  offset = bonds.size() + angles.size();
+  for (std::size_t i{0}; i < dihedrals.size(); i++) {
+    iH0(i + offset, i + offset) = 1. / k_dihedral;
+  }
+
+  return P * iH0 * P;
+}
+
 /// Initial estimate of the Hessian in internal redundant coordinates
 ///
 /// \return
 ///
 /// V. Bakken and T. Helgaker, J. Chem. Phys 117, 9160 (2002).
 template<typename Vector3, typename Vector, typename Matrix>
-Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv() const {
+Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian(
+    double k_bond,
+    double k_angle,
+    double k_dihedral) const {
   Matrix H0(linalg::zeros<Matrix>(n_irc, n_irc));
 
   std::size_t offset{0};
 
   for (std::size_t i{0}; i < bonds.size(); i++) {
-    H0(i, i) = 0.5;
+    H0(i, i) = k_bond;
   }
 
   offset = bonds.size();
   for (std::size_t i{0}; i < angles.size(); i++) {
-    H0(i + offset, i + offset) = 0.2;
+    H0(i + offset, i + offset) = k_angle;
   }
 
   offset = bonds.size() + angles.size();
   for (std::size_t i{0}; i < dihedrals.size(); i++) {
-    H0(i + offset, i + offset) = 0.1;
+    H0(i + offset, i + offset) = k_dihedral;
   }
 
-  return P * linalg::inv<Matrix>(H0) * P;
+  return P * H0 * P;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
