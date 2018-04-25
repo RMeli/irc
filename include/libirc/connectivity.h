@@ -940,12 +940,12 @@ Vector cartesian_to_irc(const Vector& x_c,
                         const std::vector<connectivity::Dihedral>& dihedrals) {
 
   // Get number of bonds, angles and dihedrals
-  const auto n_bonds{bonds.size()};
-  const auto n_angles{angles.size()};
-  const auto n_dihedrals{dihedrals.size()};
+  const auto n_bonds = bonds.size();
+  const auto n_angles = angles.size();
+  const auto n_dihedrals = dihedrals.size();
 
   // Compute number of internal redundant coordinates
-  const auto n_irc{n_bonds + n_angles + n_dihedrals};
+  const auto n_irc = n_bonds + n_angles + n_dihedrals;
 
   // Allocate vector for internal redundant coordinates
   Vector q_irc{linalg::zeros<Vector>(n_irc)};
