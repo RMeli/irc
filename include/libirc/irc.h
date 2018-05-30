@@ -38,7 +38,7 @@ public:
   /// \param Hinv Inverted Hessian
   /// \return Projected inverted Hessian
   Matrix projected_hessian_inv(const Matrix& Hinv) const;
-  
+
   /// Project Hessian
   ///
   /// \param H Hessian
@@ -227,13 +227,12 @@ IRC<Vector3, Vector, Matrix>::projected_hessian_inv(const Matrix& Hinv) const {
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-Matrix
-IRC<Vector3, Vector, Matrix>::projected_hessian(const Matrix& H) const {
-  
+Matrix IRC<Vector3, Vector, Matrix>::projected_hessian(const Matrix& H) const {
+
   if (linalg::size(H) != n_irc * n_irc) {
     throw std::length_error("ERROR: Wrong Hessian size.");
   }
-  
+
   return P * H * P;
 }
 

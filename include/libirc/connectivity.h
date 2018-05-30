@@ -315,6 +315,16 @@ Matrix distances(const molecule::Molecule<Vector3>& molecule) {
 
 // TODO: Improve algorithm
 // TODO: Test
+/*!
+ *
+ * @tparam Matrix
+ * @param i First fragment index
+ * @param j Second fragment index
+ * @param fragments Fragment indices
+ * @param distances Distance matrix
+ * @return Tuple containing the indices of the atoms with minimum interfragment
+ * distance (between fragment @param i and fragment @j) and such distance.
+ */
 template<typename Matrix>
 std::tuple<std::size_t, std::size_t, double>
 min_interfragment_distance(std::size_t i,
@@ -381,23 +391,25 @@ identify_fragments(const UGraph& ug) {
  * @param molecule Molecule
  */
 template<typename Vector3, typename Matrix>
-void add_regular_bonds(UGraph& ug, const Matrix& distances, const molecule::Molecule<Vector3>& molecule){
+void add_regular_bonds(UGraph& ug,
+                       const Matrix& distances,
+                       const molecule::Molecule<Vector3>& molecule) {
   // Extract number of atoms
   const std::size_t n_atoms{molecule.size()};
-  
+
   double d{0.};
-  
+
   double sum_covalent_radii{0.};
-  
+
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{j + 1}; i < n_atoms; i++) {
       // Extract distance between atom i and atom j
       d = distances(i, j);
-      
+
       // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
                            atom::covalent_radius(molecule[j].atomic_number);
-      
+
       // Determine if atoms i and j are bonded
       if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
         // Add edge to boost::adjacency_list between vertices i and j
@@ -503,37 +515,39 @@ void add_interfragment_bonds(UGraph& ug, const Matrix& distances) {
 }
 
 // TODO: Better strategy to look for H-bonds (regular bonds are known)
-/*!
+/*! Search for hydrogen bonds
  *
  * @tparam Vector3
  * @tparam Matrix
- * @param ug
- * @param distances
- * @param molecule
+ * @param ug Adjacency matrix
+ * @param distances Distance matrix
+ * @param molecule Molecule
  */
 template<typename Vector3, typename Matrix>
-void add_hydrogen_bonds(UGraph& ug, const Matrix& distances, const molecule::Molecule<Vector3>& molecule) {
+void add_hydrogen_bonds(UGraph& ug,
+                        const Matrix& distances,
+                        const molecule::Molecule<Vector3>& molecule) {
   // Extract number of atoms
   const std::size_t n_atoms{molecule.size()};
-  
+
   double d{0.};
-  
+
   // Search for hydrogen bonds
   double sum_covalent_radii{0.};
   double sum_vdw_radii{0.};
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{j + 1}; i < n_atoms; i++) {
-      
+
       // Extract distance between atom i and atom j
       d = distances(i, j);
-      
+
       // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
                            atom::covalent_radius(molecule[j].atomic_number);
-      
+
       // Determine if atoms i and j are bonded
       if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
-        
+
         // TODO: Better ways of doing this?
         // Search for H-bonds: XH...Y
         if ((atom::is_NOFPSCl(molecule[i].atomic_number) and
@@ -541,12 +555,12 @@ void add_hydrogen_bonds(UGraph& ug, const Matrix& distances, const molecule::Mol
             (atom::is_NOFPSCl(molecule[j].atomic_number) and
              atom::is_H(molecule[i].atomic_number))) { // Possible H-bond
           // On atom is H, while the other is either N, O, F, P, S or Cl
-          
+
           std::size_t idx{0};   // X atom index
           std::size_t h_idx{0}; // Hydrogen bond index
-          
+
           double a{0}; // Angle between X, H and Y in XH...Y
-          
+
           // Assign correct indices to X and H
           if (atom::is_H(molecule[j].atomic_number)) {
             idx = i;
@@ -555,29 +569,29 @@ void add_hydrogen_bonds(UGraph& ug, const Matrix& distances, const molecule::Mol
             idx = j;
             h_idx = i;
           }
-          
+
           // Loop over all other atoms, excluding i and j, to find Y
           for (std::size_t k{0}; k < n_atoms; k++) {
             if (atom::is_NOFPSCl(molecule[k].atomic_number) and k != idx and
                 k != h_idx) {
-              
+
               // Load distance
               d = distances(h_idx, k);
-              
+
               // Compute sum of Van der Waals radii
               sum_vdw_radii = atom::vdw_radius(molecule[h_idx].atomic_number) +
                               atom::vdw_radius(molecule[k].atomic_number);
-              
+
               // Compute sum of covalent radii
               sum_covalent_radii =
                   atom::covalent_radius(molecule[h_idx].atomic_number) +
                   atom::covalent_radius(molecule[k].atomic_number);
-              
+
               // Angle (in radians)
               a = angle(molecule[idx].position,
                         molecule[h_idx].position,
                         molecule[k].position);
-              
+
               // Check H-bond properties
               if (d > sum_covalent_radii and
                   d < sum_vdw_radii * tools::constants::vdw_bond_multiplier and
@@ -613,13 +627,13 @@ UGraph adjacency_matrix(const Matrix& distances,
 
   // Define a undirected graph with n_atoms vertices
   UGraph ug(n_atoms);
-  
+
   // Add regular (covalent) bonds
   add_regular_bonds(ug, distances, molecule);
 
   // Add interfragment bonds to graph
   add_interfragment_bonds(ug, distances);
-  
+
   // Add hydrogen bonds
   add_hydrogen_bonds(ug, distances, molecule);
 
@@ -791,6 +805,17 @@ std::vector<Angle> angles(const Matrix& distance_m,
   return ang;
 }
 
+/// Determine all possible dihedrals between atoms i and j
+///
+/// \tparam Matrix
+/// \param i First atom index
+/// \param j Last atom index
+/// \param distance Distance matrix
+/// \return List of dihedral angles between atoms \param i and \param j
+///
+/// Dijkstra shortest paths algorithm returns only one shortest path. In some
+/// cases however, there might be different dihedrals between the same two
+/// end atoms.
 template<typename Matrix>
 std::vector<Dihedral>
 dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
