@@ -52,9 +52,9 @@ void multiply_positions(Molecule<Vector3>& molecule, T multiplier) {
  * @return Molecule with multiplied atomic positions
  */
 template<typename T, typename Vector3>
-Molecule<Vector3> operator*(Molecule<Vector3> molecule, T multiplier){
+Molecule<Vector3> operator*(Molecule<Vector3> molecule, T multiplier) {
   multiply_positions(molecule, multiplier);
-  
+
   return molecule;
 }
 
@@ -67,9 +67,9 @@ Molecule<Vector3> operator*(Molecule<Vector3> molecule, T multiplier){
  * @return Molecule with multiplied atomic positions
  */
 template<typename T, typename Vector3>
-Molecule<Vector3> operator*(T multiplier, Molecule<Vector3> molecule){
+Molecule<Vector3> operator*(T multiplier, Molecule<Vector3> molecule) {
   multiply_positions(molecule, multiplier);
-  
+
   return molecule;
 }
 
@@ -95,21 +95,6 @@ Vector to_cartesian(const Molecule<Vector3>& molecule) {
   }
 
   return x_cartesian;
-}
-
-/// Print a molecule
-///
-/// \tparam T 3D vector
-/// \param out Output stream
-/// \param molecule Molecule
-/// \return Output stream
-template<typename Vector3>
-std::ostream& operator<<(std::ostream& out, const Molecule<Vector3>& molecule) {
-  for (const auto& atom : molecule) {
-    out << atom;
-  }
-
-  return out;
 }
 
 } // namespace molecule

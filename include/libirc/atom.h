@@ -123,83 +123,25 @@ struct Atom {
   Atom(const std::string& symbol, const Vector3& pos = {0., 0., 0.});
 };
 
+/*! Construct and atom from atomic number @param an
+ *
+ * @tparam Vector3
+ * @param an Atomic number
+ * @param pos Atomic position
+ */
 template<typename Vector3>
 Atom<Vector3>::Atom(const AtomicNumber& an, const Vector3& pos)
   : atomic_number(an), position(pos) {}
 
+/*! Construct and atom from atomic symbol @param symbol
+ *
+ * @tparam Vector3
+ * @param symbol Atomic symbol
+ * @param pos Atomic position
+ */
 template<typename Vector3>
 Atom<Vector3>::Atom(const std::string& symbol, const Vector3& pos)
   : atomic_number(symbol), position(pos) {}
-
-/// Output operator for an atom
-///
-/// \tparam T Mathematical vector (possibly of three dimensions)
-/// \param out Output stream
-/// \param a \class Atom<T>
-/// \return Output stream
-template<typename Vector3>
-std::ostream& operator<<(std::ostream& out, const Atom<Vector3>& a) {
-  // Print top line
-  out << std::left << std::setw(15) << std::setfill('-') << '+';
-  out << ' ';
-  out << std::left << std::setw(2) << std::setfill(' ');
-  out << symbol(a.atomic_number) << ' ';
-  out << std::right << std::setw(15) << std::setfill('-') << '+' << std::endl;
-
-  // Print atomic number
-  out << std::setfill(' ');
-  out << std::left << std::setw(20) << "| atomic number:";
-  out << std::right << std::setw(12) << a.atomic_number;
-  out << " |" << std::endl;
-
-  // Print atomic mass
-  out << std::setfill(' ');
-  out << std::fixed << std::setprecision(5) << std::scientific;
-  out << std::left << std::setw(20) << "| atomic mass:";
-  out << std::right << std::setw(12);
-  out << mass(a.atomic_number) << " |" << std::endl;
-
-  // Print covalent radius
-  out << std::setfill(' ');
-  out << std::fixed << std::setprecision(5) << std::scientific;
-  out << std::left << std::setw(20) << "| covalent radius:";
-  out << std::right << std::setw(12);
-  out << covalent_radius(a.atomic_number) << " |" << std::endl;
-
-  // Print position
-  out << std::setfill(' ');
-  out << std::fixed << std::setprecision(5) << std::scientific;
-  out << std::left << std::setw(20) << "| position:";
-  out << std::right << std::setw(14);
-  out << " |" << std::endl;
-
-  // x coordinate
-  out << std::setfill(' ');
-  out << std::fixed << std::setprecision(5) << std::scientific;
-  out << std::left << std::setw(20) << "|    x =";
-  out << std::right << std::setw(12) << a.position(0);
-  out << " |" << std::endl;
-
-  // y coordinate
-  out << std::setfill(' ');
-  out << std::fixed << std::setprecision(5) << std::scientific;
-  out << std::left << std::setw(20) << "|    y =";
-  out << std::right << std::setw(12) << a.position(1);
-  out << " |" << std::endl;
-
-  // z coordinate
-  out << std::setfill(' ');
-  out << std::fixed << std::setprecision(5) << std::scientific;
-  out << std::left << std::setw(20) << "|    x =";
-  out << std::right << std::setw(12) << a.position(2);
-  out << " |" << std::endl;
-
-  // Print bottom line
-  out << std::left << std::setw(17) << std::setfill('-') << '+';
-  out << std::right << std::setw(17) << std::setfill('-') << '+' << std::endl;
-
-  return out;
-}
 
 } // namespace atom
 

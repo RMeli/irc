@@ -32,12 +32,12 @@ using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 
 using namespace irc;
 
-TEST_CASE("RMS"){
+TEST_CASE("RMS") {
   using namespace transformation;
-  
+
   vec v{1, 2, 3, 4};
-  
-  CHECK( rms(v) == Approx( std::sqrt(30 / 4.) ) );
+
+  CHECK(rms(v) == Approx(std::sqrt(30 / 4.)));
 }
 
 TEST_CASE("Transformation") {

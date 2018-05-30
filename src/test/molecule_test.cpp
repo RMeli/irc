@@ -32,32 +32,31 @@ TEST_CASE("Molecule") {
 
   SECTION("Position multiplier") {
     auto multiplier = 2.;
-    
+
     auto scaled_molecule = molecule;
     multiply_positions(scaled_molecule, multiplier);
 
     for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
       for (std::size_t j{0}; j < 3; j++) {
-        CHECK(
-            scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
+        CHECK(scaled_molecule[i].position(j) ==
+              Approx(multiplier * molecule[i].position(j)));
       }
     }
-    
+
     scaled_molecule = molecule * multiplier;
     for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
       for (std::size_t j{0}; j < 3; j++) {
-        CHECK(
-            scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
+        CHECK(scaled_molecule[i].position(j) ==
+              Approx(multiplier * molecule[i].position(j)));
       }
     }
-  
+
     scaled_molecule = multiplier * molecule;
     for (std::size_t i{0}; i < scaled_molecule.size(); i++) {
       for (std::size_t j{0}; j < 3; j++) {
-        CHECK(
-            scaled_molecule[i].position(j) == Approx(multiplier * molecule[i].position(j)));
+        CHECK(scaled_molecule[i].position(j) ==
+              Approx(multiplier * molecule[i].position(j)));
       }
     }
-    
   }
 }
