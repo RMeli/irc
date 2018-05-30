@@ -33,11 +33,17 @@ public:
                                    double k_angle = 0.2,
                                    double k_dihedral = 0.1) const;
 
+  /// Project inverted Hessian
+  ///
+  /// \param Hinv Inverted Hessian
+  /// \return Projected inverted Hessian
+  Matrix projected_hessian_inv(const Matrix& Hinv) const;
+  
   /// Project Hessian
   ///
   /// \param H Hessian
   /// \return Projected Hessian
-  Matrix projected_hessian_inv(const Matrix& Hinv) const;
+  Matrix projected_hessian(const Matrix& H) const;
 
   /// Transform gradient from cartesian coordinates to projected redundant
   /// internal coordinates.
@@ -147,7 +153,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   P = wilson::projector(B);
 }
 
-/// Initial estimate of the inverte Hessian in internal redundant coordinates
+/// Initial estimate of the inverse Hessian in internal redundant coordinates
 ///
 /// \return
 ///
@@ -218,6 +224,17 @@ IRC<Vector3, Vector, Matrix>::projected_hessian_inv(const Matrix& Hinv) const {
   }
 
   return P * Hinv * P;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+Matrix
+IRC<Vector3, Vector, Matrix>::projected_hessian(const Matrix& H) const {
+  
+  if (linalg::size(H) != n_irc * n_irc) {
+    throw std::length_error("ERROR: Wrong Hessian size.");
+  }
+  
+  return P * H * P;
 }
 
 /// Transform gradient in cartesian coordinates to gradient in internal

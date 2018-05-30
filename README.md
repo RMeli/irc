@@ -5,7 +5,7 @@
 [![GitHub top language](https://img.shields.io/github/languages/top/RMeli/irc.svg)](https://isocpp.org/)
 [![GitHub license](https://img.shields.io/github/license/RMeli/irc.svg)](https://github.com/RMeli/irc/blob/master/LICENSE)
 
-**DISCLAMIER:** *IRC is currently under developement. At the current sage is therefore unfinished, unpolished, not extensively tested and not used in any production code. It is open-sourced so that it is easy to contribute to its development. When the library is ready and safe to use, this disclaimer will be removed and a release will be created.*
+**DISCLAMIER:** *IRC is currently under developement. At the current sage is therefore unfinished, unpolished, and not extensively tested. It is open-sourced so that it is easy to contribute to its development.*
 
 IRC is a modern C++ library allowing the determination of internal redundant coordinates (and transformation to and from Cartesian coordinates) for geometry optimization of molecules. The aim of this library is to provide an easy-to-use, flexible and portable implementation of internal redundant coordinates for modern electronic structure codes.
 
