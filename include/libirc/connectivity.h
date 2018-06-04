@@ -45,19 +45,53 @@ using DistanceMatrix = DistanceProperty::matrix_type;
 /// Triplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
-struct Bond {
+class Bond {
+ public :
+  Bond(const std::pair<std::size_t,std::size_t>& b)
+  : i(b.first), j(b.second){
+    if(i == j){
+      throw std::logic_error("Bond error.");
+    }
+    
+    // Ordering (needed for hash function)
+    if(j < i) {
+      std::swap(i, j);
+    }
+  }
+  
+  Bond(const std::size_t& i_, const std::size_t& j_)
+  : Bond(std::make_pair(i_, j_))
+  {}
+  
   std::size_t i;
   std::size_t j;
   
   constexpr bool operator==(const Bond& b) const {
-    return (i == b.i && j == b.j) || (i == b.j && j == b.i);
+    return (i == b.i && j == b.j);
   }
 };
 
 /// Triplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
-struct Angle {
+class Angle {
+ public:
+  Angle(const std::tuple<std::size_t,std::size_t,std::size_t>& a)
+  : i(std::get<0>(a)), j(std::get<1>(a)), k(std::get<2>(a)){
+    if(i == j || i == k || j == k){
+      throw std::logic_error("Angle error.");
+    }
+  
+    // Ordering (needed for hash function)
+    if(k < i){
+      std::swap(i,k);
+    }
+  }
+  
+  Angle(const std::size_t& i_, const std::size_t& j_, const std::size_t& k_)
+  : Angle(std::make_tuple(i_,j_,k_))
+  {}
+  
   std::size_t i;
   std::size_t j;
   std::size_t k;
@@ -71,7 +105,25 @@ struct Angle {
 /// Quadruplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
-struct Dihedral {
+class Dihedral {
+ public:
+  Dihedral(const std::tuple<std::size_t,std::size_t, std::size_t, std::size_t>& d)
+  : i(std::get<0>(d)), j(std::get<1>(d)), k(std::get<2>(d)), l(std::get<3>(d)){
+    if(i == k || i == k || i == l || j == k || j == l || k == l){
+      throw std::logic_error("Dihedral error.");
+    }
+  
+    // Ordering (needed for hash function)
+    if(l < i){
+      std::swap(i,l);
+      std::swap(j,k);
+    }
+  }
+  
+  Dihedral(const std::size_t& i_, const std::size_t& j_, const std::size_t& k_, const std::size_t& l_)
+  : Dihedral(std::make_tuple(i_,j_,k_,l_))
+  {}
+  
   std::size_t i;
   std::size_t j;
   std::size_t k;
@@ -725,7 +777,7 @@ std::vector<Bond> bonds(const Matrix& distance_m,
 
       if (iround(distance_m(i, j)) == 1) {
         // Store bond information between atom i and atom j
-        b.push_back({i, j});
+        b.emplace(b.end(), std::make_pair(i, j));
       }
     }
   }
@@ -760,7 +812,7 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
   // Compute possible (i,k,j) angles
   for (std::size_t k{0}; k < n_atoms; k++) {
     if (iround(distance(k, i)) == 1 and iround(distance(k, j)) == 1) {
-      angles.push_back({i, k, j});
+      angles.emplace(angles.end(), std::make_tuple(i, k, j));
     }
   }
 
@@ -846,7 +898,7 @@ dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
       for (std::size_t l{0}; l < n_atoms; l++) {
         if (iround(distance(l, i)) == 2 && iround(distance(l, j)) == 1 &&
             iround(distance(l, k)) == 1) {
-          dihedrals.push_back({i, k, l, j});
+          dihedrals.emplace(dihedrals.end(), std::make_tuple(i, k, l, j));
         }
       }
     }
@@ -891,12 +943,12 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
         D = dihedrals(i, j, distance_m);
 
         for (const auto& dd : D) {
-          a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
+          a1 = angle<Vector3>(std::make_tuple(dd.i, dd.j, dd.k), molecule);
           if (std::abs(a1 - 180) < epsilon) {
             linear = true;
           }
 
-          a2 = angle<Vector3>({dd.j, dd.k, dd.l}, molecule);
+          a2 = angle<Vector3>(std::make_tuple(dd.j, dd.k, dd.l), molecule);
           if (std::abs(a2 - 180) < epsilon) {
             linear = true;
           }

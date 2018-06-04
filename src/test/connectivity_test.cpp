@@ -63,6 +63,10 @@ bad_from_molecule(const molecule::Molecule<Vector3>& mol) {
   return std::make_tuple(B, A, D);
 }
 
+TEST_CASE("Bonds, angles and dihedral angles"){
+
+}
+
 TEST_CASE("Distance, angle and dihedral angle") {
   using namespace connectivity;
 
