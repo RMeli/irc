@@ -45,29 +45,100 @@ using DistanceMatrix = DistanceProperty::matrix_type;
 /// Triplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
-struct Bond {
+class Bond {
+public:
+  Bond(const std::pair<std::size_t, std::size_t>& b) : i(b.first), j(b.second) {
+    if (i == j) {
+      throw std::logic_error("Bond error.");
+    }
+
+    // Ordering (needed for hash function)
+    if (j < i) {
+      std::swap(i, j);
+    }
+  }
+
+  Bond(const std::size_t& i_, const std::size_t& j_)
+    : Bond(std::make_pair(i_, j_)) {}
+
   std::size_t i;
   std::size_t j;
+
+  constexpr bool operator==(const Bond& b) const {
+    return i == b.i && j == b.j;
+  }
+
+  constexpr bool operator!=(const Bond& b) const { return !(*this == b); }
 };
 
 /// Triplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
-struct Angle {
+class Angle {
+public:
+  Angle(const std::tuple<std::size_t, std::size_t, std::size_t>& a)
+    : i(std::get<0>(a)), j(std::get<1>(a)), k(std::get<2>(a)) {
+    if (i == j || i == k || j == k) {
+      throw std::logic_error("Angle error.");
+    }
+
+    // Ordering (needed for hash function)
+    if (k < i) {
+      std::swap(i, k);
+    }
+  }
+
+  Angle(const std::size_t& i_, const std::size_t& j_, const std::size_t& k_)
+    : Angle(std::make_tuple(i_, j_, k_)) {}
+
   std::size_t i;
   std::size_t j;
   std::size_t k;
   // enum class linear{NONE, XY, YZ}; // Use switch
+
+  constexpr bool operator==(const Angle& a) const {
+    return i == a.i && j == a.j && k == a.k;
+  }
+
+  constexpr bool operator!=(const Angle& a) const { return !(*this == a); }
 };
 
 /// Quadruplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
-struct Dihedral {
+class Dihedral {
+public:
+  Dihedral(
+      const std::tuple<std::size_t, std::size_t, std::size_t, std::size_t>& d)
+    : i(std::get<0>(d)), j(std::get<1>(d)), k(std::get<2>(d)),
+      l(std::get<3>(d)) {
+    if (i == j || i == k || i == l || j == k || j == l || k == l) {
+      throw std::logic_error("Dihedral error.");
+    }
+
+    // Ordering (needed for hash function)
+    if (l < i) {
+      std::swap(i, l);
+      std::swap(j, k);
+    }
+  }
+
+  Dihedral(const std::size_t& i_,
+           const std::size_t& j_,
+           const std::size_t& k_,
+           const std::size_t& l_)
+    : Dihedral(std::make_tuple(i_, j_, k_, l_)) {}
+
   std::size_t i;
   std::size_t j;
   std::size_t k;
   std::size_t l;
+
+  constexpr bool operator==(const Dihedral& d) const {
+    return i == d.i && j == d.j && k == d.k && l == d.l;
+  }
+
+  constexpr bool operator!=(const Dihedral& d) const { return !(*this == d); }
 };
 
 /// Compute the distance between two points
@@ -315,6 +386,16 @@ Matrix distances(const molecule::Molecule<Vector3>& molecule) {
 
 // TODO: Improve algorithm
 // TODO: Test
+/*!
+ *
+ * @tparam Matrix
+ * @param i First fragment index
+ * @param j Second fragment index
+ * @param fragments Fragment indices
+ * @param distances Distance matrix
+ * @return Tuple containing the indices of the atoms with minimum interfragment
+ * distance (between fragment @param i and fragment @j) and such distance.
+ */
 template<typename Matrix>
 std::tuple<std::size_t, std::size_t, double>
 min_interfragment_distance(std::size_t i,
@@ -370,6 +451,44 @@ identify_fragments(const UGraph& ug) {
       boost::connected_components(ug, &fragments[0])};
 
   return {num_fragments, fragments};
+}
+
+/*! Search for regular bonds (covalent bonds)
+ *
+ * @tparam Vector3
+ * @tparam Matrix
+ * @param ug Adjacency matrix
+ * @param distances Distance matrix
+ * @param molecule Molecule
+ */
+template<typename Vector3, typename Matrix>
+void add_regular_bonds(UGraph& ug,
+                       const Matrix& distances,
+                       const molecule::Molecule<Vector3>& molecule) {
+  // Extract number of atoms
+  const std::size_t n_atoms{molecule.size()};
+
+  double d{0.};
+
+  double sum_covalent_radii{0.};
+
+  for (std::size_t j{0}; j < n_atoms; j++) {
+    for (std::size_t i{j + 1}; i < n_atoms; i++) {
+      // Extract distance between atom i and atom j
+      d = distances(i, j);
+
+      // Compute sum of covalent radii for atoms i and j
+      sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
+                           atom::covalent_radius(molecule[j].atomic_number);
+
+      // Determine if atoms i and j are bonded
+      if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
+        // Add edge to boost::adjacency_list between vertices i and j
+        // The weights are set to 1 for all edges.
+        boost::add_edge(i, j, 1, ug);
+      }
+    }
+  } // End search for regular bonds
 }
 
 // TODO: Improve algorithm
@@ -466,130 +585,26 @@ void add_interfragment_bonds(UGraph& ug, const Matrix& distances) {
   return;
 }
 
-/// Compute adjacency matrix for \param molecule
-///
-/// \tparam Vector3 3D vector
-/// \tparam Matrix Matrix
-/// \param distance_m Distance matrix for \param molecule
-/// \param molecule Molecule
-/// \return Adjacency matrix
-///
-/// The adjacency matrix is represented here by a boost::adjacency_list object
-/// as implemented in the Boost Graph Library (BGL).
-/// The number of vertices corresponds to the number of atoms, while the
-/// number of edges is determined by bonding.
+// TODO: Better strategy to look for H-bonds (regular bonds are known)
+/*! Search for hydrogen bonds
+ *
+ * @tparam Vector3
+ * @tparam Matrix
+ * @param ug Adjacency matrix
+ * @param distances Distance matrix
+ * @param molecule Molecule
+ */
 template<typename Vector3, typename Matrix>
-UGraph adjacency_matrix(const Matrix& distances,
+void add_hydrogen_bonds(UGraph& ug,
+                        const Matrix& distances,
                         const molecule::Molecule<Vector3>& molecule) {
   // Extract number of atoms
   const std::size_t n_atoms{molecule.size()};
 
-  // Define a undirected graph with n_atoms vertices
-  UGraph ug(n_atoms);
-
-  // Search for regular bonds
   double d{0.};
-  double sum_covalent_radii{0.};
-  for (std::size_t j{0}; j < n_atoms; j++) {
-    for (std::size_t i{j + 1}; i < n_atoms; i++) {
-      // Extract distance between atom i and atom j
-      d = distances(i, j);
 
-      // Compute sum of covalent radii for atoms i and j
-      sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
-                           atom::covalent_radius(molecule[j].atomic_number);
-
-      // Determine if atoms i and j are bonded
-      if (d < tools::constants::covalent_bond_multiplier * sum_covalent_radii) {
-        // Add edge to boost::adjacency_list between vertices i and j
-        // The weights are set to 1 for all edges.
-        boost::add_edge(i, j, 1, ug);
-      }
-    }
-  } // End search for regular bonds
-
-  // Add interfragment bonds to graph
-  add_interfragment_bonds(ug, distances);
-
-  /*
-  std::size_t num_fragments;
-  std::vector<std::size_t> fragments;
-
-  // Get number of fragments and fragment indices
-  std::tie(num_fragments, fragments) = identify_fragments(ug);
-
-  // The system if made up of multiple fragments
-  if (num_fragments > 1) {
-
-    std::cerr << "WARNING: Fragments not yet fully supported." << std::endl;
-
-    // Print fragments
-    std::cout << "\nFragments: " << std::endl;
-    for (std::size_t idx : fragments) {
-      std::cout << idx << ' ';
-    }
-    std::cout << std::endl;
-
-    // Minimum interfragment distances
-    Matrix
-  min_dist_fragments{linalg::zeros<Matrix>(num_fragments,num_fragments)};
-
-    // Determine minimal interfragment distances
-    std::size_t i_min{0}, j_min{0};
-    double min_d{0};
-    for(std::size_t j{0}; j < num_fragments; j++){
-      for(std::size_t i{0}; i < j; i++) {
-        std::tie(i_min, j_min, min_d) =
-            min_interfragment_distance<Matrix>(i, j, fragments, distances);
-
-        min_dist_fragments(i,j) = min_d;
-        min_dist_fragments(j,i) = min_d;
-      }
-    }
-
-    // Print minimal interfragment distances
-    std::vector<std::vector<bool>> bonded_fragments(num_fragments,
-  std::vector<bool>(num_fragments, false)); std::cout << "MIN_DIST_FRAGMENTS=\n"
-  << min_dist_fragments * tools::conversion::bohr_to_angstrom << std::endl;
-
-
-    // Interfragment minimal distances
-    std::size_t i_min{0}, j_min{0};
-    double min_d{0};
-    for (std::size_t i{0}; i < num_fragments; i++) {
-      for (std::size_t j{i + 1}; j < num_fragments; j++) {
-        std::tie(i_min, j_min, min_d) =
-            min_interfragment_distance<Matrix>(i, j, fragments, distances);
-
-        // Add shortest interfragment bond
-        boost::add_edge(i_min, j_min, 1, ug);
-
-        for (std::size_t k{0}; k < n_atoms; k++) {
-          for (std::size_t l{0}; l < n_atoms; l++) {
-            if (k != l and fragments[k] == i and fragments[l] == j) {
-              d = distances(l, k);
-
-              // TODO: Check
-              if (d <
-                  std::min(min_d *
-                           tools::constants::interfragment_bond_multiplier,
-                           2. * tools::conversion::angstrom_to_bohr)) {
-                boost::add_edge(l, k, 1, ug);
-              }
-            }
-          }
-        }
-
-
-        std::cout << "min(" << i << ',' << j << ';' << i_min << ',' << j_min
-                  << "): " << min_d << std::endl;
-      }
-    }
-  }
-  */
-
-  // TODO: Better strategy to look for H-bonds (regular bonds are known)
   // Search for hydrogen bonds
+  double sum_covalent_radii{0.};
   double sum_vdw_radii{0.};
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{j + 1}; i < n_atoms; i++) {
@@ -661,6 +676,37 @@ UGraph adjacency_matrix(const Matrix& distances,
       }
     }
   } // End search for hydrogen bonds
+}
+
+/// Compute adjacency matrix for \param molecule
+///
+/// \tparam Vector3 3D vector
+/// \tparam Matrix Matrix
+/// \param distance_m Distance matrix for \param molecule
+/// \param molecule Molecule
+/// \return Adjacency matrix
+///
+/// The adjacency matrix is represented here by a boost::adjacency_list object
+/// as implemented in the Boost Graph Library (BGL).
+/// The number of vertices corresponds to the number of atoms, while the
+/// number of edges is determined by bonding.
+template<typename Vector3, typename Matrix>
+UGraph adjacency_matrix(const Matrix& distances,
+                        const molecule::Molecule<Vector3>& molecule) {
+  // Extract number of atoms
+  const std::size_t n_atoms{molecule.size()};
+
+  // Define a undirected graph with n_atoms vertices
+  UGraph ug(n_atoms);
+
+  // Add regular (covalent) bonds
+  add_regular_bonds(ug, distances, molecule);
+
+  // Add interfragment bonds to graph
+  add_interfragment_bonds(ug, distances);
+
+  // Add hydrogen bonds
+  add_hydrogen_bonds(ug, distances, molecule);
 
   // TODO: Extra redundant coordinates.
 
@@ -738,7 +784,7 @@ std::vector<Bond> bonds(const Matrix& distance_m,
 
       if (iround(distance_m(i, j)) == 1) {
         // Store bond information between atom i and atom j
-        b.push_back({i, j});
+        b.emplace(b.end(), std::make_pair(i, j));
       }
     }
   }
@@ -773,7 +819,7 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
   // Compute possible (i,k,j) angles
   for (std::size_t k{0}; k < n_atoms; k++) {
     if (iround(distance(k, i)) == 1 and iround(distance(k, j)) == 1) {
-      angles.push_back({i, k, j});
+      angles.emplace(angles.end(), std::make_tuple(i, k, j));
     }
   }
 
@@ -830,6 +876,17 @@ std::vector<Angle> angles(const Matrix& distance_m,
   return ang;
 }
 
+/// Determine all possible dihedrals between atoms i and j
+///
+/// \tparam Matrix
+/// \param i First atom index
+/// \param j Last atom index
+/// \param distance Distance matrix
+/// \return List of dihedral angles between atoms \param i and \param j
+///
+/// Dijkstra shortest paths algorithm returns only one shortest path. In some
+/// cases however, there might be different dihedrals between the same two
+/// end atoms.
 template<typename Matrix>
 std::vector<Dihedral>
 dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
@@ -848,7 +905,7 @@ dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
       for (std::size_t l{0}; l < n_atoms; l++) {
         if (iround(distance(l, i)) == 2 && iround(distance(l, j)) == 1 &&
             iround(distance(l, k)) == 1) {
-          dihedrals.push_back({i, k, l, j});
+          dihedrals.emplace(dihedrals.end(), std::make_tuple(i, k, l, j));
         }
       }
     }
@@ -893,12 +950,12 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
         D = dihedrals(i, j, distance_m);
 
         for (const auto& dd : D) {
-          a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
+          a1 = angle<Vector3>(std::make_tuple(dd.i, dd.j, dd.k), molecule);
           if (std::abs(a1 - 180) < epsilon) {
             linear = true;
           }
 
-          a2 = angle<Vector3>({dd.j, dd.k, dd.l}, molecule);
+          a2 = angle<Vector3>(std::make_tuple(dd.j, dd.k, dd.l), molecule);
           if (std::abs(a2 - 180) < epsilon) {
             linear = true;
           }

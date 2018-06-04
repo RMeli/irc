@@ -233,9 +233,8 @@ wilson_matrix(const Vector& x_cartesian,
   std::size_t offset{0};
 
   // Populate B matrix's rows corresponding to bonds
-  connectivity::Bond bond;
   for (std::size_t i{0}; i < bonds.size(); i++) {
-    bond = bonds[i];
+    auto bond = bonds[i];
 
     for (std::size_t m{0}; m < 3; m++) {
       p1(m) = x_cartesian(3 * bond.i + m);
@@ -252,9 +251,8 @@ wilson_matrix(const Vector& x_cartesian,
 
   // Populate B matrix's rows corresponding to angles
   offset = bonds.size();
-  connectivity::Angle angle;
   for (std::size_t i{0}; i < angles.size(); i++) {
-    angle = angles[i];
+    auto angle = angles[i];
 
     for (std::size_t m{0}; m < 3; m++) {
       p1(m) = x_cartesian(3 * angle.i + m);
@@ -273,9 +271,8 @@ wilson_matrix(const Vector& x_cartesian,
 
   // Populate B matrix's rows corresponding to dihedrals
   offset = bonds.size() + angles.size();
-  connectivity::Dihedral dihedral;
   for (std::size_t i{0}; i < dihedrals.size(); i++) {
-    dihedral = dihedrals[i];
+    auto dihedral = dihedrals[i];
 
     for (std::size_t m{0}; m < 3; m++) {
       p1(m) = x_cartesian(3 * dihedral.i + m);
