@@ -46,104 +46,99 @@ using DistanceMatrix = DistanceProperty::matrix_type;
 ///
 /// Atoms are represented by their index in a list of coordinates.
 class Bond {
- public :
-  Bond(const std::pair<std::size_t,std::size_t>& b)
-  : i(b.first), j(b.second){
-    if(i == j){
+public:
+  Bond(const std::pair<std::size_t, std::size_t>& b) : i(b.first), j(b.second) {
+    if (i == j) {
       throw std::logic_error("Bond error.");
     }
-    
+
     // Ordering (needed for hash function)
-    if(j < i) {
+    if (j < i) {
       std::swap(i, j);
     }
   }
-  
+
   Bond(const std::size_t& i_, const std::size_t& j_)
-  : Bond(std::make_pair(i_, j_))
-  {}
-  
+    : Bond(std::make_pair(i_, j_)) {}
+
   std::size_t i;
   std::size_t j;
-  
+
   constexpr bool operator==(const Bond& b) const {
     return i == b.i && j == b.j;
   }
-  
-  constexpr bool operator!=(const Bond& b) const{
-    return !(*this == b);
-  }
+
+  constexpr bool operator!=(const Bond& b) const { return !(*this == b); }
 };
 
 /// Triplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
 class Angle {
- public:
-  Angle(const std::tuple<std::size_t,std::size_t,std::size_t>& a)
-  : i(std::get<0>(a)), j(std::get<1>(a)), k(std::get<2>(a)){
-    if(i == j || i == k || j == k){
+public:
+  Angle(const std::tuple<std::size_t, std::size_t, std::size_t>& a)
+    : i(std::get<0>(a)), j(std::get<1>(a)), k(std::get<2>(a)) {
+    if (i == j || i == k || j == k) {
       throw std::logic_error("Angle error.");
     }
-  
+
     // Ordering (needed for hash function)
-    if(k < i){
-      std::swap(i,k);
+    if (k < i) {
+      std::swap(i, k);
     }
   }
-  
+
   Angle(const std::size_t& i_, const std::size_t& j_, const std::size_t& k_)
-  : Angle(std::make_tuple(i_,j_,k_))
-  {}
-  
+    : Angle(std::make_tuple(i_, j_, k_)) {}
+
   std::size_t i;
   std::size_t j;
   std::size_t k;
   // enum class linear{NONE, XY, YZ}; // Use switch
-  
-  constexpr bool operator==(const Angle& a) const{
+
+  constexpr bool operator==(const Angle& a) const {
     return i == a.i && j == a.j && k == a.k;
   }
-  
-  constexpr bool operator!=(const Angle& a) const{
-    return !(*this == a);
-  }
+
+  constexpr bool operator!=(const Angle& a) const { return !(*this == a); }
 };
 
 /// Quadruplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
 class Dihedral {
- public:
-  Dihedral(const std::tuple<std::size_t,std::size_t, std::size_t, std::size_t>& d)
-  : i(std::get<0>(d)), j(std::get<1>(d)), k(std::get<2>(d)), l(std::get<3>(d)){
-    if(i == j || i == k || i == l || j == k || j == l || k == l){
+public:
+  Dihedral(
+      const std::tuple<std::size_t, std::size_t, std::size_t, std::size_t>& d)
+    : i(std::get<0>(d)), j(std::get<1>(d)), k(std::get<2>(d)),
+      l(std::get<3>(d)) {
+    if (i == j || i == k || i == l || j == k || j == l || k == l) {
       throw std::logic_error("Dihedral error.");
     }
-  
+
     // Ordering (needed for hash function)
-    if(l < i){
-      std::swap(i,l);
-      std::swap(j,k);
+    if (l < i) {
+      std::swap(i, l);
+      std::swap(j, k);
     }
   }
-  
-  Dihedral(const std::size_t& i_, const std::size_t& j_, const std::size_t& k_, const std::size_t& l_)
-  : Dihedral(std::make_tuple(i_,j_,k_,l_))
-  {}
-  
+
+  Dihedral(const std::size_t& i_,
+           const std::size_t& j_,
+           const std::size_t& k_,
+           const std::size_t& l_)
+    : Dihedral(std::make_tuple(i_, j_, k_, l_)) {}
+
   std::size_t i;
   std::size_t j;
   std::size_t k;
   std::size_t l;
-  
-  constexpr bool operator==(const Dihedral& d) const{
+
+  constexpr bool operator==(const Dihedral& d) const {
     return i == d.i && j == d.j && k == d.k && l == d.l;
   }
-  
-  constexpr bool operator!=(const Dihedral& d) const{
-    return !(*this == d);
-  }
+
+  constexpr bool operator!=(const Dihedral& d) const { return !(*this == d); }
 };
 
 /// Compute the distance between two points
