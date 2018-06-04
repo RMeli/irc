@@ -64,7 +64,61 @@ bad_from_molecule(const molecule::Molecule<Vector3>& mol) {
 }
 
 TEST_CASE("Bonds, angles and dihedral angles"){
-
+  using namespace connectivity;
+  
+  CHECK_THROWS(Bond{0,0});
+  
+  Bond b1{0,1};
+  Bond b2{1,0};
+  Bond b3{b1};
+  Bond b4{0,2};
+  
+  CHECK(b1 == b2);
+  CHECK(b1 == b3);
+  CHECK(b1 != b4);
+  
+  CHECK_THROWS(Angle{0,0,1});
+  CHECK_THROWS(Angle{0,1,0});
+  CHECK_THROWS(Angle{1,0,0});
+  CHECK_THROWS(Angle{0,0,0});
+  
+  Angle a1{0,1,2};
+  Angle a2{2,1,0};
+  Angle a3{a1};
+  Angle a4{1,2,3};
+  
+  CHECK(a1 == a2);
+  CHECK(a1 == a3);
+  CHECK(a1 != a4);
+  
+  CHECK_THROWS(Dihedral{0,0,1,2});
+  CHECK_THROWS(Dihedral{0,1,0,2});
+  CHECK_THROWS(Dihedral{0,1,2,0});
+  CHECK_THROWS(Dihedral{1,0,0,2});
+  CHECK_THROWS(Dihedral{1,0,2,0});
+  CHECK_THROWS(Dihedral{1,2,0,0});
+  
+  CHECK_THROWS(Dihedral{1,0,0,0});
+  CHECK_THROWS(Dihedral{0,1,0,0});
+  CHECK_THROWS(Dihedral{0,0,1,0});
+  CHECK_THROWS(Dihedral{0,0,0,1});
+  
+  CHECK_THROWS(Dihedral{0,0,1,1});
+  CHECK_THROWS(Dihedral{0,1,0,1});
+  CHECK_THROWS(Dihedral{0,1,1,0});
+  CHECK_THROWS(Dihedral{1,0,1,0});
+  CHECK_THROWS(Dihedral{1,1,0,0});
+  
+  CHECK_THROWS(Dihedral{0,0,0,0});
+  
+  Dihedral d1{0,1,2,3};
+  Dihedral d2{3,2,1,0};
+  Dihedral d3{d1};
+  Dihedral d4{1,2,3,4};
+  
+  CHECK(d1 == d2);
+  CHECK(d1 == d3);
+  CHECK(d1 != d4);
 }
 
 TEST_CASE("Distance, angle and dihedral angle") {

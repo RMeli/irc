@@ -67,7 +67,11 @@ class Bond {
   std::size_t j;
   
   constexpr bool operator==(const Bond& b) const {
-    return (i == b.i && j == b.j);
+    return i == b.i && j == b.j;
+  }
+  
+  constexpr bool operator!=(const Bond& b) const{
+    return !(*this == b);
   }
 };
 
@@ -98,7 +102,11 @@ class Angle {
   // enum class linear{NONE, XY, YZ}; // Use switch
   
   constexpr bool operator==(const Angle& a) const{
-    return (i == a.i && j == a.j && k == a.k) || (i == a.k && j == a.j && k == a.i);
+    return i == a.i && j == a.j && k == a.k;
+  }
+  
+  constexpr bool operator!=(const Angle& a) const{
+    return !(*this == a);
   }
 };
 
@@ -109,7 +117,7 @@ class Dihedral {
  public:
   Dihedral(const std::tuple<std::size_t,std::size_t, std::size_t, std::size_t>& d)
   : i(std::get<0>(d)), j(std::get<1>(d)), k(std::get<2>(d)), l(std::get<3>(d)){
-    if(i == k || i == k || i == l || j == k || j == l || k == l){
+    if(i == j || i == k || i == l || j == k || j == l || k == l){
       throw std::logic_error("Dihedral error.");
     }
   
@@ -130,7 +138,11 @@ class Dihedral {
   std::size_t l;
   
   constexpr bool operator==(const Dihedral& d) const{
-    return (i == d.i && j == d.j && k == d.k && l == d.l) || (i == d.l && j == d.k && k == d.j && l == d.i);
+    return i == d.i && j == d.j && k == d.k && l == d.l;
+  }
+  
+  constexpr bool operator!=(const Dihedral& d) const{
+    return !(*this == d);
   }
 };
 
