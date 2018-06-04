@@ -48,6 +48,10 @@ using DistanceMatrix = DistanceProperty::matrix_type;
 struct Bond {
   std::size_t i;
   std::size_t j;
+  
+  constexpr bool operator==(const Bond& b) const {
+    return (i == b.i && j == b.j) || (i == b.j && j == b.i);
+  }
 };
 
 /// Triplet of atoms forming an angle
@@ -58,6 +62,10 @@ struct Angle {
   std::size_t j;
   std::size_t k;
   // enum class linear{NONE, XY, YZ}; // Use switch
+  
+  constexpr bool operator==(const Angle& a) const{
+    return (i == a.i && j == a.j && k == a.k) || (i == a.k && j == a.j && k == a.i);
+  }
 };
 
 /// Quadruplet of atoms forming an angle
@@ -68,6 +76,10 @@ struct Dihedral {
   std::size_t j;
   std::size_t k;
   std::size_t l;
+  
+  constexpr bool operator==(const Dihedral& d) const{
+    return (i == d.i && j == d.j && k == d.k && l == d.l) || (i == d.l && j == d.k && k == d.j && l == d.i);
+  }
 };
 
 /// Compute the distance between two points
