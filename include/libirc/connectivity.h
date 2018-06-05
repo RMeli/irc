@@ -64,11 +64,11 @@ public:
   std::size_t i;
   std::size_t j;
 
-  constexpr bool operator==(const Bond& b) const {
+  bool operator==(const Bond& b) const {
     return i == b.i && j == b.j;
   }
 
-  constexpr bool operator!=(const Bond& b) const { return !(*this == b); }
+  bool operator!=(const Bond& b) const { return !(*this == b); }
 };
 
 /// Triplet of atoms forming an angle
@@ -96,11 +96,11 @@ public:
   std::size_t k;
   // enum class linear{NONE, XY, YZ}; // Use switch
 
-  constexpr bool operator==(const Angle& a) const {
+  bool operator==(const Angle& a) const {
     return i == a.i && j == a.j && k == a.k;
   }
 
-  constexpr bool operator!=(const Angle& a) const { return !(*this == a); }
+  bool operator!=(const Angle& a) const { return !(*this == a); }
 };
 
 /// Quadruplet of atoms forming an angle
@@ -134,11 +134,11 @@ public:
   std::size_t k;
   std::size_t l;
 
-  constexpr bool operator==(const Dihedral& d) const {
+  bool operator==(const Dihedral& d) const {
     return i == d.i && j == d.j && k == d.k && l == d.l;
   }
 
-  constexpr bool operator!=(const Dihedral& d) const { return !(*this == d); }
+  bool operator!=(const Dihedral& d) const { return !(*this == d); }
 };
 
 /// Compute the distance between two points
