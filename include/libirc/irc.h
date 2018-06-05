@@ -7,6 +7,7 @@
 #include "transformation.h"
 #include "wilson.h"
 
+#include <algorithm>
 #include <utility>
 
 namespace irc {
@@ -95,6 +96,34 @@ private:
   Matrix P;
 };
 
+/*!
+ *
+ * @tparam T
+ * @param v1 Target vector
+ * @param v2 Vector to add to @param v2
+ * @return Number of elements effectively added
+ *
+ * Add the elements of @param v2 not present in @param v1 to @param v1.
+ */
+// TODO: Use std::remove_copy_if?
+template<typename T>
+size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2){
+  size_t n{0};
+  
+  for(const auto& e : v2){
+    // TODO: Change to std::cbegin() and std::cend() with C++14
+    auto iterator = std::find(v1.cbegin(), v1.cend(), e);
+  
+    // TODO: Change to std::cend() with C++14
+    if(iterator == v1.cend()){
+      v1.push_back(e);
+      n++;
+    }
+  }
+  
+  return n;
+}
+
 template<typename Vector3, typename Vector, typename Matrix>
 IRC<Vector3, Vector, Matrix>::IRC(
     const molecule::Molecule<Vector3>& molecule,
@@ -119,7 +148,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Add user-defined bonds
   if (!mybonds.empty()) { // For CodeCov, can be removed after tests
-    bonds.insert(bonds.cend(), mybonds.cbegin(), mybonds.cend());
+    add_without_duplicates(bonds, mybonds);
   }
 
   // Compute angles
@@ -127,7 +156,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Add user-defined angles
   if (!myangles.empty()) { // For CodeCov, can be removed after tests
-    angles.insert(angles.cend(), myangles.cbegin(), myangles.cend());
+    add_without_duplicates(angles, myangles);
   }
 
   // Compute dihedrals
@@ -135,8 +164,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Add user-defined dihedrals
   if (!mydihedrals.empty()) { // For CodeCov, can be removed after tests
-    dihedrals.insert(
-        dihedrals.cend(), mydihedrals.cbegin(), mydihedrals.cend());
+    add_without_duplicates(dihedrals, mydihedrals);
   }
 
   // Count the number of internal coordinates
