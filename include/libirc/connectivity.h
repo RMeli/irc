@@ -971,7 +971,7 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
   // Check if dihedrals are found
   if (n_atoms >= 4 && dih.empty()) {
     std::cerr << "ERROR: Out of plane bending not implemented yet."
-              << std::endl;
+              << std::endl << std::flush;
   }
 
   // Return list of dihedral angles

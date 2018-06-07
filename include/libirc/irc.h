@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <utility>
 
+#include <boost/optional.hpp>
+
 namespace irc {
 
 template<typename Vector3, typename Vector, typename Matrix>
@@ -97,6 +99,10 @@ private:
 
   /// Wilson B matrix
   Matrix B;
+  
+  // TODO: Move to std::optional with C++17
+  /// Constraint matrix
+  boost::optional<Matrix> C;
 
   /// Projector
   Matrix P;
@@ -131,6 +137,45 @@ size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2){
   }
   
   return n;
+}
+
+// TODO: Switch to std::optional with C++17
+template<typename Matrix>
+boost::optional<Matrix> constraints(const std::vector<connectivity::Bond>& B,
+    const std::vector<connectivity::Angle>& A,
+    const std::vector<connectivity::Dihedral>& D)
+{
+  std::size_t n{B.size() + A.size() + D.size()};
+  
+  Matrix C{linalg::zeros<Matrix>(n, n)};
+  
+  bool constrained{false};
+  
+  std::size_t offset{0};
+  for(std::size_t i{0}; i < B.size(); i++){
+    if(B[i].constraint == connectivity::Constraint::constrained){
+      C(i + offset,i + offset) = 1;
+      constrained=true;
+    }
+  }
+  
+  offset = B.size();
+  for(std::size_t i{0}; i < A.size(); i++){
+    if(A[i].constraint == connectivity::Constraint::constrained){
+      C(i + offset,i + offset) = 1;
+      constrained=true;
+    }
+  }
+  
+  offset = B.size() + A.size();
+  for(std::size_t i{0}; i < D.size(); i++){
+    if(D[i].constraint == connectivity::Constraint::constrained){
+      C(i + offset,i + offset) = 1;
+      constrained=true;
+    }
+  }
+  
+  return constrained ? boost::optional<Matrix>(C) : boost::none;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
@@ -185,9 +230,17 @@ IRC<Vector3, Vector, Matrix>::IRC(
       bonds,
       angles,
       dihedrals);
+  
+  // Compute (optional) constraint matrix
+  C = constraints<Matrix>(bonds, angles, dihedrals);
 
   // Compute projector P
-  P = wilson::projector(B);
+  if(C){
+    P = wilson::projector(B, *C);
+  }
+  else{
+    P = wilson::projector(B);
+  }
 }
 
 /// Initial estimate of the inverse Hessian in internal redundant coordinates
@@ -345,7 +398,12 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
       itc_result.x_c, bonds, angles, dihedrals);
 
   // Update projector P
-  P = wilson::projector(B);
+  if(C){
+    P = wilson::projector(B, *C);
+  }
+  else{
+    P = wilson::projector(B);
+  }
 
   // Return new cartesian coordinates
   return itc_result.x_c;
