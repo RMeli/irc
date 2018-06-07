@@ -72,6 +72,12 @@ public:
                           const Vector& x_c_old,
                           std::size_t max_iters = 25,
                           double tolerance = 1e-6);
+  
+  std::vector<connectivity::Bond> get_bonds() const;
+  
+  std::vector<connectivity::Angle> get_angles() const;
+  
+  std::vector<connectivity::Dihedral> get_dihedrals() const;
 
 private:
   /// List of bonds
@@ -112,12 +118,15 @@ size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2){
   
   for(const auto& e : v2){
     // TODO: Change to std::cbegin() and std::cend() with C++14
-    auto iterator = std::find(v1.cbegin(), v1.cend(), e);
+    auto iterator = std::find(v1.begin(), v1.end(), e);
   
     // TODO: Change to std::cend() with C++14
     if(iterator == v1.cend()){
       v1.push_back(e);
       n++;
+    }
+    else{
+      iterator->constraint = e.constraint;
     }
   }
   
@@ -150,7 +159,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   if (!mybonds.empty()) { // For CodeCov, can be removed after tests
     add_without_duplicates(bonds, mybonds);
   }
-
+  
   // Compute angles
   angles = connectivity::angles(distance_m, molecule);
 
@@ -340,6 +349,24 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
 
   // Return new cartesian coordinates
   return itc_result.x_c;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+
+std::vector<connectivity::Bond> IRC<Vector3, Vector, Matrix>::get_bonds() const{
+  return bonds;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+
+std::vector<connectivity::Angle> IRC<Vector3, Vector, Matrix>::get_angles() const{
+  return angles;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+
+std::vector<connectivity::Dihedral> IRC<Vector3, Vector, Matrix>::get_dihedrals() const{
+  return dihedrals;
 }
 
 } // namespace irc

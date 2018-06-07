@@ -111,6 +111,55 @@ TEST_CASE("Internal Redundant Coordinates") {
       REQUIRE(d == target);
     }
   }
+  
+  SECTION("Constraints") {
+    // Define formaldehyde molecule (CH2O)
+    Molecule<vec3> molecule{{"C", {0.000000, 0.000000, -0.537500}},
+                            {"O", {0.000000, 0.000000, 0.662500}},
+                            {"H", {0.000000, 0.866025, -1.037500}},
+                            {"H", {0.000000, -0.866025, -1.037500}}};
+    
+    // Transform molecular coordinates from angstrom to bohr
+    multiply_positions(molecule, angstrom_to_bohr);
+    
+    // Build internal reaction coordinates
+    // Add C-O bond constraint: (0,1)
+    // Add H-H bond constraint: (2,3)
+    // Add H-C-H angle constraint: (2,0,3)
+    // Add H-H-O-C dihedral constraint: (3,2,1,0)
+    IRC<vec3, vec, mat> irc(
+        molecule, {{0,1,Constraint::constrained}, {2,3,Constraint::constrained}}, {{2,0,3,Constraint::constrained}}, {{3,2,1,0,Constraint::constrained}});
+    
+    // Compute internal coordinates
+    vec q_irc{
+        irc.cartesian_to_irc(molecule::to_cartesian<vec3, vec>(molecule))};
+    
+    // Check size (3+1 bonds, 3+0 angles, 0+1 dihedrals)
+    REQUIRE(linalg::size(q_irc) == 8);
+    
+    // Get bonds
+    auto B = irc.get_bonds();
+    
+    // Check bonds
+    REQUIRE(B.size() == 4 );
+    CHECK(B[0].constraint == Constraint::constrained);
+    CHECK(B[3].constraint == Constraint::constrained);
+  
+    // Get angles
+    auto A = irc.get_angles();
+  
+    // Check bonds
+    REQUIRE(A.size() == 3 );
+    CHECK(A[2].constraint == Constraint::constrained);
+  
+    // Get angles
+    auto D = irc.get_dihedrals();
+  
+    // Check bonds
+    REQUIRE(D.size() == 1 );
+    CHECK(D[0].constraint == Constraint::constrained);
+  }
+  
 
   SECTION("Initial hessian") {
 
