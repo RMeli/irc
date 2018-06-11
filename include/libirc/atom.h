@@ -39,7 +39,7 @@ AtomicNumber::AtomicNumber(const std::string& symbol)
 ///
 /// \param an \class AtomicNumber
 /// \return Atomic symbol corresponding to \class AtomicNumber
-std::string symbol(const AtomicNumber& an) noexcept {
+inline std::string symbol(const AtomicNumber& an) noexcept {
   return periodic_table::symbols[an.atomic_number];
 }
 
@@ -48,7 +48,7 @@ std::string symbol(const AtomicNumber& an) noexcept {
 ///
 /// \param an \class AtomicNumber
 /// \return Mass corresponding to \class AtomicNumber
-double mass(const AtomicNumber& an) noexcept {
+inline double mass(const AtomicNumber& an) noexcept {
   return periodic_table::masses[an.atomic_number];
 }
 
@@ -57,7 +57,7 @@ double mass(const AtomicNumber& an) noexcept {
 ///
 /// \param an \class AtomicNumber
 /// \return Covalent radius corresponding to \class AtomicNumber
-double covalent_radius(const AtomicNumber& an) noexcept {
+inline double covalent_radius(const AtomicNumber& an) noexcept {
   return periodic_table::covalent_radii[an.atomic_number];
 }
 
@@ -66,7 +66,7 @@ double covalent_radius(const AtomicNumber& an) noexcept {
 ///
 /// \param an \class AtomicNumber
 /// \return Van der Waals radius corresponding to \class AtomicNumber
-double vdw_radius(const AtomicNumber& an) noexcept {
+inline double vdw_radius(const AtomicNumber& an) noexcept {
   return periodic_table::vdw_radii[an.atomic_number];
 }
 
@@ -75,7 +75,7 @@ double vdw_radius(const AtomicNumber& an) noexcept {
 ///
 /// \param an \class AtomicNumber
 /// \return
-bool is_NOFPSCl(const AtomicNumber& an) noexcept {
+inline bool is_NOFPSCl(const AtomicNumber& an) noexcept {
   const std::size_t n{an.atomic_number};
 
   return (n == 7 or n == 8 or n == 9 or n == 15 or n == 16 or n == 17);
@@ -85,7 +85,7 @@ bool is_NOFPSCl(const AtomicNumber& an) noexcept {
 ///
 /// \param an \class AtomicNumber
 /// \return
-constexpr bool is_H(const AtomicNumber& an) noexcept {
+inline constexpr bool is_H(const AtomicNumber& an) noexcept {
   return an.atomic_number == 1;
 }
 

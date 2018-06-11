@@ -15,7 +15,7 @@ namespace math {
 ///
 /// \param angle
 /// \return
-double pirange_rad(double angle) noexcept {
+inline double pirange_rad(double angle) noexcept {
   if (angle > constants::pi) {
     return pirange_rad(angle - 2. * constants::pi);
   } else if (angle <= -constants::pi) {
@@ -29,7 +29,7 @@ double pirange_rad(double angle) noexcept {
 ///
 /// \param angle
 /// \return
-double pirange_deg(double angle) noexcept {
+inline double pirange_deg(double angle) noexcept {
   return pirange_rad(angle * conversion::deg_to_rad) * conversion::rad_to_deg;
 }
 
@@ -42,7 +42,7 @@ double pirange_deg(double angle) noexcept {
  * @return True if @param v1 and @param v2 are collinear, false othwerwise
  */
 template<typename Vector3>
-bool collinear(Vector3 v1, Vector3 v2, double tolerance = 1e-6) {
+inline bool collinear(Vector3 v1, Vector3 v2, double tolerance = 1e-6) {
   const double l1{linalg::norm(v1)};
   const double l2{linalg::norm(v2)};
 
