@@ -7,7 +7,10 @@
 #include "transformation.h"
 #include "wilson.h"
 
+#include <algorithm>
 #include <utility>
+
+#include <boost/optional.hpp>
 
 namespace irc {
 
@@ -71,6 +74,12 @@ public:
                           const Vector& x_c_old,
                           std::size_t max_iters = 25,
                           double tolerance = 1e-6);
+  
+  std::vector<connectivity::Bond> get_bonds() const;
+  
+  std::vector<connectivity::Angle> get_angles() const;
+  
+  std::vector<connectivity::Dihedral> get_dihedrals() const;
 
 private:
   /// List of bonds
@@ -90,10 +99,84 @@ private:
 
   /// Wilson B matrix
   Matrix B;
+  
+  // TODO: Move to std::optional with C++17
+  /// Constraint matrix
+  boost::optional<Matrix> C;
 
   /// Projector
   Matrix P;
 };
+
+/*!
+ *
+ * @tparam T
+ * @param v1 Target vector
+ * @param v2 Vector to add to @param v2
+ * @return Number of elements effectively added
+ *
+ * Add the elements of @param v2 not present in @param v1 to @param v1.
+ */
+// TODO: Use std::remove_copy_if?
+template<typename T>
+size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2){
+  size_t n{0};
+  
+  for(const auto& e : v2){
+    // TODO: Change to std::cbegin() and std::cend() with C++14
+    auto iterator = std::find(v1.begin(), v1.end(), e);
+  
+    // TODO: Change to std::cend() with C++14
+    if(iterator == v1.cend()){
+      v1.push_back(e);
+      n++;
+    }
+    else{
+      iterator->constraint = e.constraint;
+    }
+  }
+  
+  return n;
+}
+
+// TODO: Switch to std::optional with C++17
+template<typename Matrix>
+boost::optional<Matrix> constraints(const std::vector<connectivity::Bond>& B,
+    const std::vector<connectivity::Angle>& A,
+    const std::vector<connectivity::Dihedral>& D)
+{
+  std::size_t n{B.size() + A.size() + D.size()};
+  
+  Matrix C{linalg::zeros<Matrix>(n, n)};
+  
+  bool constrained{false};
+  
+  std::size_t offset{0};
+  for(std::size_t i{0}; i < B.size(); i++){
+    if(B[i].constraint == connectivity::Constraint::constrained){
+      C(i + offset,i + offset) = 1;
+      constrained=true;
+    }
+  }
+  
+  offset = B.size();
+  for(std::size_t i{0}; i < A.size(); i++){
+    if(A[i].constraint == connectivity::Constraint::constrained){
+      C(i + offset,i + offset) = 1;
+      constrained=true;
+    }
+  }
+  
+  offset = B.size() + A.size();
+  for(std::size_t i{0}; i < D.size(); i++){
+    if(D[i].constraint == connectivity::Constraint::constrained){
+      C(i + offset,i + offset) = 1;
+      constrained=true;
+    }
+  }
+  
+  return constrained ? boost::optional<Matrix>(C) : boost::none;
+}
 
 template<typename Vector3, typename Vector, typename Matrix>
 IRC<Vector3, Vector, Matrix>::IRC(
@@ -119,15 +202,15 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Add user-defined bonds
   if (!mybonds.empty()) { // For CodeCov, can be removed after tests
-    bonds.insert(bonds.cend(), mybonds.cbegin(), mybonds.cend());
+    add_without_duplicates(bonds, mybonds);
   }
-
+  
   // Compute angles
   angles = connectivity::angles(distance_m, molecule);
 
   // Add user-defined angles
   if (!myangles.empty()) { // For CodeCov, can be removed after tests
-    angles.insert(angles.cend(), myangles.cbegin(), myangles.cend());
+    add_without_duplicates(angles, myangles);
   }
 
   // Compute dihedrals
@@ -135,8 +218,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Add user-defined dihedrals
   if (!mydihedrals.empty()) { // For CodeCov, can be removed after tests
-    dihedrals.insert(
-        dihedrals.cend(), mydihedrals.cbegin(), mydihedrals.cend());
+    add_without_duplicates(dihedrals, mydihedrals);
   }
 
   // Count the number of internal coordinates
@@ -148,9 +230,17 @@ IRC<Vector3, Vector, Matrix>::IRC(
       bonds,
       angles,
       dihedrals);
+  
+  // Compute (optional) constraint matrix
+  C = constraints<Matrix>(bonds, angles, dihedrals);
 
   // Compute projector P
-  P = wilson::projector(B);
+  if(C){
+    P = wilson::projector(B, *C);
+  }
+  else{
+    P = wilson::projector(B);
+  }
 }
 
 /// Initial estimate of the inverse Hessian in internal redundant coordinates
@@ -308,10 +398,33 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
       itc_result.x_c, bonds, angles, dihedrals);
 
   // Update projector P
-  P = wilson::projector(B);
+  if(C){
+    P = wilson::projector(B, *C);
+  }
+  else{
+    P = wilson::projector(B);
+  }
 
   // Return new cartesian coordinates
   return itc_result.x_c;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+
+std::vector<connectivity::Bond> IRC<Vector3, Vector, Matrix>::get_bonds() const{
+  return bonds;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+
+std::vector<connectivity::Angle> IRC<Vector3, Vector, Matrix>::get_angles() const{
+  return angles;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+
+std::vector<connectivity::Dihedral> IRC<Vector3, Vector, Matrix>::get_dihedrals() const{
+  return dihedrals;
 }
 
 } // namespace irc

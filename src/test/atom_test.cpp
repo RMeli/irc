@@ -64,29 +64,29 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
 
       const auto a = Atom<vec3>{periodic_table::symbols[i]};
 
-      REQUIRE(symbol(a.atomic_number) == periodic_table::symbols[i]);
-      REQUIRE(symbol(AtomicNumber(periodic_table::symbols[i])) ==
+      CHECK(symbol(a.atomic_number) == periodic_table::symbols[i]);
+      CHECK(symbol(AtomicNumber(periodic_table::symbols[i])) ==
               periodic_table::symbols[i]);
 
-      REQUIRE(mass(a.atomic_number) == Approx(periodic_table::masses[i]));
-      REQUIRE(mass(AtomicNumber(periodic_table::symbols[i])) ==
+      CHECK(mass(a.atomic_number) == Approx(periodic_table::masses[i]));
+      CHECK(mass(AtomicNumber(periodic_table::symbols[i])) ==
               Approx(periodic_table::masses[i]));
 
-      REQUIRE(covalent_radius(a.atomic_number) ==
+      CHECK(covalent_radius(a.atomic_number) ==
               Approx(periodic_table::covalent_radii[i]));
-      REQUIRE(covalent_radius(AtomicNumber(periodic_table::symbols[i])) ==
+      CHECK(covalent_radius(AtomicNumber(periodic_table::symbols[i])) ==
               Approx(periodic_table::covalent_radii[i]));
 
-      REQUIRE(vdw_radius(a.atomic_number) ==
+      CHECK(vdw_radius(a.atomic_number) ==
               Approx(periodic_table::vdw_radii[i]));
-      REQUIRE(vdw_radius(AtomicNumber(periodic_table::symbols[i])) ==
+      CHECK(vdw_radius(AtomicNumber(periodic_table::symbols[i])) ==
               Approx(periodic_table::vdw_radii[i]));
 
       // Atom in H-bond
       if (i == 1) {
-        REQUIRE(is_H(a.atomic_number));
+        CHECK(is_H(a.atomic_number));
       } else if (i == 7 or i == 8 or i == 9 or i == 15 or i == 16 or i == 17) {
-        REQUIRE(is_NOFPSCl(a.atomic_number));
+        CHECK(is_NOFPSCl(a.atomic_number));
       }
     }
   }

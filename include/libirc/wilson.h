@@ -351,8 +351,21 @@ Matrix wilson_matrix_numerical(
 /// \return Projector
 template<typename Matrix>
 Matrix projector(const Matrix& B) {
-  // TODO: Pass iB instead of computing it
   return B * linalg::pseudo_inverse(B);
+}
+
+/// Compute projector from the \param B matrix with constraint \param C
+/// \tparam Matrix
+/// \param B Wilson's B matrix
+/// \param C Constraint matrix
+/// \return Projector
+template<typename Matrix>
+Matrix projector(const Matrix& B, const Matrix& C) {
+  // Standard projector
+  Matrix P{B * linalg::pseudo_inverse(B)};
+  
+  // Projector with constraints
+  return P - P * C * linalg::inv<Matrix>(C * P * C) * C * P;
 }
 
 } // namespace wilson

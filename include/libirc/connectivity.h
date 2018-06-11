@@ -41,34 +41,36 @@ using Edge = boost::graph_traits<UGraph>::edge_descriptor;
 using DistanceProperty = boost::exterior_vertex_property<UGraph, int>;
 using DistanceMatrix = DistanceProperty::matrix_type;
 
+enum class Constraint{constrained, unconstrained};
+
 /// Couple of atoms forming a bond
 /// Triplet of atoms forming an angle
 ///
 /// Atoms are represented by their index in a list of coordinates.
 class Bond {
 public:
-  Bond(const std::pair<std::size_t, std::size_t>& b) : i(b.first), j(b.second) {
+  Bond(const std::size_t& i_, const std::size_t& j_, const Constraint& constraint_ = Constraint::unconstrained)
+    : i(i_), j(j_), constraint(constraint_) {
     if (i == j) {
       throw std::logic_error("Bond error.");
     }
-
-    // Ordering (needed for hash function)
+  
+    // Ordering (needed for hash function and comparison operators)
     if (j < i) {
       std::swap(i, j);
     }
   }
 
-  Bond(const std::size_t& i_, const std::size_t& j_)
-    : Bond(std::make_pair(i_, j_)) {}
-
   std::size_t i;
   std::size_t j;
+  
+  Constraint constraint{Constraint::unconstrained};
 
-  constexpr bool operator==(const Bond& b) const {
+  bool operator==(const Bond& b) const {
     return i == b.i && j == b.j;
   }
 
-  constexpr bool operator!=(const Bond& b) const { return !(*this == b); }
+  bool operator!=(const Bond& b) const { return !(*this == b); }
 };
 
 /// Triplet of atoms forming an angle
@@ -76,31 +78,30 @@ public:
 /// Atoms are represented by their index in a list of coordinates.
 class Angle {
 public:
-  Angle(const std::tuple<std::size_t, std::size_t, std::size_t>& a)
-    : i(std::get<0>(a)), j(std::get<1>(a)), k(std::get<2>(a)) {
+  Angle(const std::size_t& i_, const std::size_t& j_, const std::size_t& k_, const Constraint& constraint_ = Constraint::unconstrained)
+    : i(i_), j(j_), k(k_), constraint(constraint_) {
     if (i == j || i == k || j == k) {
       throw std::logic_error("Angle error.");
     }
-
-    // Ordering (needed for hash function)
+  
+    // Ordering (needed for hash function and comparison operators)
     if (k < i) {
       std::swap(i, k);
     }
   }
 
-  Angle(const std::size_t& i_, const std::size_t& j_, const std::size_t& k_)
-    : Angle(std::make_tuple(i_, j_, k_)) {}
-
   std::size_t i;
   std::size_t j;
   std::size_t k;
   // enum class linear{NONE, XY, YZ}; // Use switch
+  
+  Constraint constraint{Constraint::unconstrained};
 
-  constexpr bool operator==(const Angle& a) const {
+  bool operator==(const Angle& a) const {
     return i == a.i && j == a.j && k == a.k;
   }
 
-  constexpr bool operator!=(const Angle& a) const { return !(*this == a); }
+  bool operator!=(const Angle& a) const { return !(*this == a); }
 };
 
 /// Quadruplet of atoms forming an angle
@@ -108,37 +109,35 @@ public:
 /// Atoms are represented by their index in a list of coordinates.
 class Dihedral {
 public:
-  Dihedral(
-      const std::tuple<std::size_t, std::size_t, std::size_t, std::size_t>& d)
-    : i(std::get<0>(d)), j(std::get<1>(d)), k(std::get<2>(d)),
-      l(std::get<3>(d)) {
+  Dihedral(const std::size_t& i_,
+           const std::size_t& j_,
+           const std::size_t& k_,
+           const std::size_t& l_,
+           const Constraint& constraint_ = Constraint::unconstrained)
+    : i(i_), j(j_), k(k_), l(l_), constraint(constraint_) {
     if (i == j || i == k || i == l || j == k || j == l || k == l) {
       throw std::logic_error("Dihedral error.");
     }
-
-    // Ordering (needed for hash function)
+  
+    // Ordering (needed for hash function and comparison operators)
     if (l < i) {
       std::swap(i, l);
       std::swap(j, k);
     }
   }
 
-  Dihedral(const std::size_t& i_,
-           const std::size_t& j_,
-           const std::size_t& k_,
-           const std::size_t& l_)
-    : Dihedral(std::make_tuple(i_, j_, k_, l_)) {}
-
   std::size_t i;
   std::size_t j;
   std::size_t k;
   std::size_t l;
+  
+  Constraint constraint{Constraint::unconstrained};
 
-  constexpr bool operator==(const Dihedral& d) const {
+  bool operator==(const Dihedral& d) const {
     return i == d.i && j == d.j && k == d.k && l == d.l;
   }
 
-  constexpr bool operator!=(const Dihedral& d) const { return !(*this == d); }
+  bool operator!=(const Dihedral& d) const { return !(*this == d); }
 };
 
 /// Compute the distance between two points
@@ -784,7 +783,7 @@ std::vector<Bond> bonds(const Matrix& distance_m,
 
       if (iround(distance_m(i, j)) == 1) {
         // Store bond information between atom i and atom j
-        b.emplace(b.end(), std::make_pair(i, j));
+        b.emplace(b.end(), i, j);
       }
     }
   }
@@ -819,7 +818,7 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
   // Compute possible (i,k,j) angles
   for (std::size_t k{0}; k < n_atoms; k++) {
     if (iround(distance(k, i)) == 1 and iround(distance(k, j)) == 1) {
-      angles.emplace(angles.end(), std::make_tuple(i, k, j));
+      angles.emplace(angles.end(), i, k, j);
     }
   }
 
@@ -905,7 +904,7 @@ dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
       for (std::size_t l{0}; l < n_atoms; l++) {
         if (iround(distance(l, i)) == 2 && iround(distance(l, j)) == 1 &&
             iround(distance(l, k)) == 1) {
-          dihedrals.emplace(dihedrals.end(), std::make_tuple(i, k, l, j));
+          dihedrals.emplace(dihedrals.end(), i, k, l, j);
         }
       }
     }
@@ -950,12 +949,12 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
         D = dihedrals(i, j, distance_m);
 
         for (const auto& dd : D) {
-          a1 = angle<Vector3>(std::make_tuple(dd.i, dd.j, dd.k), molecule);
+          a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
           if (std::abs(a1 - 180) < epsilon) {
             linear = true;
           }
 
-          a2 = angle<Vector3>(std::make_tuple(dd.j, dd.k, dd.l), molecule);
+          a2 = angle<Vector3>({dd.j, dd.k, dd.l}, molecule);
           if (std::abs(a2 - 180) < epsilon) {
             linear = true;
           }
@@ -972,7 +971,7 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
   // Check if dihedrals are found
   if (n_atoms >= 4 && dih.empty()) {
     std::cerr << "ERROR: Out of plane bending not implemented yet."
-              << std::endl;
+              << std::endl << std::flush;
   }
 
   // Return list of dihedral angles
