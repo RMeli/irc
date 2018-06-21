@@ -66,7 +66,7 @@ bad_from_molecule(const molecule::Molecule<Vector3>& mol) {
 TEST_CASE("Bonds, angles and dihedral angles") {
   using namespace connectivity;
 
-  CHECK_THROWS_AS(Bond{0, 0}, std::logic_error);
+  CHECK_THROWS(Bond{0, 0});
 
   Bond b1{0, 1};
   Bond b2{1, 0};
@@ -77,10 +77,10 @@ TEST_CASE("Bonds, angles and dihedral angles") {
   CHECK(b1 == b3);
   CHECK(b1 != b4);
 
-  CHECK_THROWS_AS(Angle{0, 0, 1}, std::logic_error);
-  CHECK_THROWS_AS(Angle{0, 1, 0}, std::logic_error);
-  CHECK_THROWS_AS(Angle{1, 0, 0}, std::logic_error);
-  CHECK_THROWS_AS(Angle{0, 0, 0}, std::logic_error);
+  CHECK_THROWS(Angle{0, 0, 1});
+  CHECK_THROWS(Angle{0, 1, 0});
+  CHECK_THROWS(Angle{1, 0, 0});
+  CHECK_THROWS(Angle{0, 0, 0});
 
   Angle a1{0, 1, 2};
   Angle a2{2, 1, 0};
@@ -91,25 +91,25 @@ TEST_CASE("Bonds, angles and dihedral angles") {
   CHECK(a1 == a3);
   CHECK(a1 != a4);
 
-  CHECK_THROWS_AS(Dihedral{0, 0, 1, 2}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{0, 1, 0, 2}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{0, 1, 2, 0}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{1, 0, 0, 2}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{1, 0, 2, 0}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{1, 2, 0, 0}, std::logic_error);
+  CHECK_THROWS(Dihedral{0, 0, 1, 2});
+  CHECK_THROWS(Dihedral{0, 1, 0, 2});
+  CHECK_THROWS(Dihedral{0, 1, 2, 0});
+  CHECK_THROWS(Dihedral{1, 0, 0, 2});
+  CHECK_THROWS(Dihedral{1, 0, 2, 0});
+  CHECK_THROWS(Dihedral{1, 2, 0, 0});
 
-  CHECK_THROWS_AS(Dihedral{1, 0, 0, 0}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{0, 1, 0, 0}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{0, 0, 1, 0}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{0, 0, 0, 1}, std::logic_error);
+  CHECK_THROWS(Dihedral{1, 0, 0, 0});
+  CHECK_THROWS(Dihedral{0, 1, 0, 0});
+  CHECK_THROWS(Dihedral{0, 0, 1, 0});
+  CHECK_THROWS(Dihedral{0, 0, 0, 1});
 
-  CHECK_THROWS_AS(Dihedral{0, 0, 1, 1}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{0, 1, 0, 1}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{0, 1, 1, 0}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{1, 0, 1, 0}, std::logic_error);
-  CHECK_THROWS_AS(Dihedral{1, 1, 0, 0}, std::logic_error);
+  CHECK_THROWS(Dihedral{0, 0, 1, 1});
+  CHECK_THROWS(Dihedral{0, 1, 0, 1});
+  CHECK_THROWS(Dihedral{0, 1, 1, 0});
+  CHECK_THROWS(Dihedral{1, 0, 1, 0});
+  CHECK_THROWS(Dihedral{1, 1, 0, 0});
 
-  CHECK_THROWS_AS(Dihedral{0, 0, 0, 0}, std::logic_error);
+  CHECK_THROWS(Dihedral{0, 0, 0, 0});
 
   Dihedral d1{0, 1, 2, 3};
   Dihedral d2{3, 2, 1, 0};
