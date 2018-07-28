@@ -401,8 +401,6 @@ min_interfragment_distance(std::size_t i,
                            std::size_t j,
                            const std::vector<std::size_t>& fragments,
                            const Matrix& distances) {
-
-  // Number of atoms
   const std::size_t n_atoms{fragments.size()};
 
   // Interfragment distance
@@ -441,7 +439,7 @@ min_interfragment_distance(std::size_t i,
  */
 std::pair<std::size_t, std::vector<std::size_t>>
 identify_fragments(const UGraph& ug) {
-  // Allocate storage for fragment indices
+  // Fragment indices
   std::vector<std::size_t> fragments(boost::num_vertices(ug));
 
   // Fill component std::vector and return number of different fragments
@@ -464,7 +462,6 @@ template<typename Vector3, typename Matrix>
 void add_regular_bonds(UGraph& ug,
                        const Matrix& distances,
                        const molecule::Molecule<Vector3>& molecule) {
-  // Extract number of atoms
   const std::size_t n_atoms{molecule.size()};
 
   double d{0.};
@@ -473,10 +470,8 @@ void add_regular_bonds(UGraph& ug,
 
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{j + 1}; i < n_atoms; i++) {
-      // Extract distance between atom i and atom j
       d = distances(i, j);
 
-      // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
                            atom::covalent_radius(molecule[j].atomic_number);
 
@@ -487,7 +482,7 @@ void add_regular_bonds(UGraph& ug,
         boost::add_edge(i, j, 1, ug);
       }
     }
-  } // End search for regular bonds
+  }
 }
 
 // TODO: Improve algorithm
@@ -597,21 +592,18 @@ template<typename Vector3, typename Matrix>
 void add_hydrogen_bonds(UGraph& ug,
                         const Matrix& distances,
                         const molecule::Molecule<Vector3>& molecule) {
-  // Extract number of atoms
+
   const std::size_t n_atoms{molecule.size()};
 
   double d{0.};
 
-  // Search for hydrogen bonds
   double sum_covalent_radii{0.};
   double sum_vdw_radii{0.};
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{j + 1}; i < n_atoms; i++) {
 
-      // Extract distance between atom i and atom j
       d = distances(i, j);
 
-      // Compute sum of covalent radii for atoms i and j
       sum_covalent_radii = atom::covalent_radius(molecule[i].atomic_number) +
                            atom::covalent_radius(molecule[j].atomic_number);
 
@@ -645,19 +637,15 @@ void add_hydrogen_bonds(UGraph& ug,
             if (atom::is_NOFPSCl(molecule[k].atomic_number) and k != idx and
                 k != h_idx) {
 
-              // Load distance
               d = distances(h_idx, k);
 
-              // Compute sum of Van der Waals radii
               sum_vdw_radii = atom::vdw_radius(molecule[h_idx].atomic_number) +
                               atom::vdw_radius(molecule[k].atomic_number);
 
-              // Compute sum of covalent radii
               sum_covalent_radii =
                   atom::covalent_radius(molecule[h_idx].atomic_number) +
                   atom::covalent_radius(molecule[k].atomic_number);
 
-              // Angle (in radians)
               a = angle(molecule[idx].position,
                         molecule[h_idx].position,
                         molecule[k].position);
@@ -692,19 +680,15 @@ void add_hydrogen_bonds(UGraph& ug,
 template<typename Vector3, typename Matrix>
 UGraph adjacency_matrix(const Matrix& distances,
                         const molecule::Molecule<Vector3>& molecule) {
-  // Extract number of atoms
   const std::size_t n_atoms{molecule.size()};
 
   // Define a undirected graph with n_atoms vertices
   UGraph ug(n_atoms);
 
-  // Add regular (covalent) bonds
   add_regular_bonds(ug, distances, molecule);
 
-  // Add interfragment bonds to graph
   add_interfragment_bonds(ug, distances);
 
-  // Add hydrogen bonds
   add_hydrogen_bonds(ug, distances, molecule);
 
   // TODO: Extra redundant coordinates.
@@ -772,17 +756,14 @@ std::vector<Bond> bonds(const Matrix& distance_m,
 
   using boost::math::iround;
 
-  // Extract number of atoms
   const std::size_t n_atoms{molecule.size()};
 
-  // Declare bond list
   std::vector<Bond> b;
 
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{0}; i < j; i++) {
 
       if (iround(distance_m(i, j)) == 1) {
-        // Store bond information between atom i and atom j
         b.emplace(b.end(), i, j);
       }
     }
@@ -809,13 +790,10 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
 
   using boost::math::iround;
 
-  // Declare empty vector of angles
   std::vector<Angle> angles;
 
-  // Number of atoms
   const std::size_t n_atoms{linalg::n_rows(distance)};
 
-  // Compute possible (i,k,j) angles
   for (std::size_t k{0}; k < n_atoms; k++) {
     if (iround(distance(k, i)) == 1 and iround(distance(k, j)) == 1) {
       angles.emplace(angles.end(), i, k, j);
@@ -838,10 +816,8 @@ std::vector<Angle> angles(const Matrix& distance_m,
 
   using boost::math::iround;
 
-  // Extract number of atoms
   const std::size_t n_atoms{molecule.size()};
 
-  // Declare list of angles
   std::vector<Angle> ang;
 
   // Declare temporary list of angles
@@ -858,13 +834,12 @@ std::vector<Angle> angles(const Matrix& distance_m,
         for (const auto& aa : A) {
           a = angle<Vector3>(aa, molecule);
 
-          // Compute angle
+          // Quasi-linear angles
           if (a > tools::constants::quasi_linear_angle) {
             throw std::runtime_error(
                 "Quasi-linear angle not treated properly yet.");
           }
 
-          // Store angle
           ang.push_back(aa);
         }
       }
@@ -892,10 +867,8 @@ dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
 
   using boost::math::iround;
 
-  // Declare empty vector of angles
   std::vector<Dihedral> dihedrals;
 
-  // Number of atoms
   const std::size_t n_atoms{linalg::n_rows(distance)};
 
   // Compute possible (i,k,l,j) dihedral angles
@@ -927,10 +900,8 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
 
   using boost::math::iround;
 
-  // Extract number of atoms
   const std::size_t n_atoms{molecule.size()};
 
-  // Declare list of dihedrals
   std::vector<Dihedral> dih;
 
   // Declare temporary list of dihedrals
@@ -960,7 +931,6 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
           }
 
           if (!linear) {
-            // Store dihedral angle
             dih.push_back(dd);
           }
         }
@@ -995,12 +965,11 @@ Vector cartesian_to_irc(const Vector& x_c,
                         const std::vector<connectivity::Angle>& angles,
                         const std::vector<connectivity::Dihedral>& dihedrals) {
 
-  // Get number of bonds, angles and dihedrals
   const auto n_bonds = bonds.size();
   const auto n_angles = angles.size();
   const auto n_dihedrals = dihedrals.size();
 
-  // Compute number of internal redundant coordinates
+  // Number of internal redundant coordinates
   const auto n_irc = n_bonds + n_angles + n_dihedrals;
 
   // Allocate vector for internal redundant coordinates

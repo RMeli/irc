@@ -68,7 +68,6 @@ void print_bonds(const Vector& x_c,
                  const std::vector<connectivity::Bond>& bonds,
                  std::ostream& out = std::cout) {
 
-  // Total number of bonds
   const std::size_t n_bonds{bonds.size()};
 
   out << n_bonds << " bonds (\u212B):" << std::endl;
@@ -83,7 +82,6 @@ void print_bonds(const Vector& x_c,
   out.fill(' ');
 
   for (std::size_t i{0}; i < n_bonds; i++) {
-    // Get indices
     idx_i = bonds[i].i;
     idx_j = bonds[i].j;
 
@@ -100,7 +98,6 @@ void print_bonds(const Vector& x_c,
     p2 = {x_c(3 * idx_j), x_c(3 * idx_j + 1), x_c(3 * idx_j + 2)};
 
     // Print distance
-
     out << std::setw(14) << std::fixed << " " << std::right
         << connectivity::distance(p1, p2) * tools::conversion::bohr_to_angstrom
         << std::endl;
@@ -112,7 +109,6 @@ void print_angles(const Vector& x_c,
                   const std::vector<connectivity::Angle>& angles,
                   std::ostream& out = std::cout) {
 
-  // Total number of angles
   const std::size_t n_angles{angles.size()};
 
   out << n_angles << " angles (\u00B0):" << std::endl;
@@ -127,7 +123,6 @@ void print_angles(const Vector& x_c,
   out.fill(' ');
 
   for (std::size_t i{0}; i < n_angles; i++) {
-    // Get indices
     idx_i = angles[i].i;
     idx_j = angles[i].j;
     idx_k = angles[i].k;
@@ -159,7 +154,6 @@ void print_dihedrals(const Vector& x_c,
                      const std::vector<connectivity::Dihedral>& dihedrals,
                      std::ostream& out = std::cout) {
 
-  // Total number of angles
   const std::size_t n_dihedrals{dihedrals.size()};
 
   out << n_dihedrals << " dihedrals (\u00B0):" << std::endl;
@@ -174,7 +168,6 @@ void print_dihedrals(const Vector& x_c,
   out.fill(' ');
 
   for (std::size_t i{0}; i < n_dihedrals; i++) {
-    // Get indices
     idx_i = dihedrals[i].i;
     idx_j = dihedrals[i].j;
     idx_k = dihedrals[i].k;

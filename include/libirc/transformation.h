@@ -84,11 +84,10 @@ irc_to_cartesian(const Vector& q_irc_old,
                  const std::vector<connectivity::Dihedral>& dihedrals,
                  std::size_t max_iters = 25,
                  double tolerance = 1e-6) {
-  // Number of internal redundant coordinates
-  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+]
+const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
-  // Convergence flag
-  bool converged{false};
+]  bool converged{false};
 
   // Cartesian coordinates
   Vector x_c{x_c_old};
@@ -102,11 +101,11 @@ irc_to_cartesian(const Vector& q_irc_old,
   // Change in cartesian coordinates
   Vector dx{linalg::zeros<Vector>(linalg::size(x_c_old))};
 
-  // Compute Wilson's B matrix
+  // Wilson's B matrix
   const Matrix B{wilson::wilson_matrix<Vector3, Vector, Matrix>(
       x_c, bonds, angles, dihedrals)};
 
-  // Compute the transpose of B
+  // Transpose of B
   const Matrix iB{linalg::pseudo_inverse(B)};
 
   double RMS{0};
@@ -114,10 +113,9 @@ irc_to_cartesian(const Vector& q_irc_old,
   // Offset for dihedral angles in q_irc
   const std::size_t offset{bonds.size() + angles.size()};
 
-  // Start iterative search
   std::size_t n_iterations{0};
   for (; n_iterations < max_iters; n_iterations++) {
-    // Compute displacement in cartesian coordinates
+    // Displacement in cartesian coordinates
     dx = iB * dq;
 
     // Check for convergence
@@ -134,9 +132,8 @@ irc_to_cartesian(const Vector& q_irc_old,
     q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c, bonds, angles, dihedrals);
 
-    // Check change in dihedral angles (in radians)
+    // Restrain dihedral angle on the interval [-pi,pi]
     for (std::size_t i{offset}; i < n_irc; i++) {
-      // Restrain dihedral angle on the interval [-pi,pi]
       q_new(i) = tools::math::pirange_rad(q_new(i));
     }
 

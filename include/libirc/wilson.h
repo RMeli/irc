@@ -214,13 +214,11 @@ wilson_matrix(const Vector& x_cartesian,
               const std::vector<connectivity::Bond>& bonds,
               const std::vector<connectivity::Angle>& angles = {},
               const std::vector<connectivity::Dihedral>& dihedrals = {}) {
-  // Get number of atoms
   const std::size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
 
-  // Get the total number of internal redundant coordinates
   const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
-  // Allocate Wilson's B matrix
+  // Wilson's B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, 3 * n_atoms)};
 
   // Utility vectors for atomic positions
@@ -302,34 +300,32 @@ Matrix wilson_matrix_numerical(
     const std::vector<connectivity::Dihedral>& dihedrals = {},
     double dx = 1.e-6) {
 
-  // Number of cartesian coordinates
   const std::size_t n_c{linalg::size(x_c)};
 
-  // Number of IRC
   const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
-  // Allocate Wilson B matrix
+  // Wilson B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, n_c)};
 
-  // Allocate displaced cartesian coordinates
+  // Displaced cartesian coordinates
   Vector x_c_pm{x_c};
 
-  // Allocate displaced IRC
+  // Displaced IRC
   Vector q_irc_plus{linalg::zeros<Vector>(n_irc)};
   Vector q_irc_minus{linalg::zeros<Vector>(n_irc)};
 
   for (std::size_t j{0}; j < n_c; j++) {
-    // Compute positive displacement for cartesian coordinate j
+    // Positive displacement for cartesian coordinate j
     x_c_pm(j) += dx;
 
-    // Compute IRC corresponding to positive displacement of x_c(j)
+    // IRC corresponding to positive displacement of x_c(j)
     q_irc_plus = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c_pm, bonds, angles, dihedrals);
 
-    // Compute negative displacement for cartesian coordinate j
+    // Negative displacement for cartesian coordinate j
     x_c_pm(j) -= 2 * dx;
 
-    // Compute IRC corresponding to negative displacement of x_c(j)
+    // IRC corresponding to negative displacement of x_c(j)
     q_irc_minus = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c_pm, bonds, angles, dihedrals);
 
