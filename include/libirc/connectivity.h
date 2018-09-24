@@ -437,6 +437,7 @@ min_interfragment_distance(std::size_t i,
  * @param ug Unsigned graph
  * @return Number of fragments and fragments indices
  */
+inline
 std::pair<std::size_t, std::vector<std::size_t>>
 identify_fragments(const UGraph& ug) {
   // Fragment indices

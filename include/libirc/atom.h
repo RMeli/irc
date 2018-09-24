@@ -24,6 +24,7 @@ struct AtomicNumber {
   AtomicNumber(const std::string& symbol);
 };
 
+inline
 AtomicNumber::AtomicNumber(std::size_t an) {
   if (!periodic_table::valid_atomic_number(an)) {
     throw std::logic_error("Invalid atomic number.");
@@ -32,6 +33,7 @@ AtomicNumber::AtomicNumber(std::size_t an) {
   atomic_number = an;
 }
 
+inline
 AtomicNumber::AtomicNumber(const std::string& symbol)
   : AtomicNumber(periodic_table::atomic_number(symbol)) {}
 
