@@ -89,13 +89,6 @@ inline constexpr bool is_H(const AtomicNumber& an) noexcept {
   return an.atomic_number == 1;
 }
 
-/// Print \class AtomicNumber
-///
-/// \param out Output stream
-/// \param an \class AtomicNumber
-/// \return Output stream
-std::ostream& operator<<(std::ostream& out, const AtomicNumber& an);
-
 /// Class representing an atom
 ///
 /// \tparam Vector3 Mathematical vector (possibly of three dimensions)

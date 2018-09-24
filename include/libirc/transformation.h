@@ -84,10 +84,10 @@ irc_to_cartesian(const Vector& q_irc_old,
                  const std::vector<connectivity::Dihedral>& dihedrals,
                  std::size_t max_iters = 25,
                  double tolerance = 1e-6) {
-]
-const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
 
-]  bool converged{false};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+
+  bool converged{false};
 
   // Cartesian coordinates
   Vector x_c{x_c_old};

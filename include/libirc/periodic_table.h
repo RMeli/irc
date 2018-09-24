@@ -341,7 +341,7 @@ constexpr std::array<double, pt_size> vdw_radii = {{
 /// Check if atomic number \param an is valid
 ///
 /// \param an Atomic number
-constexpr bool valid_atomic_number(std::size_t an) noexcept {
+inline constexpr bool valid_atomic_number(std::size_t an) noexcept {
   return an > 0 && an < pt_size;
 }
 
@@ -349,7 +349,7 @@ constexpr bool valid_atomic_number(std::size_t an) noexcept {
 ///
 /// \param symbol Atomic symbol
 /// \return Atomic number
-std::size_t atomic_number(const std::string& symbol) {
+inline std::size_t atomic_number(const std::string& symbol) {
   std::size_t an{0};
 
   for (std::size_t i = 0; i < pt_size; i++) {
