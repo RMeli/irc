@@ -20,7 +20,8 @@ public:
   IRC(const molecule::Molecule<Vector3>& molecule = {},
       const std::vector<connectivity::Bond>& mybonds = {},
       const std::vector<connectivity::Angle>& myangles = {},
-      const std::vector<connectivity::Dihedral>& mydihedrals = {});
+      const std::vector<connectivity::Dihedral>& mydihedrals = {},
+      const std::vector<connectivity::LinearAngle<Vector3>>& mylinearangles = {});
 
   /// Compute initial projected inverted Hessian estimate
   ///
@@ -78,6 +79,8 @@ public:
   std::vector<connectivity::Bond> get_bonds() const;
   
   std::vector<connectivity::Angle> get_angles() const;
+
+  std::vector<connectivity::LinearAngle<Vector3>> get_linear_angles() const;
   
   std::vector<connectivity::Dihedral> get_dihedrals() const;
 
@@ -90,6 +93,9 @@ private:
 
   /// List of dihedral angles
   std::vector<connectivity::Dihedral> dihedrals;
+
+  /// List of lienar angles
+  std::vector<connectivity::LinearAngle<Vector3>> linear_angles;
 
   /// Number of internal coordinates
   std::size_t n_irc;
@@ -140,12 +146,13 @@ size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2){
 }
 
 // TODO: Switch to std::optional with C++17
-template<typename Matrix>
+template<typename Matrix, typename Vector3>
 boost::optional<Matrix> constraints(const std::vector<connectivity::Bond>& B,
     const std::vector<connectivity::Angle>& A,
-    const std::vector<connectivity::Dihedral>& D)
+    const std::vector<connectivity::Dihedral>& D,
+    const std::vector<connectivity::LinearAngle<Vector3>>& LA)
 {
-  std::size_t n{B.size() + A.size() + D.size()};
+  std::size_t n{B.size() + A.size() + D.size() + LA.size()};
   
   Matrix C{linalg::zeros<Matrix>(n, n)};
   
@@ -174,6 +181,14 @@ boost::optional<Matrix> constraints(const std::vector<connectivity::Bond>& B,
       constrained=true;
     }
   }
+
+  offset = B.size() + A.size() + D.size();
+  for(std::size_t i{0}; i < LA.size(); i++){
+    if(LA[i].constraint == connectivity::Constraint::constrained){
+      C(i + offset,i + offset) = 1;
+      constrained=true;
+    }
+  }
   
   return constrained ? boost::optional<Matrix>(C) : boost::none;
 }
@@ -183,7 +198,8 @@ IRC<Vector3, Vector, Matrix>::IRC(
     const molecule::Molecule<Vector3>& molecule,
     const std::vector<connectivity::Bond>& mybonds,
     const std::vector<connectivity::Angle>& myangles,
-    const std::vector<connectivity::Dihedral>& mydihedrals) {
+    const std::vector<connectivity::Dihedral>& mydihedrals,
+    const std::vector<connectivity::LinearAngle<Vector3>>& mylinearangles) {
 
   // Number of cartesian coordinates
   n_c = 3 * molecule.size();
@@ -213,6 +229,14 @@ IRC<Vector3, Vector, Matrix>::IRC(
     add_without_duplicates(angles, myangles);
   }
 
+  // Compute linear angles
+  linear_angles = connectivity::linear_angles<Vector3>(distance_m, molecule);
+
+  // Add user-defined angles
+  if (!mylinearangles.empty()) { // For CodeCov, can be removed after tests
+    add_without_duplicates(linear_angles, mylinearangles);
+  }
+
   // Compute dihedrals
   dihedrals = connectivity::dihedrals(distance_m, molecule);
 
@@ -222,17 +246,18 @@ IRC<Vector3, Vector, Matrix>::IRC(
   }
 
   // Count the number of internal coordinates
-  n_irc = bonds.size() + angles.size() + dihedrals.size();
+  n_irc = bonds.size() + angles.size() + dihedrals.size() + linear_angles.size();
 
   // Store initial Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
       molecule::to_cartesian<Vector3, Vector>(molecule),
       bonds,
       angles,
-      dihedrals);
+      dihedrals,
+      linear_angles);
   
   // Compute (optional) constraint matrix
-  C = constraints<Matrix>(bonds, angles, dihedrals);
+  C = constraints<Matrix>(bonds, angles, dihedrals, linear_angles);
 
   // Compute projector P
   if(C){

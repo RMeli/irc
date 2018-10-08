@@ -626,6 +626,18 @@ TEST_CASE("Connectivity for bent water dimer") {
   CHECK(q(12) == Approx(dihedral(p1, p6, p4, p5)));
 }
 
+TEST_CASE("Linear angles") {
+  using irc::connectivity::angle;
+
+  SECTION("orthogonal to X and Y"){
+    const vec3 p1 = {0, 0, 0};
+    const vec3 p2 = {1, 1, 1};
+    const vec3 p3 = {2, 2, 2};
+
+    CHECK(angle(p1, p2, p3) == tools::constants::pi);
+  };
+}
+
 // Quasi-linear angles
 TEST_CASE("Connectivity for water dimer") {
   // TODO

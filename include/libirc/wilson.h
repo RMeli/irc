@@ -94,6 +94,21 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
   return std::make_tuple(v1, v2, v3);
 }
 
+template<typename Vector3>
+std::tuple<Vector3, Vector3, Vector3> linear_angle_gradient(const Vector3& p1,
+                                                     const Vector3& p2,
+                                                     const Vector3& p3,
+                                                     const Vector3& orthogonal_direction,
+                                                     double tolerance = 1e-6) {
+
+  Vector3 v1, v2, v2add, v3, vOrth;
+
+  std::tie(v1, v2, vOrth) = angle_gradient(p1, p2, orthogonal_direction, tolerance);
+  std::tie(vOrth, v2add, v3) = angle_gradient(orthogonal_direction, p2, p3, tolerance);
+
+  return std::make_tuple(v1, v2+v2add, v3);
+}
+
 /*! Compute dihedral angle gradients
  *
  * Four vectors act to increase the dihedral angle between \p p1, \p p2, \p p3,
@@ -213,10 +228,11 @@ Matrix
 wilson_matrix(const Vector& x_cartesian,
               const std::vector<connectivity::Bond>& bonds,
               const std::vector<connectivity::Angle>& angles = {},
-              const std::vector<connectivity::Dihedral>& dihedrals = {}) {
+              const std::vector<connectivity::Dihedral>& dihedrals = {},
+              const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {}) {
   const std::size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
 
-  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() + linear_angles.size()};
 
   // Wilson's B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, 3 * n_atoms)};
@@ -289,6 +305,27 @@ wilson_matrix(const Vector& x_cartesian,
     }
   }
 
+
+  // Populate B matrix's rows corresponding to linear angles
+  offset = bonds.size() + angles.size() + dihedrals.size();
+  for (std::size_t i{0}; i < linear_angles.size(); i++) {
+    auto linear_angle = linear_angles[i];
+
+    for (std::size_t m{0}; m < 3; m++) {
+      p1(m) = x_cartesian(3 * linear_angle.i + m);
+      p2(m) = x_cartesian(3 * linear_angle.j + m);
+      p3(m) = x_cartesian(3 * linear_angle.k + m);
+    }
+
+    std::tie(g1, g2, g3) = linear_angle_gradient(p1, p2, p3, linear_angle.orthogonal_direction);
+
+    for (std::size_t idx{0}; idx < 3; idx++) {
+      B(i + offset, 3 * linear_angle.i + idx) = g1(idx);
+      B(i + offset, 3 * linear_angle.j + idx) = g2(idx);
+      B(i + offset, 3 * linear_angle.k + idx) = g3(idx);
+    }
+  }
+
   return B;
 }
 
@@ -298,11 +335,12 @@ Matrix wilson_matrix_numerical(
     const std::vector<connectivity::Bond>& bonds,
     const std::vector<connectivity::Angle>& angles = {},
     const std::vector<connectivity::Dihedral>& dihedrals = {},
+    const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {},
     double dx = 1.e-6) {
 
   const std::size_t n_c{linalg::size(x_c)};
 
-  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() + linear_angles.size()};
 
   // Wilson B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, n_c)};
@@ -320,14 +358,14 @@ Matrix wilson_matrix_numerical(
 
     // IRC corresponding to positive displacement of x_c(j)
     q_irc_plus = connectivity::cartesian_to_irc<Vector3, Vector>(
-        x_c_pm, bonds, angles, dihedrals);
+        x_c_pm, bonds, angles, dihedrals, linear_angles);
 
     // Negative displacement for cartesian coordinate j
     x_c_pm(j) -= 2 * dx;
 
     // IRC corresponding to negative displacement of x_c(j)
     q_irc_minus = connectivity::cartesian_to_irc<Vector3, Vector>(
-        x_c_pm, bonds, angles, dihedrals);
+        x_c_pm, bonds, angles, dihedrals, linear_angles);
 
     for (std::size_t i{0}; i < n_irc; i++) {
       // Compute derivative (centered finite difference)

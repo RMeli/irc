@@ -72,6 +72,21 @@ double norm(const T& a) {
 #endif
 }
 
+/// Normalise vector or matrix
+///
+/// \tparam T
+/// \return Normalised version of \param a
+template<typename T>
+T normalise(const T& a) {
+#ifdef HAVE_ARMA
+  return arma::normalise(a);
+#elif HAVE_EIGEN3
+  return a.normalized();
+#else
+#error
+#endif
+}
+
 /// Dot product between two vectors
 ///
 /// \tparam T
