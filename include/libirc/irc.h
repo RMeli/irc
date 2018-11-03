@@ -20,8 +20,7 @@ public:
   IRC(const molecule::Molecule<Vector3>& molecule = {},
       const std::vector<connectivity::Bond>& mybonds = {},
       const std::vector<connectivity::Angle>& myangles = {},
-      const std::vector<connectivity::Dihedral>& mydihedrals = {},
-      const std::vector<connectivity::LinearAngle<Vector3>>& mylinearangles = {});
+      const std::vector<connectivity::Dihedral>& mydihedrals = {});
 
   /// Compute initial projected inverted Hessian estimate
   ///
@@ -198,8 +197,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
     const molecule::Molecule<Vector3>& molecule,
     const std::vector<connectivity::Bond>& mybonds,
     const std::vector<connectivity::Angle>& myangles,
-    const std::vector<connectivity::Dihedral>& mydihedrals,
-    const std::vector<connectivity::LinearAngle<Vector3>>& mylinearangles) {
+    const std::vector<connectivity::Dihedral>& mydihedrals) {
 
   // Number of cartesian coordinates
   n_c = 3 * molecule.size();
@@ -229,14 +227,6 @@ IRC<Vector3, Vector, Matrix>::IRC(
     add_without_duplicates(angles, myangles);
   }
 
-  // Compute linear angles
-  linear_angles = connectivity::linear_angles<Vector3>(distance_m, molecule);
-
-  // Add user-defined angles
-  if (!mylinearangles.empty()) { // For CodeCov, can be removed after tests
-    add_without_duplicates(linear_angles, mylinearangles);
-  }
-
   // Compute dihedrals
   dihedrals = connectivity::dihedrals(distance_m, molecule);
 
@@ -244,6 +234,9 @@ IRC<Vector3, Vector, Matrix>::IRC(
   if (!mydihedrals.empty()) { // For CodeCov, can be removed after tests
     add_without_duplicates(dihedrals, mydihedrals);
   }
+
+  // Compute linear angles
+  linear_angles = connectivity::linear_angles<Vector3>(distance_m, molecule);
 
   // Count the number of internal coordinates
   n_irc = bonds.size() + angles.size() + dihedrals.size() + linear_angles.size();
@@ -296,6 +289,11 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
     iH0(i + offset, i + offset) = 1. / k_dihedral;
   }
 
+  offset = bonds.size() + angles.size() + dihedrals.size();
+  for (std::size_t i{0}; i < linear_angles.size(); i++) {
+    iH0(i + offset, i + offset) = 1. / k_angle;
+  }
+
   return P * iH0 * P;
 }
 
@@ -325,6 +323,11 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian(
   offset = bonds.size() + angles.size();
   for (std::size_t i{0}; i < dihedrals.size(); i++) {
     H0(i + offset, i + offset) = k_dihedral;
+  }
+
+  offset = bonds.size() + angles.size() + dihedrals.size();
+  for (std::size_t i{0}; i < linear_angles.size(); i++) {
+    H0(i + offset, i + offset) = k_angle;
   }
 
   return P * H0 * P;
@@ -385,7 +388,7 @@ Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const {
   }
 
   return connectivity::cartesian_to_irc<Vector3, Vector>(
-      x_c, bonds, angles, dihedrals);
+      x_c, bonds, angles, dihedrals, linear_angles);
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
@@ -414,13 +417,14 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
                                                                 bonds,
                                                                 angles,
                                                                 dihedrals,
+                                                                linear_angles,
                                                                 max_iters,
                                                                 tolerance);
 
   // TODO: This computation can be avoided; B is computed in irc_to_cartesian
   // Update Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-      itc_result.x_c, bonds, angles, dihedrals);
+      itc_result.x_c, bonds, angles, dihedrals, linear_angles);
 
   // Update projector P
   if(C){
@@ -435,21 +439,23 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-
 std::vector<connectivity::Bond> IRC<Vector3, Vector, Matrix>::get_bonds() const{
   return bonds;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-
 std::vector<connectivity::Angle> IRC<Vector3, Vector, Matrix>::get_angles() const{
   return angles;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-
 std::vector<connectivity::Dihedral> IRC<Vector3, Vector, Matrix>::get_dihedrals() const{
   return dihedrals;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+std::vector<connectivity::LinearAngle<Vector3>> IRC<Vector3, Vector, Matrix>::get_linear_angles() const{
+  return linear_angles;
 }
 
 } // namespace irc

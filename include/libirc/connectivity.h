@@ -108,6 +108,24 @@ enum class LinearAngleTag {
   First, Second
 };
 
+/// \brief String form of \p tag
+std::string to_string(const LinearAngleTag tag) {
+  switch(tag) {
+    case LinearAngleTag::First:
+      return "First";
+    case LinearAngleTag::Second:
+      return "Second";
+  }
+}
+
+/// \brief Triplet of atoms forming a linear angle and an orthogonal direction
+///
+/// Atoms are represented by their index in a list of coordinates.
+/// \p orthogonal_direction_ vector should be orthogonal to the \p i_ to \p k_
+/// atoms directions.
+/// A \p tag_ is also required, because the linear angles should be defined in
+/// pairs such that bending can occur in any direction.
+/// The \p orthogonal_direction_ of these two must themselves be orthogonal.
 template<typename Vector3>
 class LinearAngle {
 public:
@@ -131,8 +149,8 @@ public:
   std::size_t i;
   std::size_t j;
   std::size_t k;
-  Vector3 orthogonal_direction;
   LinearAngleTag tag;
+  Vector3 orthogonal_direction;
 
   Constraint constraint{Constraint::unconstrained};
 
@@ -922,108 +940,6 @@ std::vector<Angle> angles(const Matrix& distance_m,
   return ang;
 }
 
-template<typename Vector3>
-inline Vector3 non_parallel_direction(const Vector3 & v1,
-                                      const Vector3 & v2) {
-  const std::vector<Vector3> directions = {{1, 0, 0},
-                                           {0, 1, 0},
-                                           {0, 0, 1}};
-
-  const Vector3 v1to2 = v2 - v1;
-
-  return *std::min_element(directions.begin(),
-                           directions.end(),
-                           [v1to2](const Vector3 & a, const Vector3 & b) {
-                               return linalg::dot(v1to2, a) * linalg::dot(v1to2, a) <
-                                      linalg::dot(v1to2, b) * linalg::dot(v1to2, b);
-                           });
-
-}
-
-
-template<typename Vector3>
-inline Vector3 non_parallel_direction(const Angle & a,
-                                      const molecule::Molecule<Vector3> & molecule) {
-  return non_parallel_direction(molecule[a.i].position, molecule[a.k].position);
-
-}
-
-template<typename Vector3>
-inline std::pair<Vector3, Vector3>
-orthogonal_axis(const Vector3 & v1,
-                const Vector3 & v2,
-                const Vector3 & axis) {
-
-  const Vector3 v1to2 = v2 - v1;
-
-  const Vector3 first = linalg::normalise(linalg::cross(v1to2, axis));
-  const Vector3 second = linalg::normalise(linalg::cross(v1to2, first));
-
-  return {first, second};
-
-}
-
-template<typename Vector3>
-inline std::pair<Vector3, Vector3>
-orthogonal_axis(const Angle & a,
-                const molecule::Molecule<Vector3> & molecule,
-                const Vector3 & axis) {
-  return orthogonal_axis(molecule[a.i].position, molecule[a.k].position, axis);
-}
-
-
-template<typename Vector3, typename Matrix>
-std::vector<LinearAngle<Vector3>> linear_angles(const Matrix& distance_m,
-                          const molecule::Molecule<Vector3>& molecule) {
-
-  using boost::math::iround;
-
-  const std::size_t n_atoms{molecule.size()};
-
-  std::vector<LinearAngle<Vector3>> ang;
-
-  // Declare temporary list of angles
-  std::vector<Angle> A;
-
-  double a{0};
-  for (std::size_t j{0}; j < n_atoms; j++) {
-    for (std::size_t i{0}; i < j; i++) {
-
-      if (iround(distance_m(i, j)) <= 2) {
-
-        A = angles(i, j, distance_m);
-
-        for (const auto & aa : A) {
-          a = angle<Vector3>(aa, molecule);
-
-          // Quasi-linear angles
-          if (a > tools::constants::quasi_linear_angle) {
-            Vector3 direction = non_parallel_direction(aa, molecule);
-            std::pair<Vector3, Vector3> axis = orthogonal_axis(aa, molecule,
-                                                               direction);
-            ang.push_back(
-                LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.first,
-                                     LinearAngleTag::First,
-                                     aa.constraint
-                }
-            );
-            ang.push_back(
-                LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.second,
-                                     LinearAngleTag::Second,
-                                     aa.constraint
-                }
-            );
-          }
-
-        }
-      }
-    }
-  }
-
-  // Return list of angles
-  return ang;
-}
-
 /// Determine all possible dihedrals between atoms i and j
 ///
 /// \tparam Matrix
@@ -1122,6 +1038,117 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
   return dih;
 }
 
+/// \brief Determines where x, y or z is most orthogonal to direction \p d.
+template<typename Vector3>
+inline Vector3 non_parallel_direction(const Vector3 & d) {
+  const std::vector<Vector3> directions = {{1, 0, 0},
+                                           {0, 1, 0},
+                                           {0, 0, 1}};
+  return *std::min_element(directions.begin(),
+                           directions.end(),
+                           [d](const Vector3 & a, const Vector3 & b) {
+                               return linalg::dot(d, a) * linalg::dot(d, a) <
+                                      linalg::dot(d, b) * linalg::dot(d, b);
+                           });
+
+}
+
+
+/// \brief Determines where x, y or z is most orthogonal to angle \p a.
+template<typename Vector3>
+inline Vector3 non_parallel_direction(const Angle & a,
+                                      const molecule::Molecule<Vector3> & molecule) {
+  const Vector3 d = molecule[a.k].position - molecule[a.i].position;
+  return non_parallel_direction(d);
+
+}
+
+/// \brief Returns two vectors that are orthogonal to \p d and each other
+///
+/// The \p axis is required to form the first orthogonal vector. It must not
+/// be parallel to \p d.
+template<typename Vector3>
+inline std::pair<Vector3, Vector3>
+orthogonal_axis(const Vector3 & d,
+                const Vector3 & axis) {
+
+  const Vector3 first = linalg::normalise(linalg::cross(d, axis));
+  const Vector3 second = linalg::normalise(linalg::cross(d, first));
+
+  return {first, second};
+
+}
+
+/// \brief Returns two vectors that are orthogonal to the Angle \p a and each other
+///
+/// The \p axis is required to form the first orthogonal vector. It must not
+/// be parallel to \p d.
+template<typename Vector3>
+inline std::pair<Vector3, Vector3>
+orthogonal_axis(const Angle & a,
+                const molecule::Molecule<Vector3> & molecule,
+                const Vector3 & axis) {
+  const Vector3 d = molecule[a.k].position - molecule[a.i].position;
+  return orthogonal_axis(d, axis);
+}
+
+
+/// \brief Constructs all linear angles in the \p molecule.
+///
+/// An angle is consider linear if it is greater than
+/// tools::constants::quasi_linear_angle. For each linear angle two instances
+/// of a LinearAngle are formed to allow bending in any direction.
+template<typename Vector3, typename Matrix>
+std::vector<LinearAngle<Vector3>> linear_angles(const Matrix& distance_m,
+                                                const molecule::Molecule<Vector3>& molecule) {
+
+  using boost::math::iround;
+
+  const std::size_t n_atoms{molecule.size()};
+
+  std::vector<LinearAngle<Vector3>> ang;
+
+  // Declare temporary list of angles
+  std::vector<Angle> A;
+
+  double a{0};
+  for (std::size_t j{0}; j < n_atoms; j++) {
+    for (std::size_t i{0}; i < j; i++) {
+
+      if (iround(distance_m(i, j)) <= 2) {
+
+        A = angles(i, j, distance_m);
+
+        for (const auto & aa : A) {
+          a = angle<Vector3>(aa, molecule);
+
+          // Quasi-linear angles
+          if (a > tools::constants::quasi_linear_angle) {
+            Vector3 direction = non_parallel_direction(aa, molecule);
+            std::pair<Vector3, Vector3> axis = orthogonal_axis(aa, molecule,
+                                                               direction);
+            ang.push_back(
+                LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.first,
+                                     LinearAngleTag::First,
+                                     aa.constraint
+                }
+            );
+            ang.push_back(
+                LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.second,
+                                     LinearAngleTag::Second,
+                                     aa.constraint
+                }
+            );
+          }
+
+        }
+      }
+    }
+  }
+
+  return ang;
+}
+
 // TODO: Move to transformation? (Circular dependency?)
 /// Transform cartesian coordinates to internal redundant coordinates using
 /// information contained in the lists of bonds, angles and dihedrals
@@ -1138,7 +1165,7 @@ Vector cartesian_to_irc(const Vector& x_c,
                         const std::vector<connectivity::Bond>& bonds,
                         const std::vector<connectivity::Angle>& angles,
                         const std::vector<connectivity::Dihedral>& dihedrals,
-                        const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {}) {
+                        const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles) {
 
   const auto n_bonds = bonds.size();
   const auto n_angles = angles.size();
@@ -1171,7 +1198,7 @@ Vector cartesian_to_irc(const Vector& x_c,
     q_irc(i + offset) = dihedral<Vector3, Vector>(dihedrals[i], x_c);
   }
 
-  // Compute dihedrals
+  // Compute linear angles
   offset = n_bonds + n_angles + n_dihedrals;
   for (std::size_t i{0}; i < n_linear_angles; i++) {
     q_irc(i + offset) = angle<Vector3, Vector>(linear_angles[i], x_c);

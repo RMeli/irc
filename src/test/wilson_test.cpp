@@ -290,9 +290,10 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   std::vector<Bond> B{bonds(dist, mol)};
   std::vector<Angle> A{angles(dist, mol)};
   std::vector<Dihedral> D{dihedrals(dist, mol)};
+  std::vector<LinearAngle<vec3>> LA{linear_angles(dist, mol)};
 
   const auto q = connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(mol), B, A, D);
+      to_cartesian<vec3, vec>(mol), B, A, D, LA);
   CAPTURE(q);
 
   const mat wilson_b_analytical =

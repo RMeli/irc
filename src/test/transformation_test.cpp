@@ -88,6 +88,15 @@ TEST_CASE("Transformation") {
       print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule), D);
     }
 
+
+    // Compute linear angles
+    std::vector<LinearAngle<vec3>> LA{linear_angles(dist, molecule)};
+
+    // Print linear angles
+    if (verbose) {
+      print_linear_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), LA);
+    }
+
     // Compute number of cartesian coordinates
     std::size_t n_c{3 * molecule.size()};
 
@@ -109,7 +118,7 @@ TEST_CASE("Transformation") {
     if (verbose) {
       // Compute and print internal redundant coordinates
       cout << "Internal redundant coordinates (a.u.):\n"
-           << cartesian_to_irc<vec3, vec>(x_c, B, A, D) << endl;
+           << cartesian_to_irc<vec3, vec>(x_c, B, A, D, LA) << endl;
     }
   }
 
@@ -147,7 +156,7 @@ TEST_CASE("Transformation") {
 
     // Allocate vector for internal reaction coordinates
     vec q_irc{connectivity::cartesian_to_irc<vec3, vec>(
-        molecule::to_cartesian<vec3, vec>(molecule), B, {}, {})};
+        molecule::to_cartesian<vec3, vec>(molecule), B, {}, {}, {})};
 
     // Displacement in internal coordinates
     vec dq_irc{0.1};
@@ -173,7 +182,7 @@ TEST_CASE("Transformation") {
 
     // Compute new cartesian coordinates
     const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {});
+        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {}, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
@@ -236,7 +245,7 @@ TEST_CASE("Transformation") {
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
-        molecule::to_cartesian<vec3, vec>(molecule), B, A, {})};
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, {}, {})};
 
     // Displacement in internal coordinates
     vec dq_irc{0.0, 0.0, 1. / 180. * tools::constants::pi};
@@ -257,7 +266,7 @@ TEST_CASE("Transformation") {
 
     // Compute new cartesian coordinates
     const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {});
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {}, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
@@ -350,7 +359,7 @@ TEST_CASE("Transformation") {
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
-        molecule::to_cartesian<vec3, vec>(molecule), B, A, D)};
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
     // Displacement in internal coordinates
     vec dq_irc{0.0, 0.0, 0.0, 0.0, 0.0, 1. / 180 * tools::constants::pi};
@@ -371,7 +380,7 @@ TEST_CASE("Transformation") {
 
     // Compute new cartesian coordinates
     const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D);
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
@@ -419,6 +428,131 @@ TEST_CASE("Transformation") {
       Approx target{q_irc_new(5)};
       target.margin(1e-4);
       REQUIRE(dihedral(p4, p2, p1, p3) == target);
+    }
+  }
+
+  SECTION("Internal to cartesian for CO2") {
+    using namespace molecule;
+    using namespace connectivity;
+    using namespace transformation;
+    using namespace tools::conversion;
+    using namespace io;
+    using namespace std;
+    using namespace wilson;
+
+    // Load molecule from file
+    const auto molecule =
+        load_xyz<vec3>(config::molecules_dir + "carbon_dioxide.xyz");
+
+    // Compute interatomic distance for molecule
+    mat dd{distances<vec3, mat>(molecule)};
+
+    // Build graph based on the adjacency matrix
+    UGraph adj{adjacency_matrix(dd, molecule)};
+
+    // Compute distance matrix and predecessor matrix
+    mat dist{distance_matrix<mat>(adj)};
+
+    // Compute bonds
+    std::vector<Bond> B{bonds(dist, molecule)};
+
+    // Print bonds
+    if (verbose) {
+      print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule), B);
+    }
+
+    // Check number of bonds
+    REQUIRE(B.size() == 2);
+
+    // Compute angles
+    std::vector<Angle> A{angles(dist, molecule)};
+
+    // Print angles
+    if (verbose) {
+      print_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), A);
+    }
+
+    // Check number of angles
+    REQUIRE(A.size() == 0);
+
+    // Compute dihedral angles
+    std::vector<Dihedral> D{dihedrals(dist, molecule)};
+
+    // Print dihedrals
+    if (verbose) {
+      print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule), D);
+    }
+
+    // Check number of dihedrals
+    REQUIRE(D.size() == 0);
+
+    // Compute linear angles
+    std::vector<LinearAngle<vec3>> LA{linear_angles(dist, molecule)};
+
+    // Print linear angles
+    if (verbose) {
+      print_linear_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), LA);
+    }
+
+    // Check number of linear angles
+    REQUIRE(LA.size() == 2);
+
+    // Compute Wilson B matrix
+    mat W = wilson_matrix<vec3, vec, mat>(
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, LA);
+
+    // Allocate vector for internal reaction coordinates
+    vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, LA)};
+
+    // Displacement in internal coordinates
+    vec dq_irc{0.0, 0.0, 0.0, 1. / 180 * tools::constants::pi};
+
+    // Compute new internal coordinates
+    vec q_irc_new{q_irc_old + dq_irc};
+
+    // Print new internal coordinates
+    if (verbose) {
+      cout << "\nNew internal coordinates:\n " << q_irc_new << endl;
+    }
+
+    // Compute number of cartesian coordinates
+    std::size_t n_c{3 * molecule.size()};
+
+    // Allocate vector for cartesian positions
+    vec x_c_old{to_cartesian<vec3, vec>(molecule)};
+
+    // Compute new cartesian coordinates
+    const auto itc_result =
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D, LA);
+    const auto x_c = itc_result.x_c;
+
+    // Print cartesian coordinates
+    if (verbose) {
+      cout << "\nNew cartesian coordinates (a.u.):\n " << x_c << endl;
+    }
+
+    // Reconstruct atomic positions (points in 3D space)
+    vec3 p1{x_c(0), x_c(1), x_c(2)};
+    vec3 p2{x_c(3), x_c(4), x_c(5)};
+    vec3 p3{x_c(6), x_c(7), x_c(8)};
+
+    SECTION("Bond CO{1}") {
+      Approx target{q_irc_new(0)};
+      target.margin(1e-4);
+      REQUIRE(distance(p1, p2) == target);
+    }
+
+    SECTION("Bond CO{2}") {
+      Approx target{q_irc_new(1)};
+      target.margin(1e-4);
+      REQUIRE(distance(p1, p3) == target);
+    }
+
+    SECTION("Angle OCO") {
+      Approx target{q_irc_new(3)};
+      target.margin(1e-4);
+      REQUIRE(angle(LA[1], x_c) == target);
     }
   }
 }

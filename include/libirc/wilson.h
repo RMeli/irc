@@ -94,21 +94,6 @@ std::tuple<Vector3, Vector3, Vector3> angle_gradient(const Vector3& p1,
   return std::make_tuple(v1, v2, v3);
 }
 
-template<typename Vector3>
-std::tuple<Vector3, Vector3, Vector3> linear_angle_gradient(const Vector3& p1,
-                                                     const Vector3& p2,
-                                                     const Vector3& p3,
-                                                     const Vector3& orthogonal_direction,
-                                                     double tolerance = 1e-6) {
-
-  Vector3 v1, v2, v2add, v3, vOrth;
-
-  std::tie(v1, v2, vOrth) = angle_gradient(p1, p2, orthogonal_direction, tolerance);
-  std::tie(vOrth, v2add, v3) = angle_gradient(orthogonal_direction, p2, p3, tolerance);
-
-  return std::make_tuple(v1, v2+v2add, v3);
-}
-
 /*! Compute dihedral angle gradients
  *
  * Four vectors act to increase the dihedral angle between \p p1, \p p2, \p p3,
@@ -194,6 +179,41 @@ dihedral_gradient(const Vector3& p1,
                    (bond34 * sin_angle234 * sin_angle234)};
 
   return std::make_tuple(v1, v2, v3, v4);
+}
+
+/*!
+ * \brief The linear angle gradient bending in the plane with the \p othogonal_direction
+ *
+ * The gradient contribution \f$ (g_1, g_2, g_3) \f$ is computed at positions
+ * \p p1, \p p2 and \p p3. These are formed by first computing the standard
+ * angle gradients \f$ (g_1, g_{2a}, g_{0a}) \f$ at the positions
+ * \f$ (p1, p2, p2+d_{orth}) \f$ and \f$ (g_{0b}, g_{2b}, g_3) \f$ at the
+ * positions \f$ (p2+d_{orth}, p2, p3) \f$. The linear angle gradient is then
+ * formed as \f$ (g_1, g_{2a}+g_{2b}, g_3) \f$
+ *
+ * \tparam Vector3
+ * \param p1 Point 1
+ * \param p2 Point 2
+ * \param p3 Point 3
+ * \param orthogonal_direction orthogonal director to the \p p1 to \p p3 vector
+ * \param tolerance
+ * \return
+ */
+template<typename Vector3>
+std::tuple<Vector3, Vector3, Vector3> linear_angle_gradient(const Vector3& p1,
+                                                            const Vector3& p2,
+                                                            const Vector3& p3,
+                                                            const Vector3& orthogonal_direction,
+                                                            double tolerance = 1e-6) {
+
+  Vector3 v1, v2, v2add, v3, vOrth;
+
+  const Vector3 p0 = p2 + orthogonal_direction;
+
+  std::tie(v1, v2, vOrth) = angle_gradient(p1, p2, p0, tolerance);
+  std::tie(vOrth, v2add, v3) = angle_gradient(p0, p2, p3, tolerance);
+
+  return std::make_tuple(v1, v2+v2add, v3);
 }
 
 /// Function computing Wilson's \f$\mathbf{B}\f$ matrix from a set of internal
