@@ -109,7 +109,7 @@ enum class LinearAngleTag {
 };
 
 /// \brief String form of \p tag
-std::string to_string(const LinearAngleTag tag) {
+std::string inline to_string(const LinearAngleTag tag) {
   switch(tag) {
     case LinearAngleTag::First:
       return "First";
