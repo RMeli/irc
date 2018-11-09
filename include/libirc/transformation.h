@@ -86,8 +86,6 @@ irc_to_cartesian(const Vector& q_irc_old,
                  std::size_t max_iters = 25,
                  double tolerance = 1e-6) {
 
-  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size()};
-
   bool converged{false};
 
   // Cartesian coordinates
@@ -133,7 +131,7 @@ irc_to_cartesian(const Vector& q_irc_old,
     q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
         x_c, bonds, angles, dihedrals, linear_angles);
 
-    // Restrain dihedral angle on the interval [-pi,pi]
+    // Restrain dihedral angle on the interval (-pi,pi]
     for (std::size_t i{offset}; i < offset + dihedrals.size(); i++) {
       q_new(i) = tools::math::pirange_rad(q_new(i));
     }
