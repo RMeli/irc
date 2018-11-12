@@ -6,6 +6,7 @@
 #include "linalg.h"
 #include "molecule.h"
 
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -894,7 +895,69 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
   return angles;
 }
 
-/// Returns the angles between bonded atoms in \param molecule
+/// \brief Returns list from \p angles whose angle is not quasi linear
+///
+/// Quasi linear angles are those whose angle in \p molecule is greater than
+/// tools::constants::quasi_linear_angle.
+///
+/// \tparam Vector3
+/// \param angles Set of potential angles
+/// \param molecule Molecule
+/// \return List of angles
+template<typename Vector3>
+std::vector<Angle> valid_angles(const std::vector<Angle> & angles,
+                                const molecule::Molecule<Vector3>& molecule) {
+  std::vector<Angle> new_angles;
+
+  for (const auto& aa : angles) {
+    const double a = angle<Vector3>(aa, molecule);
+    if (a <= tools::constants::quasi_linear_angle) {
+      new_angles.push_back(aa);
+    }
+  }
+
+  // Return list of angles
+  return new_angles;
+}
+
+/// Determine paths between nodes seperated by 1 other
+///
+/// Finds all elements of \p distance_m that has value <= 2.
+/// It then determines all connections from these two indices
+///
+/// \tparam Matrix
+/// \param distance_m Distance matrix
+/// \return List of angles
+template<typename Matrix>
+std::vector<Angle> all_angles(const Matrix& distance_m) {
+
+  using boost::math::iround;
+
+  assert(linalg::n_rows(distance_m) == linalg::n_cols(distance_m));
+  const std::size_t n_rows = linalg::n_rows(distance_m);
+
+  std::vector<Angle> angs;
+
+  double a{0};
+  for (std::size_t j{0}; j < n_rows; j++) {
+    for (std::size_t i{0}; i < j; i++) {
+
+      if (iround(distance_m(i, j)) <= 2) {
+
+        std::vector<Angle> A = angles(i, j, distance_m);
+
+        for (const auto& aa : A) {
+          angs.push_back(aa);
+        }
+      }
+    }
+  }
+
+  // Return list of angles
+  return angs;
+}
+
+/// Returns the angles between bonded atoms in \p molecule
 ///
 /// \tparam Vector3
 /// \tparam Matrix
@@ -904,40 +967,8 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
 template<typename Vector3, typename Matrix>
 std::vector<Angle> angles(const Matrix& distance_m,
                           const molecule::Molecule<Vector3>& molecule) {
-
-  using boost::math::iround;
-
-  const std::size_t n_atoms{molecule.size()};
-
-  std::vector<Angle> ang;
-
-  // Declare temporary list of angles
-  std::vector<Angle> A;
-
-  double a{0};
-  for (std::size_t j{0}; j < n_atoms; j++) {
-    for (std::size_t i{0}; i < j; i++) {
-
-      if (iround(distance_m(i, j)) <= 2) {
-
-        A = angles(i, j, distance_m);
-
-        for (const auto& aa : A) {
-          a = angle<Vector3>(aa, molecule);
-
-          // Quasi-linear angles
-          if (a > tools::constants::quasi_linear_angle) {
-            continue;
-          }
-
-          ang.push_back(aa);
-        }
-      }
-    }
-  }
-
   // Return list of angles
-  return ang;
+  return valid_angles<Vector3>(all_angles(distance_m), molecule);
 }
 
 /// Determine all possible dihedrals between atoms i and j
@@ -1092,6 +1123,35 @@ orthogonal_axis(const Angle & a,
   return orthogonal_axis(d, axis);
 }
 
+template<typename Vector3>
+std::vector<LinearAngle<Vector3>> valid_linear_angles(const std::vector<Angle> & angles,
+                                       const molecule::Molecule<Vector3>& molecule) {
+  std::vector<LinearAngle<Vector3>> new_linear_angles;
+
+  for (const auto& aa : angles) {
+    const double a = angle<Vector3>(aa, molecule);
+    if (a > tools::constants::quasi_linear_angle) {
+      Vector3 direction = non_parallel_direction(aa, molecule);
+      std::pair<Vector3, Vector3> axis = orthogonal_axis(aa, molecule,
+                                                         direction);
+      new_linear_angles.push_back(
+          LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.first,
+                               LinearAngleTag::First,
+                               aa.constraint
+          }
+      );
+      new_linear_angles.push_back(
+          LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.second,
+                               LinearAngleTag::Second,
+                               aa.constraint
+          }
+      );
+    }
+  }
+
+  // Return list of angles
+  return new_linear_angles;
+}
 
 /// \brief Constructs all linear angles in the \p molecule.
 ///
@@ -1102,51 +1162,7 @@ template<typename Vector3, typename Matrix>
 std::vector<LinearAngle<Vector3>> linear_angles(const Matrix& distance_m,
                                                 const molecule::Molecule<Vector3>& molecule) {
 
-  using boost::math::iround;
-
-  const std::size_t n_atoms{molecule.size()};
-
-  std::vector<LinearAngle<Vector3>> ang;
-
-  // Declare temporary list of angles
-  std::vector<Angle> A;
-
-  double a{0};
-  for (std::size_t j{0}; j < n_atoms; j++) {
-    for (std::size_t i{0}; i < j; i++) {
-
-      if (iround(distance_m(i, j)) <= 2) {
-
-        A = angles(i, j, distance_m);
-
-        for (const auto & aa : A) {
-          a = angle<Vector3>(aa, molecule);
-
-          // Quasi-linear angles
-          if (a > tools::constants::quasi_linear_angle) {
-            Vector3 direction = non_parallel_direction(aa, molecule);
-            std::pair<Vector3, Vector3> axis = orthogonal_axis(aa, molecule,
-                                                               direction);
-            ang.push_back(
-                LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.first,
-                                     LinearAngleTag::First,
-                                     aa.constraint
-                }
-            );
-            ang.push_back(
-                LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.second,
-                                     LinearAngleTag::Second,
-                                     aa.constraint
-                }
-            );
-          }
-
-        }
-      }
-    }
-  }
-
-  return ang;
+  return valid_linear_angles(all_angles(distance_m), molecule);
 }
 
 // TODO: Move to transformation? (Circular dependency?)

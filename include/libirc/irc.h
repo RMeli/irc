@@ -224,7 +224,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Add user-defined angles
   if (!myangles.empty()) { // For CodeCov, can be removed after tests
-    add_without_duplicates(angles, myangles);
+    add_without_duplicates(angles, valid_angles(myangles, molecule));
   }
 
   // Compute dihedrals
@@ -237,6 +237,11 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Compute linear angles
   linear_angles = connectivity::linear_angles<Vector3>(distance_m, molecule);
+
+  std::vector<connectivity::LinearAngle<Vector3>> mylinearangles = valid_linear_angles(myangles, molecule);
+  if (!mylinearangles.empty()) { // For CodeCov, can be removed after tests
+    add_without_duplicates(linear_angles, mylinearangles);
+  }
 
   // Count the number of internal coordinates
   n_irc = bonds.size() + angles.size() + dihedrals.size() + linear_angles.size();
