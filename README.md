@@ -113,29 +113,14 @@ Run tests:
 
 Continuous integration (CI) is implemented using [Travis-CI](https://travis-ci.org/). The test suite is run for every commit on all the branches and at least once a day for the `master` branch.
 
-The supported operating systems and compilers are the following:
-
-OS | Compiler | Libraries
----|----------|----------
-macOS `10.13` | AppleClang `9.1` | Armadillo
-macOS `10.12` | AppleClang `9.0` | Armadillo
-macOS `10.12` | AppleClang `8.1` | Armadillo
-macOS `10.11` | AppleClang `7.3` | Armadillo
-macOS `10.12` | GCC `8.1` | Eigen
-macOS `10.12` | GCC `7.3` | Eigen
-macOS `10.12` | GCC `6.4` | Eigen
-macOS `10.11` | GCC `5.5` | Eigen
-
-
 The current build status for every branch is the following:
 
 Branch | Status
 -------|-------
 `master` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
-`bugfix` | [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=bugfix)](https://travis-ci.org/RMeli/irc)
 
 ### Code coverage
-Code coverage is obtained using `Apple LLVM` by using the option `--coverage` (for both compiling and linking). The coverage reports are then processed and uploaded to [CodeCov](https://codecov.io) by Travis-CI. The directories `include/boost/` and `/include/catch/` are excluded from the code coverage report.
+Code coverage is obtained using `Apple LLVM` with the option `--coverage` (for both compiling and linking). The coverage reports are then processed and uploaded to [CodeCov](https://codecov.io) by Travis-CI. The directories `include/boost/` and `/include/catch/` are excluded from the code coverage report.
 
 To compile with code coverage, use the following CMake option:
 ```CMake
@@ -152,7 +137,6 @@ The current coverage status for every branch is the following:
 Branch | Status
 -------|-------
 `master` | [![codecov](https://codecov.io/gh/RMeli/irc/branch/master/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
-`bugfix` | [![codecov](https://codecov.io/gh/RMeli/irc/branch/bugfix/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
 
 Sunburst coverage graph for the branch `master`:
 
