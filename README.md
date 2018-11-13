@@ -113,20 +113,6 @@ Run tests:
 
 Continuous integration (CI) is implemented using [Travis-CI](https://travis-ci.org/). The test suite is run for every commit on all the branches and at least once a day for the `master` branch.
 
-The supported operating systems and compilers are the following:
-
-OS | Compiler | Libraries
----|----------|----------
-macOS `10.13` | AppleClang `10.0` | Armadillo
-macOS `10.13` | AppleClang `9.1` | Armadillo
-macOS `10.12` | AppleClang `8.1` | Armadillo
-macOS `10.11` | AppleClang `7.3` | Armadillo
-macOS `10.12` | GCC `8.1` | Eigen
-macOS `10.12` | GCC `7.3` | Eigen
-macOS `10.12` | GCC `6.4` | Eigen
-macOS `10.11` | GCC `5.5` | Eigen
-
-
 The current build status for every branch is the following:
 
 Branch | Status
