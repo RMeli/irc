@@ -24,19 +24,13 @@ matrix:
       osx_image: xcode10.1
       compiler: gcc
       env:
-        - MATRIX_EVAL="brew install gcc@8 && CC=gcc-8 && CXX=g++-8 && export LIBLA=eigen"
+        - MATRIX_EVAL="brew install gcc@8 && brew link gcc@8 && CC=gcc-8 && CXX=g++-8 && export LIBLA=eigen"
 
     - os: osx
       osx_image: xcode9.2
       compiler: gcc
       env:
         - MATRIX_EVAL="brew install gcc@7 && CC=gcc-7 && CXX=g++-7 && export LIBLA=eigen"
-
-    - os: osx
-      osx_image: xcode8.0
-      compiler: gcc
-      env:
-        - MATRIX_EVAL="brew install gcc@6 && CC=gcc-6 && CXX=g++-6 && export LIBLA=eigen"
 
 before_install:
   - bash .travis/before_install.sh
