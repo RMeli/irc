@@ -38,6 +38,12 @@ matrix:
       env:
         - MATRIX_EVAL="brew install gcc@8 && brew link gcc@8 && CC=gcc-8 && CXX=g++-8 && export LIBLA=arma"
 
+    - os: osx
+      osx_image: xcode8.0
+      compiler: gcc
+      env:
+        - MATRIX_EVAL="brew install gcc@8 && brew link gcc@8 && CC=gcc-8 && CXX=g++-8 && export LIBLA=eigen"
+
 before_install:
   - bash .travis/before_install.sh
   - eval "${MATRIX_EVAL}"
