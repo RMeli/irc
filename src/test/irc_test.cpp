@@ -54,14 +54,18 @@ TEST_CASE("Internal Redundant Coordinates") {
     // Add H-O-H angle: (2,1,3)
     // Add H-H-O-C dihedral: (3,2,1,0)
     IRC<vec3, vec, mat> irc(
-        molecule, {{1, 2}, {2, 3}}, {{2, 1, 3}}, {{3, 2, 1, 0}});
+        molecule, {{1, 2}, {2, 3}}, {{2, 1, 3}}, {{3, 2, 1, 0}}, {});
+    REQUIRE(irc.get_bonds().size() == 5);
+    REQUIRE(irc.get_angles().size() == 4);
+    REQUIRE(irc.get_dihedrals().size() == 1);
+    REQUIRE(irc.get_out_of_plane_bends().size() == 1);
 
     // Compute internal coordinates
     vec q_irc{
         irc.cartesian_to_irc(molecule::to_cartesian<vec3, vec>(molecule))};
 
     // Check size (3+2 bonds, 3+1 angles, 0+1 dihedrals)
-    REQUIRE(linalg::size(q_irc) == 10);
+    REQUIRE(linalg::size(q_irc) == 11);
 
     // Check manually added O-H bond
     SECTION("Manually added O-H bond") {
@@ -109,6 +113,21 @@ TEST_CASE("Internal Redundant Coordinates") {
                         molecule[0].position)};
 
       REQUIRE(d == target);
+    }
+
+    // Check manually added H-H-O-C dihedral angle
+    SECTION("Manually added H-H-O-C out of plane angle") {
+      Approx target(q_irc(10));
+      target.margin(1e-6);
+
+      // Compute H-H-O-C dihedral angle
+      double d{out_of_plane_angle(molecule[0].position,
+                                  molecule[1].position,
+                                  molecule[2].position,
+                                  molecule[3].position)};
+
+      REQUIRE(d == target);
+      REQUIRE(d == Approx(0).margin(1e-6));
     }
   }
   /*

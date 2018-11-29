@@ -88,13 +88,20 @@ TEST_CASE("Transformation") {
       print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule), D);
     }
 
-
     // Compute linear angles
     std::vector<LinearAngle<vec3>> LA{linear_angles(dist, molecule)};
 
     // Print linear angles
     if (verbose) {
       print_linear_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), LA);
+    }
+
+    // Compute linear angles
+    std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, molecule)};
+
+    // Print linear angles
+    if (verbose) {
+      print_out_of_plane_bends<vec3, vec>(to_cartesian<vec3, vec>(molecule), OOPB);
     }
 
     // Compute number of cartesian coordinates
@@ -118,7 +125,7 @@ TEST_CASE("Transformation") {
     if (verbose) {
       // Compute and print internal redundant coordinates
       cout << "Internal redundant coordinates (a.u.):\n"
-           << cartesian_to_irc<vec3, vec>(x_c, B, A, D, LA) << endl;
+           << cartesian_to_irc<vec3, vec>(x_c, B, A, D, LA, OOPB) << endl;
     }
   }
 
@@ -156,7 +163,7 @@ TEST_CASE("Transformation") {
 
     // Allocate vector for internal reaction coordinates
     vec q_irc{connectivity::cartesian_to_irc<vec3, vec>(
-        molecule::to_cartesian<vec3, vec>(molecule), B, {}, {}, {})};
+        molecule::to_cartesian<vec3, vec>(molecule), B, {}, {}, {}, {})};
 
     // Displacement in internal coordinates
     vec dq_irc{0.1};
@@ -182,7 +189,7 @@ TEST_CASE("Transformation") {
 
     // Compute new cartesian coordinates
     const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {}, {});
+        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {}, {}, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
@@ -245,7 +252,7 @@ TEST_CASE("Transformation") {
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
-        molecule::to_cartesian<vec3, vec>(molecule), B, A, {}, {})};
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, {}, {}, {})};
 
     // Displacement in internal coordinates
     vec dq_irc{0.0, 0.0, 1. / 180. * tools::constants::pi};
@@ -266,7 +273,7 @@ TEST_CASE("Transformation") {
 
     // Compute new cartesian coordinates
     const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {}, {});
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {}, {}, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
@@ -359,7 +366,7 @@ TEST_CASE("Transformation") {
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
-        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, {}, {})};
 
     // Displacement in internal coordinates
     vec dq_irc{0.0, 0.0, 0.0, 0.0, 0.0, 1. / 180 * tools::constants::pi};
@@ -380,7 +387,7 @@ TEST_CASE("Transformation") {
 
     // Compute new cartesian coordinates
     const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D, {});
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D, {}, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
@@ -499,11 +506,11 @@ TEST_CASE("Transformation") {
 
     // Compute Wilson B matrix
     mat W = wilson_matrix<vec3, vec, mat>(
-        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, LA);
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, LA, {});
 
     // Allocate vector for internal reaction coordinates
     vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
-        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, LA)};
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, D, LA, {})};
 
     // Displacement in internal coordinates
     vec dq_irc{0.0, 0.0, 0.0, 1. / 180 * tools::constants::pi};
@@ -524,7 +531,7 @@ TEST_CASE("Transformation") {
 
     // Compute new cartesian coordinates
     const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D, LA);
+        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D, LA, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates

@@ -248,6 +248,58 @@ void print_linear_angles(const Vector& x_c,
   }
 }
 
+
+template<typename Vector3, typename Vector>
+void print_out_of_plane_bends(const Vector& x_c,
+                     const std::vector<connectivity::OutOfPlaneBend>& bends,
+                     std::ostream& out = std::cout) {
+
+  const std::size_t n_bends{bends.size()};
+
+  out << n_bends << " out-of-plane bends (\u00B0):" << std::endl;
+
+  // Atomic positions
+  Vector3 pc{0., 0., 0.}, p1{0., 0., 0.}, p2{0., 0., 0.}, p3{0., 0., 0.};
+
+  // Indices
+  std::size_t idx_c{0}, idx_i{0}, idx_j{0}, idx_k{0};
+
+  out.precision(2);
+  out.fill(' ');
+
+  for (std::size_t i{0}; i < n_bends; i++) {
+    idx_c = bends[i].c;
+    idx_i = bends[i].i;
+    idx_j = bends[i].j;
+    idx_k = bends[i].k;
+
+    // Print indices
+    out.width(1);
+    out << std::left << '(';
+    out.width(4);
+    out << std::right << idx_c << ',';
+    out.width(4);
+    out << std::right << idx_i << ',';
+    out.width(4);
+    out << std::right << idx_j << ',';
+    out.width(4);
+    out << std::right << idx_k << ')';
+
+    // Get positions
+    pc = {x_c(3 * idx_c), x_c(3 * idx_c + 1), x_c(3 * idx_c + 2)};
+    p1 = {x_c(3 * idx_i), x_c(3 * idx_i + 1), x_c(3 * idx_i + 2)};
+    p2 = {x_c(3 * idx_j), x_c(3 * idx_j + 1), x_c(3 * idx_j + 2)};
+    p3 = {x_c(3 * idx_k), x_c(3 * idx_k + 1), x_c(3 * idx_k + 2)};
+
+    // Print distance
+
+    out << std::setw(9) << std::fixed << std::right
+        << connectivity::out_of_plane_angle(pc, p1, p2, p3) *
+           tools::conversion::rad_to_deg
+        << std::endl;
+  }
+}
+
 } // namespace io
 
 } // namespace irc

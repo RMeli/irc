@@ -181,6 +181,53 @@ dihedral_gradient(const Vector3& p1,
   return std::make_tuple(v1, v2, v3, v4);
 }
 
+
+/*! Compute out of plane angle gradients
+ */
+template<typename Vector3>
+std::tuple<Vector3, Vector3, Vector3, Vector3>
+out_of_plane_gradient(const Vector3& vc,
+                      const Vector3& v1,
+                      const Vector3& v2,
+                      const Vector3& v3) {
+  const Vector3 b1{v1 - vc};
+  const Vector3 b2{v2 - vc};
+  const Vector3 b3{v3 - vc};
+
+  const Vector3 e1{linalg::normalise(b1)};
+  const Vector3 e2{linalg::normalise(b2)};
+  const Vector3 e3{linalg::normalise(b3)};
+
+  const double a1{connectivity::angle(v2, vc, v3)};
+  const double a2{connectivity::angle(v3, vc, v1)};
+  const double a3{connectivity::angle(v1, vc, v2)};
+
+  const double sin_a1{std::sin(a1)};
+  const double cos_a1{std::cos(a1)};
+  const double cos_a2{std::cos(a2)};
+  const double cos_a3{std::cos(a3)};
+
+  const double ir1{1/linalg::norm(b1)};
+  const double ir2{1/linalg::norm(b2)};
+  const double ir3{1/linalg::norm(b3)};
+
+  const Vector3 t1{linalg::cross(e2, e3)/std::sin(a1)};
+
+  // Out of plane angle
+  const double angle = std::asin(linalg::dot(t1, e1));
+
+  const double cos_angle{std::cos(angle)};
+  const double tan_angle{std::tan(angle)};
+
+  const Vector3 s1 = ir1 * (t1/cos_angle - tan_angle * e1);
+  const double denominator = cos_angle * sin_a1 * sin_a1;
+  const Vector3 s2 = ir2 * t1 * (cos_a1 * cos_a2 - cos_a3)/denominator;
+  const Vector3 s3 = ir3 * t1 * (cos_a1 * cos_a3 - cos_a2)/denominator;
+  const Vector3 sc = - s1 - s2 - s3;
+
+  return std::make_tuple(sc, s1, s2, s3);
+}
+
 /*!
  * \brief The linear angle gradient bending in the plane with the \p othogonal_direction
  *
@@ -249,10 +296,11 @@ wilson_matrix(const Vector& x_cartesian,
               const std::vector<connectivity::Bond>& bonds,
               const std::vector<connectivity::Angle>& angles = {},
               const std::vector<connectivity::Dihedral>& dihedrals = {},
-              const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {}) {
+              const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {},
+              const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends = {}) {
   const std::size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
 
-  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() + linear_angles.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() + linear_angles.size() + out_of_plane_bends.size()};
 
   // Wilson's B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, 3 * n_atoms)};
@@ -346,6 +394,27 @@ wilson_matrix(const Vector& x_cartesian,
     }
   }
 
+  // Populate B matrix's rows corresponding to out of plane bends
+  offset = bonds.size() + angles.size() + dihedrals.size() + linear_angles.size();
+  for (std::size_t i{0}; i < out_of_plane_bends.size(); i++) {
+    auto bend = out_of_plane_bends[i];
+
+    for (std::size_t m{0}; m < 3; m++) {
+      p4(m) = x_cartesian(3 * bend.c + m);
+      p1(m) = x_cartesian(3 * bend.i + m);
+      p2(m) = x_cartesian(3 * bend.j + m);
+      p3(m) = x_cartesian(3 * bend.k + m);
+    }
+
+    std::tie(g4, g1, g2, g3) = out_of_plane_gradient(p4, p1, p2, p3);
+
+    for (std::size_t idx{0}; idx < 3; idx++) {
+      B(i + offset, 3 * bend.c + idx) = g4(idx);
+      B(i + offset, 3 * bend.i + idx) = g1(idx);
+      B(i + offset, 3 * bend.j + idx) = g2(idx);
+      B(i + offset, 3 * bend.k + idx) = g3(idx);
+    }
+  }
   return B;
 }
 
@@ -356,11 +425,12 @@ Matrix wilson_matrix_numerical(
     const std::vector<connectivity::Angle>& angles = {},
     const std::vector<connectivity::Dihedral>& dihedrals = {},
     const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {},
+    const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends = {},
     double dx = 1.e-6) {
 
   const std::size_t n_c{linalg::size(x_c)};
 
-  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() + linear_angles.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() + linear_angles.size() + out_of_plane_bends.size()};
 
   // Wilson B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, n_c)};
@@ -378,14 +448,14 @@ Matrix wilson_matrix_numerical(
 
     // IRC corresponding to positive displacement of x_c(j)
     q_irc_plus = connectivity::cartesian_to_irc<Vector3, Vector>(
-        x_c_pm, bonds, angles, dihedrals, linear_angles);
+        x_c_pm, bonds, angles, dihedrals, linear_angles, out_of_plane_bends);
 
     // Negative displacement for cartesian coordinate j
     x_c_pm(j) -= 2 * dx;
 
     // IRC corresponding to negative displacement of x_c(j)
     q_irc_minus = connectivity::cartesian_to_irc<Vector3, Vector>(
-        x_c_pm, bonds, angles, dihedrals, linear_angles);
+        x_c_pm, bonds, angles, dihedrals, linear_angles, out_of_plane_bends);
 
     for (std::size_t i{0}; i < n_irc; i++) {
       // Compute derivative (centered finite difference)

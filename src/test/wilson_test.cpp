@@ -272,6 +272,51 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
   }
 }
 
+TEST_CASE("Wilson B matrix for formalydehyde", "[wilson]") {
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+  using namespace wilson;
+  using namespace io;
+
+  const auto mol = load_xyz<vec3>(config::molecules_dir + "formaldehyde.xyz");
+
+  // Compute interatomic distances
+  mat dd{distances<vec3, mat>(mol)};
+  UGraph adj{adjacency_matrix(dd, mol)};
+  mat dist{distance_matrix<mat>(adj)};
+
+  // Compute bonds
+  std::vector<Bond> B{bonds(dist, mol)};
+  std::vector<Angle> A{angles(dist, mol)};
+  std::vector<Dihedral> D{dihedrals(dist, mol)};
+  std::vector<LinearAngle<vec3>> LA{linear_angles(dist, mol)};
+  std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, mol)};
+
+  const auto q = connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
+  CAPTURE(q);
+
+  const mat wilson_b_analytical =
+      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
+  CAPTURE(wilson_b_analytical);
+
+  const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
+      to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
+  CAPTURE(wilson_b_numerical);
+
+  REQUIRE(linalg::size(wilson_b_analytical) ==
+          linalg::size(wilson_b_numerical));
+
+
+  const std::size_t n = linalg::size(wilson_b_analytical);
+  for (std::size_t i{0}; i < n; i++) {
+    CAPTURE(i);
+    REQUIRE(wilson_b_analytical(i) ==
+            Approx(wilson_b_numerical(i)).margin(1e-5));
+  }
+}
+
 TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   using namespace connectivity;
   using namespace molecule;
@@ -291,17 +336,18 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   std::vector<Angle> A{angles(dist, mol)};
   std::vector<Dihedral> D{dihedrals(dist, mol)};
   std::vector<LinearAngle<vec3>> LA{linear_angles(dist, mol)};
+  std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, mol)};
 
   const auto q = connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(mol), B, A, D, LA);
+      to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(q);
 
   const mat wilson_b_analytical =
-      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D);
+      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(wilson_b_analytical);
 
   const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
-      to_cartesian<vec3, vec>(mol), B, A, D);
+      to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(wilson_b_numerical);
 
   REQUIRE(linalg::size(wilson_b_analytical) ==
@@ -335,18 +381,19 @@ TEST_CASE("Linear angle gradient", "[wilson]") {
     std::vector<Angle> A{angles(dist, mol)};
     std::vector<Dihedral> D{dihedrals(dist, mol)};
     std::vector<LinearAngle<vec3>> LA{linear_angles(dist, mol)};
+    std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, mol)};
     REQUIRE(LA.size() == 2);
 
     const auto q = connectivity::cartesian_to_irc<vec3, vec>(
-        to_cartesian<vec3, vec>(mol), B, A, D, LA);
+        to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
     CAPTURE(q);
 
     const mat wilson_b_analytical =
-        wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA);
+        wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
     CAPTURE(wilson_b_analytical);
 
     const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
-        to_cartesian<vec3, vec>(mol), B, A, D, LA);
+        to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
     CAPTURE(wilson_b_numerical);
 
     REQUIRE(linalg::size(wilson_b_analytical) ==

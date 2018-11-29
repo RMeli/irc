@@ -176,7 +176,7 @@ TEST_CASE("Connectivity for compressed H2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, {}, {}, {})};
+      to_cartesian<vec3, vec>(molecule), B, {}, {}, {}, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 1);
@@ -219,7 +219,7 @@ TEST_CASE("Connectivity for stretched H2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {}, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 1);
@@ -271,7 +271,7 @@ TEST_CASE("Connectivity for compressed H2O") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {}, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 3);
@@ -329,7 +329,7 @@ TEST_CASE("Connectivity for stretched H2O") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {}, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 3);
@@ -379,7 +379,7 @@ TEST_CASE("Connectivity for compressed H2O2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {}, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 6);
@@ -444,7 +444,7 @@ TEST_CASE("Connectivity for stretched H2O2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {}, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 6);
@@ -509,7 +509,7 @@ TEST_CASE("Connectivity for two stretched H2 molecules") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {}, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 6);
@@ -586,7 +586,7 @@ TEST_CASE("Connectivity for bent water dimer") {
 
   // Compute IRC
   vec q{
-      cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+      cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D, {}, {})};
 
   // Check number of IRC
   CHECK(linalg::size<vec>(q) == 13);
