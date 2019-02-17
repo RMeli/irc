@@ -78,6 +78,8 @@ public:
   std::vector<connectivity::Bond> get_bonds() const;
   
   std::vector<connectivity::Angle> get_angles() const;
+
+  std::vector<connectivity::LinearAngle<Vector3>> get_linear_angles() const;
   
   std::vector<connectivity::Dihedral> get_dihedrals() const;
 
@@ -90,6 +92,9 @@ private:
 
   /// List of dihedral angles
   std::vector<connectivity::Dihedral> dihedrals;
+
+  /// List of lienar angles
+  std::vector<connectivity::LinearAngle<Vector3>> linear_angles;
 
   /// Number of internal coordinates
   std::size_t n_irc;
@@ -140,12 +145,13 @@ size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2){
 }
 
 // TODO: Switch to std::optional with C++17
-template<typename Matrix>
+template<typename Matrix, typename Vector3>
 boost::optional<Matrix> constraints(const std::vector<connectivity::Bond>& B,
     const std::vector<connectivity::Angle>& A,
-    const std::vector<connectivity::Dihedral>& D)
+    const std::vector<connectivity::Dihedral>& D,
+    const std::vector<connectivity::LinearAngle<Vector3>>& LA)
 {
-  std::size_t n{B.size() + A.size() + D.size()};
+  std::size_t n{B.size() + A.size() + D.size() + LA.size()};
   
   Matrix C{linalg::zeros<Matrix>(n, n)};
   
@@ -170,6 +176,14 @@ boost::optional<Matrix> constraints(const std::vector<connectivity::Bond>& B,
   offset = B.size() + A.size();
   for(std::size_t i{0}; i < D.size(); i++){
     if(D[i].constraint == connectivity::Constraint::constrained){
+      C(i + offset,i + offset) = 1;
+      constrained=true;
+    }
+  }
+
+  offset = B.size() + A.size() + D.size();
+  for(std::size_t i{0}; i < LA.size(); i++){
+    if(LA[i].constraint == connectivity::Constraint::constrained){
       C(i + offset,i + offset) = 1;
       constrained=true;
     }
@@ -210,7 +224,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
 
   // Add user-defined angles
   if (!myangles.empty()) { // For CodeCov, can be removed after tests
-    add_without_duplicates(angles, myangles);
+    add_without_duplicates(angles, valid_angles(myangles, molecule));
   }
 
   // Compute dihedrals
@@ -221,18 +235,27 @@ IRC<Vector3, Vector, Matrix>::IRC(
     add_without_duplicates(dihedrals, mydihedrals);
   }
 
+  // Compute linear angles
+  linear_angles = connectivity::linear_angles<Vector3>(distance_m, molecule);
+
+  std::vector<connectivity::LinearAngle<Vector3>> mylinearangles = valid_linear_angles(myangles, molecule);
+  if (!mylinearangles.empty()) { // For CodeCov, can be removed after tests
+    add_without_duplicates(linear_angles, mylinearangles);
+  }
+
   // Count the number of internal coordinates
-  n_irc = bonds.size() + angles.size() + dihedrals.size();
+  n_irc = bonds.size() + angles.size() + dihedrals.size() + linear_angles.size();
 
   // Store initial Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
       molecule::to_cartesian<Vector3, Vector>(molecule),
       bonds,
       angles,
-      dihedrals);
+      dihedrals,
+      linear_angles);
   
   // Compute (optional) constraint matrix
-  C = constraints<Matrix>(bonds, angles, dihedrals);
+  C = constraints<Matrix>(bonds, angles, dihedrals, linear_angles);
 
   // Compute projector P
   if(C){
@@ -271,6 +294,11 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian_inv(
     iH0(i + offset, i + offset) = 1. / k_dihedral;
   }
 
+  offset = bonds.size() + angles.size() + dihedrals.size();
+  for (std::size_t i{0}; i < linear_angles.size(); i++) {
+    iH0(i + offset, i + offset) = 1. / k_angle;
+  }
+
   return P * iH0 * P;
 }
 
@@ -300,6 +328,11 @@ Matrix IRC<Vector3, Vector, Matrix>::projected_initial_hessian(
   offset = bonds.size() + angles.size();
   for (std::size_t i{0}; i < dihedrals.size(); i++) {
     H0(i + offset, i + offset) = k_dihedral;
+  }
+
+  offset = bonds.size() + angles.size() + dihedrals.size();
+  for (std::size_t i{0}; i < linear_angles.size(); i++) {
+    H0(i + offset, i + offset) = k_angle;
   }
 
   return P * H0 * P;
@@ -360,7 +393,7 @@ Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const {
   }
 
   return connectivity::cartesian_to_irc<Vector3, Vector>(
-      x_c, bonds, angles, dihedrals);
+      x_c, bonds, angles, dihedrals, linear_angles);
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
@@ -389,13 +422,14 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
                                                                 bonds,
                                                                 angles,
                                                                 dihedrals,
+                                                                linear_angles,
                                                                 max_iters,
                                                                 tolerance);
 
   // TODO: This computation can be avoided; B is computed in irc_to_cartesian
   // Update Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-      itc_result.x_c, bonds, angles, dihedrals);
+      itc_result.x_c, bonds, angles, dihedrals, linear_angles);
 
   // Update projector P
   if(C){
@@ -410,21 +444,23 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-
 std::vector<connectivity::Bond> IRC<Vector3, Vector, Matrix>::get_bonds() const{
   return bonds;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-
 std::vector<connectivity::Angle> IRC<Vector3, Vector, Matrix>::get_angles() const{
   return angles;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-
 std::vector<connectivity::Dihedral> IRC<Vector3, Vector, Matrix>::get_dihedrals() const{
   return dihedrals;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+std::vector<connectivity::LinearAngle<Vector3>> IRC<Vector3, Vector, Matrix>::get_linear_angles() const{
+  return linear_angles;
 }
 
 } // namespace irc

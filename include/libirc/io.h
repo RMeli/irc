@@ -200,6 +200,54 @@ void print_dihedrals(const Vector& x_c,
   }
 }
 
+
+template<typename Vector3, typename Vector>
+void print_linear_angles(const Vector& x_c,
+                  const std::vector<connectivity::LinearAngle<Vector3>>& angles,
+                  std::ostream& out = std::cout) {
+
+  const std::size_t n_angles{angles.size()};
+
+  out << n_angles << " linear angles (\u00B0):" << std::endl;
+
+  // Atomic positions
+  Vector3 p1{0., 0., 0.}, p2{0., 0., 0.}, p3{0., 0., 0.};
+
+  // Indices
+  std::size_t idx_i{0}, idx_j{0}, idx_k{0};
+
+  out.precision(2);
+  out.fill(' ');
+
+  for (std::size_t i{0}; i < n_angles; i++) {
+    idx_i = angles[i].i;
+    idx_j = angles[i].j;
+    idx_k = angles[i].k;
+
+    // Print indices
+    out.width(1);
+    out << std::left << '(';
+    out.width(4);
+    out << std::right << idx_i << ',';
+    out.width(4);
+    out << std::right << idx_j << ',';
+    out.width(4);
+    out << std::right << idx_k << ')';
+    out.width(7);
+    out << std::left << " " + to_string(angles[i].tag);
+
+    // Get positions
+    p1 = {x_c(3 * idx_i), x_c(3 * idx_i + 1), x_c(3 * idx_i + 2)};
+    p2 = {x_c(3 * idx_j), x_c(3 * idx_j + 1), x_c(3 * idx_j + 2)};
+    p3 = {x_c(3 * idx_k), x_c(3 * idx_k + 1), x_c(3 * idx_k + 2)};
+
+    // Print distance
+    out << std::setw(14) << std::fixed << std::right
+        << connectivity::angle(p1, p2, p3) * tools::conversion::rad_to_deg
+        << std::endl;
+  }
+}
+
 } // namespace io
 
 } // namespace irc

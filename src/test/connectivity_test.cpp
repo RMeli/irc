@@ -33,11 +33,13 @@ using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 
 using namespace irc;
 
+//TODO (Peter) Extend for linear angles
 template<typename Vector3, typename Vector, typename Matrix>
 std::tuple<std::vector<connectivity::Bond>,
            std::vector<connectivity::Angle>,
-           std::vector<connectivity::Dihedral>>
-bad_from_molecule(const molecule::Molecule<Vector3>& mol) {
+           std::vector<connectivity::Dihedral>,
+           std::vector<connectivity::LinearAngle<Vector3>>>
+badla_from_molecule(const molecule::Molecule<Vector3>& mol) {
 
   using namespace connectivity;
 
@@ -59,8 +61,11 @@ bad_from_molecule(const molecule::Molecule<Vector3>& mol) {
   // Compute dihedral angles
   std::vector<Dihedral> D{dihedrals(dist, mol)};
 
+  // Compute linear angles
+  std::vector<LinearAngle<Vector3>> LA{linear_angles(dist, mol)};
+
   // Return bonds, angles and dihedral angles
-  return std::make_tuple(B, A, D);
+  return std::make_tuple(B, A, D, LA);
 }
 
 TEST_CASE("Bonds, angles and dihedral angles") {
@@ -157,7 +162,8 @@ TEST_CASE("Connectivity for compressed H2") {
   std::vector<Bond> B;
   std::vector<Angle> A;
   std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 1);
@@ -170,7 +176,7 @@ TEST_CASE("Connectivity for compressed H2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, {}, {})};
+      to_cartesian<vec3, vec>(molecule), B, {}, {}, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 1);
@@ -199,7 +205,8 @@ TEST_CASE("Connectivity for stretched H2") {
   std::vector<Bond> B;
   std::vector<Angle> A;
   std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 1);
@@ -212,7 +219,7 @@ TEST_CASE("Connectivity for stretched H2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D)};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 1);
@@ -250,7 +257,8 @@ TEST_CASE("Connectivity for compressed H2O") {
   std::vector<Bond> B;
   std::vector<Angle> A;
   std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 2);
@@ -263,7 +271,7 @@ TEST_CASE("Connectivity for compressed H2O") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D)};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 3);
@@ -307,7 +315,8 @@ TEST_CASE("Connectivity for stretched H2O") {
   std::vector<Bond> B;
   std::vector<Angle> A;
   std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 2);
@@ -320,7 +329,7 @@ TEST_CASE("Connectivity for stretched H2O") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D)};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 3);
@@ -356,7 +365,8 @@ TEST_CASE("Connectivity for compressed H2O2") {
   std::vector<Bond> B;
   std::vector<Angle> A;
   std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 3);
@@ -369,7 +379,7 @@ TEST_CASE("Connectivity for compressed H2O2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D)};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 6);
@@ -420,7 +430,8 @@ TEST_CASE("Connectivity for stretched H2O2") {
   std::vector<Bond> B;
   std::vector<Angle> A;
   std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 3);
@@ -433,7 +444,7 @@ TEST_CASE("Connectivity for stretched H2O2") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D)};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 6);
@@ -484,7 +495,8 @@ TEST_CASE("Connectivity for two stretched H2 molecules") {
   std::vector<Bond> B;
   std::vector<Angle> A;
   std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 3);
@@ -497,7 +509,7 @@ TEST_CASE("Connectivity for two stretched H2 molecules") {
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D)};
+      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
   // Check number of IRC
   REQUIRE(linalg::size<vec>(q) == 6);
@@ -559,7 +571,8 @@ TEST_CASE("Connectivity for bent water dimer") {
   std::vector<Bond> B;
   std::vector<Angle> A;
   std::vector<Dihedral> D;
-  std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 5);
@@ -573,7 +586,7 @@ TEST_CASE("Connectivity for bent water dimer") {
 
   // Compute IRC
   vec q{
-      cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D)};
+      cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
   // Check number of IRC
   CHECK(linalg::size<vec>(q) == 13);
@@ -624,6 +637,18 @@ TEST_CASE("Connectivity for bent water dimer") {
 
   // Check dihedral 3
   CHECK(q(12) == Approx(dihedral(p1, p6, p4, p5)));
+}
+
+TEST_CASE("Linear angles") {
+  using irc::connectivity::angle;
+
+  SECTION("orthogonal to X and Y"){
+    const vec3 p1 = {0, 0, 0};
+    const vec3 p2 = {1, 1, 1};
+    const vec3 p3 = {2, 2, 2};
+
+    CHECK(angle(p1, p2, p3) == tools::constants::pi);
+  };
 }
 
 // Quasi-linear angles
@@ -703,17 +728,19 @@ TEST_CASE("Connectivity of molecule database") {
     std::size_t n_bonds;
     std::size_t n_angles;
     std::size_t n_dihedrals;
+    std::size_t n_linear_angles;
   };
 
   auto results =
-      std::vector<ConnectivityResult>{{"hydrogen_peroxide.xyz", 3, 2, 1},
-                                      {"ethanol.xyz", 8, 13, 12},
-                                      {"glycerol.xyz", 13, 21, 27},
-                                      {"octane.xyz", 25, 48, 63},
-                                      {"phenol.xyz", 13, 19, 26},
-                                      {"indene.xyz", 18, 30, 44},
-                                      {"toluene.xyz", 15, 24, 30},
-                                      {"caffeine.xyz", 25, 43, 54}};
+      std::vector<ConnectivityResult>{{"carbon_dioxide.xyz", 2, 0, 0, 2},
+                                      {"hydrogen_peroxide.xyz", 3, 2, 1, 0},
+                                      {"ethanol.xyz", 8, 13, 12, 0},
+                                      {"glycerol.xyz", 13, 21, 27, 0},
+                                      {"octane.xyz", 25, 48, 63, 0},
+                                      {"phenol.xyz", 13, 19, 26, 0},
+                                      {"indene.xyz", 18, 30, 44, 0},
+                                      {"toluene.xyz", 15, 24, 30, 0},
+                                      {"caffeine.xyz", 25, 43, 54, 0}};
 
   for (const auto& molecule_parameters : results) {
     CAPTURE(molecule_parameters.filename);
@@ -724,10 +751,12 @@ TEST_CASE("Connectivity of molecule database") {
     std::vector<Bond> B;
     std::vector<Angle> A;
     std::vector<Dihedral> D;
-    std::tie(B, A, D) = bad_from_molecule<vec3, vec, mat>(mol);
+    std::vector<LinearAngle<vec3>> LA;
+    std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(mol);
 
     CHECK(B.size() == molecule_parameters.n_bonds);
     CHECK(A.size() == molecule_parameters.n_angles);
     CHECK(D.size() == molecule_parameters.n_dihedrals);
+    CHECK(LA.size() == molecule_parameters.n_linear_angles);
   }
 }

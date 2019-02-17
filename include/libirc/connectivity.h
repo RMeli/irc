@@ -6,6 +6,7 @@
 #include "linalg.h"
 #include "molecule.h"
 
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -54,7 +55,7 @@ public:
     if (i == j) {
       throw std::logic_error("Bond error.");
     }
-  
+
     // Ordering (needed for hash function and comparison operators)
     if (j < i) {
       std::swap(i, j);
@@ -63,7 +64,7 @@ public:
 
   std::size_t i;
   std::size_t j;
-  
+
   Constraint constraint{Constraint::unconstrained};
 
   bool operator==(const Bond& b) const {
@@ -83,7 +84,7 @@ public:
     if (i == j || i == k || j == k) {
       throw std::logic_error("Angle error.");
     }
-  
+
     // Ordering (needed for hash function and comparison operators)
     if (k < i) {
       std::swap(i, k);
@@ -94,7 +95,7 @@ public:
   std::size_t j;
   std::size_t k;
   // enum class linear{NONE, XY, YZ}; // Use switch
-  
+
   Constraint constraint{Constraint::unconstrained};
 
   bool operator==(const Angle& a) const {
@@ -102,6 +103,63 @@ public:
   }
 
   bool operator!=(const Angle& a) const { return !(*this == a); }
+};
+
+enum class LinearAngleTag {
+  First, Second
+};
+
+/// \brief String form of \p tag
+std::string inline to_string(const LinearAngleTag tag) {
+  switch(tag) {
+    case LinearAngleTag::First:
+      return "First";
+    case LinearAngleTag::Second:
+      return "Second";
+  }
+}
+
+/// \brief Triplet of atoms forming a linear angle and an orthogonal direction
+///
+/// Atoms are represented by their index in a list of coordinates.
+/// \p orthogonal_direction_ vector should be orthogonal to the \p i_ to \p k_
+/// atoms directions.
+/// A \p tag_ is also required, because the linear angles should be defined in
+/// pairs such that bending can occur in any direction.
+/// The \p orthogonal_direction_ of these two must themselves be orthogonal.
+template<typename Vector3>
+class LinearAngle {
+public:
+  LinearAngle(const std::size_t i_, const std::size_t j_, const std::size_t k_,
+              const Vector3 orthogonal_direction_,
+              const LinearAngleTag tag_,
+              const Constraint constraint_ = Constraint::unconstrained)
+      : i(i_), j(j_), k(k_), tag(tag_),
+      orthogonal_direction(orthogonal_direction_),
+        constraint(constraint_) {
+    if (i == j || i == k || j == k) {
+      throw std::logic_error("Angle error.");
+    }
+
+    // Ordering (needed for hash function and comparison operators)
+    if (k < i) {
+      std::swap(i, k);
+    }
+  }
+
+  std::size_t i;
+  std::size_t j;
+  std::size_t k;
+  LinearAngleTag tag;
+  Vector3 orthogonal_direction;
+
+  Constraint constraint{Constraint::unconstrained};
+
+  bool operator==(const LinearAngle<Vector3> & a) const {
+    return i == a.i && j == a.j && k == a.k && tag == a.tag;
+  }
+
+  bool operator!=(const LinearAngle<Vector3> & a) const { return !(*this == a); }
 };
 
 /// Quadruplet of atoms forming an angle
@@ -118,7 +176,7 @@ public:
     if (i == j || i == k || i == l || j == k || j == l || k == l) {
       throw std::logic_error("Dihedral error.");
     }
-  
+
     // Ordering (needed for hash function and comparison operators)
     if (l < i) {
       std::swap(i, l);
@@ -130,7 +188,7 @@ public:
   std::size_t j;
   std::size_t k;
   std::size_t l;
-  
+
   Constraint constraint{Constraint::unconstrained};
 
   bool operator==(const Dihedral& d) const {
@@ -218,9 +276,14 @@ inline double angle(const Vector3& v1, const Vector3& v2, const Vector3& v3) {
 
   const double N{linalg::norm(r1) * linalg::norm(r2)};
 
-  const double angle{std::acos(linalg::dot(r1, r2) / N)};
-
-  return angle;
+  const double dot_r1r2 = linalg::dot(r1, r2);
+  if(dot_r1r2 / N <= -1.0) {
+    return tools::constants::pi;
+  } else if(dot_r1r2 / N >= 1.0) {
+    return 0.0;
+  } else {
+    return std::acos(linalg::dot(r1, r2) / N);
+  }
 }
 
 /// Compute angle
@@ -251,6 +314,25 @@ inline double angle(const Angle& a, const Vector& x_cartesian) {
   return angle(a1, a2, a3);
 }
 
+template<typename Vector3, typename Vector>
+inline double angle(const LinearAngle<Vector3>& a, const Vector& x_cartesian) {
+
+  // Temporary positions
+  const Vector3 a1{x_cartesian(3 * a.i + 0),
+                   x_cartesian(3 * a.i + 1),
+                   x_cartesian(3 * a.i + 2)};
+
+  const Vector3 a2{x_cartesian(3 * a.j + 0),
+                   x_cartesian(3 * a.j + 1),
+                   x_cartesian(3 * a.j + 2)};
+
+  const Vector3 a3{x_cartesian(3 * a.k + 0),
+                   x_cartesian(3 * a.k + 1),
+                   x_cartesian(3 * a.k + 2)};
+
+  return angle(a1, a2, a.orthogonal_direction) + angle(a.orthogonal_direction, a2, a3);
+}
+
 /// Compute angle
 ///
 /// \tparam Vector3
@@ -259,6 +341,15 @@ inline double angle(const Angle& a, const Vector& x_cartesian) {
 /// \return Angle
 template<typename Vector3>
 inline double angle(const Angle& a,
+                    const molecule::Molecule<Vector3>& molecule) {
+  const Vector3 a1{molecule[a.i].position};
+  const Vector3 a2{molecule[a.j].position};
+  const Vector3 a3{molecule[a.k].position};
+
+  return angle(a1, a2, a3);
+}
+template<typename Vector3>
+inline double angle(const LinearAngle<Vector3>& a,
                     const molecule::Molecule<Vector3>& molecule) {
   const Vector3 a1{molecule[a.i].position};
   const Vector3 a2{molecule[a.j].position};
@@ -804,7 +895,69 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
   return angles;
 }
 
-/// Returns the angles between bonded atoms in \param molecule
+/// \brief Returns list from \p angles whose angle is not quasi linear
+///
+/// Quasi linear angles are those whose angle in \p molecule is greater than
+/// tools::constants::quasi_linear_angle.
+///
+/// \tparam Vector3
+/// \param angles Set of potential angles
+/// \param molecule Molecule
+/// \return List of angles
+template<typename Vector3>
+std::vector<Angle> valid_angles(const std::vector<Angle> & angles,
+                                const molecule::Molecule<Vector3>& molecule) {
+  std::vector<Angle> new_angles;
+
+  for (const auto& aa : angles) {
+    const double a = angle<Vector3>(aa, molecule);
+    if (a <= tools::constants::quasi_linear_angle) {
+      new_angles.push_back(aa);
+    }
+  }
+
+  // Return list of angles
+  return new_angles;
+}
+
+/// Determine paths between nodes seperated by 1 other
+///
+/// Finds all elements of \p distance_m that has value <= 2.
+/// It then determines all connections from these two indices
+///
+/// \tparam Matrix
+/// \param distance_m Distance matrix
+/// \return List of angles
+template<typename Matrix>
+std::vector<Angle> all_angles(const Matrix& distance_m) {
+
+  using boost::math::iround;
+
+  assert(linalg::n_rows(distance_m) == linalg::n_cols(distance_m));
+  const std::size_t n_rows = linalg::n_rows(distance_m);
+
+  std::vector<Angle> angs;
+
+  double a{0};
+  for (std::size_t j{0}; j < n_rows; j++) {
+    for (std::size_t i{0}; i < j; i++) {
+
+      if (iround(distance_m(i, j)) <= 2) {
+
+        std::vector<Angle> A = angles(i, j, distance_m);
+
+        for (const auto& aa : A) {
+          angs.push_back(aa);
+        }
+      }
+    }
+  }
+
+  // Return list of angles
+  return angs;
+}
+
+/// Returns the angles between bonded atoms in \p molecule
 ///
 /// \tparam Vector3
 /// \tparam Matrix
@@ -814,41 +967,8 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
 template<typename Vector3, typename Matrix>
 std::vector<Angle> angles(const Matrix& distance_m,
                           const molecule::Molecule<Vector3>& molecule) {
-
-  using boost::math::iround;
-
-  const std::size_t n_atoms{molecule.size()};
-
-  std::vector<Angle> ang;
-
-  // Declare temporary list of angles
-  std::vector<Angle> A;
-
-  double a{0};
-  for (std::size_t j{0}; j < n_atoms; j++) {
-    for (std::size_t i{0}; i < j; i++) {
-
-      if (iround(distance_m(i, j)) <= 2) {
-
-        A = angles(i, j, distance_m);
-
-        for (const auto& aa : A) {
-          a = angle<Vector3>(aa, molecule);
-
-          // Quasi-linear angles
-          if (a > tools::constants::quasi_linear_angle) {
-            throw std::runtime_error(
-                "Quasi-linear angle not treated properly yet.");
-          }
-
-          ang.push_back(aa);
-        }
-      }
-    }
-  }
-
   // Return list of angles
-  return ang;
+  return valid_angles<Vector3>(all_angles(distance_m), molecule);
 }
 
 /// Determine all possible dihedrals between atoms i and j
@@ -949,6 +1069,102 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
   return dih;
 }
 
+/// \brief Determines where x, y or z is most orthogonal to direction \p d.
+template<typename Vector3>
+inline Vector3 non_parallel_direction(const Vector3 & d) {
+  const std::vector<Vector3> directions = {{1, 0, 0},
+                                           {0, 1, 0},
+                                           {0, 0, 1}};
+  return *std::min_element(directions.begin(),
+                           directions.end(),
+                           [d](const Vector3 & a, const Vector3 & b) {
+                               return linalg::dot(d, a) * linalg::dot(d, a) <
+                                      linalg::dot(d, b) * linalg::dot(d, b);
+                           });
+
+}
+
+
+/// \brief Determines where x, y or z is most orthogonal to angle \p a.
+template<typename Vector3>
+inline Vector3 non_parallel_direction(const Angle & a,
+                                      const molecule::Molecule<Vector3> & molecule) {
+  const Vector3 d = molecule[a.k].position - molecule[a.i].position;
+  return non_parallel_direction(d);
+
+}
+
+/// \brief Returns two vectors that are orthogonal to \p d and each other
+///
+/// The \p axis is required to form the first orthogonal vector. It must not
+/// be parallel to \p d.
+template<typename Vector3>
+inline std::pair<Vector3, Vector3>
+orthogonal_axis(const Vector3 & d,
+                const Vector3 & axis) {
+
+  const Vector3 first = linalg::normalise(linalg::cross(d, axis));
+  const Vector3 second = linalg::normalise(linalg::cross(d, first));
+
+  return {first, second};
+
+}
+
+/// \brief Returns two vectors that are orthogonal to the Angle \p a and each other
+///
+/// The \p axis is required to form the first orthogonal vector. It must not
+/// be parallel to \p d.
+template<typename Vector3>
+inline std::pair<Vector3, Vector3>
+orthogonal_axis(const Angle & a,
+                const molecule::Molecule<Vector3> & molecule,
+                const Vector3 & axis) {
+  const Vector3 d = molecule[a.k].position - molecule[a.i].position;
+  return orthogonal_axis(d, axis);
+}
+
+template<typename Vector3>
+std::vector<LinearAngle<Vector3>> valid_linear_angles(const std::vector<Angle> & angles,
+                                       const molecule::Molecule<Vector3>& molecule) {
+  std::vector<LinearAngle<Vector3>> new_linear_angles;
+
+  for (const auto& aa : angles) {
+    const double a = angle<Vector3>(aa, molecule);
+    if (a > tools::constants::quasi_linear_angle) {
+      Vector3 direction = non_parallel_direction(aa, molecule);
+      std::pair<Vector3, Vector3> axis = orthogonal_axis(aa, molecule,
+                                                         direction);
+      new_linear_angles.push_back(
+          LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.first,
+                               LinearAngleTag::First,
+                               aa.constraint
+          }
+      );
+      new_linear_angles.push_back(
+          LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.second,
+                               LinearAngleTag::Second,
+                               aa.constraint
+          }
+      );
+    }
+  }
+
+  // Return list of angles
+  return new_linear_angles;
+}
+
+/// \brief Constructs all linear angles in the \p molecule.
+///
+/// An angle is consider linear if it is greater than
+/// tools::constants::quasi_linear_angle. For each linear angle two instances
+/// of a LinearAngle are formed to allow bending in any direction.
+template<typename Vector3, typename Matrix>
+std::vector<LinearAngle<Vector3>> linear_angles(const Matrix& distance_m,
+                                                const molecule::Molecule<Vector3>& molecule) {
+
+  return valid_linear_angles(all_angles(distance_m), molecule);
+}
+
 // TODO: Move to transformation? (Circular dependency?)
 /// Transform cartesian coordinates to internal redundant coordinates using
 /// information contained in the lists of bonds, angles and dihedrals
@@ -964,14 +1180,16 @@ template<typename Vector3, typename Vector>
 Vector cartesian_to_irc(const Vector& x_c,
                         const std::vector<connectivity::Bond>& bonds,
                         const std::vector<connectivity::Angle>& angles,
-                        const std::vector<connectivity::Dihedral>& dihedrals) {
+                        const std::vector<connectivity::Dihedral>& dihedrals,
+                        const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles) {
 
   const auto n_bonds = bonds.size();
   const auto n_angles = angles.size();
   const auto n_dihedrals = dihedrals.size();
+  const auto n_linear_angles = linear_angles.size();
 
   // Number of internal redundant coordinates
-  const auto n_irc = n_bonds + n_angles + n_dihedrals;
+  const auto n_irc = n_bonds + n_angles + n_dihedrals + n_linear_angles;
 
   // Allocate vector for internal redundant coordinates
   Vector q_irc{linalg::zeros<Vector>(n_irc)};
@@ -994,6 +1212,12 @@ Vector cartesian_to_irc(const Vector& x_c,
   offset = n_bonds + n_angles;
   for (std::size_t i{0}; i < n_dihedrals; i++) {
     q_irc(i + offset) = dihedral<Vector3, Vector>(dihedrals[i], x_c);
+  }
+
+  // Compute linear angles
+  offset = n_bonds + n_angles + n_dihedrals;
+  for (std::size_t i{0}; i < n_linear_angles; i++) {
+    q_irc(i + offset) = angle<Vector3, Vector>(linear_angles[i], x_c);
   }
 
   // Return internal redundant coordinates
