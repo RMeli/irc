@@ -11,6 +11,7 @@ matrix:
 
 env:
   - LIBLA=arma
+  - LIBLA=eigen
 
 addons:
   homebrew:
@@ -18,6 +19,7 @@ addons:
       - cmake
       - boost
       - armadillo
+      - eigen 
     update: true
 
 #install:
