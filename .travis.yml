@@ -1,9 +1,11 @@
+language: cpp
+
 matrix:
   include:
     - os: osx
       osx_image: xcode10.1
       env:
-        - MATRIX_EVAL="LIBLA=arma"
+        - LIBLA=arma
       addons:
         homebrew:
           packages:
@@ -15,7 +17,7 @@ matrix:
     - os: osx
       osx_image: xcode10.1
       env:
-        - MATRIX_EVAL="LIBLA=eigen"
+        - LIBLA=eigen
       addons:
         homebrew:
           packages:
