@@ -4,23 +4,24 @@ matrix:
   include:
     - os: osx
       osx_image: xcode10.1
-      compiler: clang
-      env:
-      - MATRIX_EVAL="CC=clang && CXX=clang++ && export LIBLA=arma"
 
 #before_install:
 #  - bash .travis/before_install.sh
 #  - eval "${MATRIX_EVAL}"
 
+env:
+  - LIBLA=arma
+
 addons:
   homebrew:
     packages:
-    - cmake
-    - boost
+      - cmake
+      - boost
+      - armadillo
     update: true
 
-install:
-  - bash .travis/install.sh
+#install:
+#  - bash .travis/install.sh
 
 script:
   - bash .travis/build.sh
