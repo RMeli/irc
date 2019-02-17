@@ -25,6 +25,20 @@ matrix:
           - boost
           - eigen
           update: true
+      
+     - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - libboost-all-dev
+            - libeigen3-dev
+            - g++-7
+      env:
+        - CC=gcc-7
+        - CXX=c++-7
+        - LIBLA=eigen
     
 before_install:
 #  - bash .travis/before_install.sh
