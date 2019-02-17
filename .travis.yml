@@ -1,26 +1,32 @@
-language: cpp
-
 matrix:
   include:
     - os: osx
       osx_image: xcode10.1
-
-#before_install:
+      env:
+        - MATRIX_EVAL="LIBLA=arma"
+      addons:
+        homebrew:
+          packages:
+          - cmake
+          - boost
+          - armadillo
+          update: true
+    
+    - os: osx
+      osx_image: xcode10.1
+      env:
+        - MATRIX_EVAL="LIBLA=eigen"
+      addons:
+        homebrew:
+          packages:
+          - cmake
+          - boost
+          - eigen
+          update: true
+    
+before_install:
 #  - bash .travis/before_install.sh
-#  - eval "${MATRIX_EVAL}"
-
-env:
-  - LIBLA=arma
-  - LIBLA=eigen
-
-addons:
-  homebrew:
-    packages:
-      - cmake
-      - boost
-      - armadillo
-      - eigen 
-    update: true
+  - eval "${MATRIX_EVAL}"
 
 #install:
 #  - bash .travis/install.sh
