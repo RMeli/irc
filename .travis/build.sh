@@ -4,6 +4,8 @@ mkdir -p build
 
 cd build
 
+echo "Building with ${LIBLA}..."
+
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     if [[ "$LIBLA" == "arma" ]]; then
         cmake -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DWITH_ARMA:BOOLEAN=TRUE -DCOVERAGE:BOOLEAN=TRUE ..
@@ -15,3 +17,5 @@ fi
 make -j
 
 make -j test
+
+cd ..
