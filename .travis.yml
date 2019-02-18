@@ -25,13 +25,24 @@ matrix:
           - boost
           - eigen
           update: true
-    
-before_install:
-#  - bash .travis/before_install.sh
-  - eval "${MATRIX_EVAL}"
-
-#install:
-#  - bash .travis/install.sh
+          
+    - os: linux
+      dist: xenial
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - liblapack-dev
+            - libblas-dev
+            - libboost-dev
+            - libarmadillo-dev
+            - g++-7
+          update: true
+      env:
+        - CC=gcc-7
+        - CXX=c++-7
+        - LIBLA=arma
 
 script:
   - bash .travis/build.sh
