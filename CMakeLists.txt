@@ -79,7 +79,7 @@ option(WITH_EIGEN "Use Eigen for the linear algebra library" OFF)
 if(WITH_ARMA)
     find_package(
         Armadillo
-        8.000.0
+        6.500.0
         REQUIRED
     )
 
