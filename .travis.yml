@@ -27,6 +27,7 @@ matrix:
           update: true
       
     - os: linux
+      dist: xenial
       addons:
         apt:
           sources:
@@ -42,6 +43,7 @@ matrix:
         - LIBLA=eigen
 
     - os: linux
+      dist: xenial
       addons:
         apt:
           sources:
