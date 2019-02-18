@@ -25,23 +25,7 @@ matrix:
           - boost
           - eigen
           update: true
-      
-    - os: linux
-      dist: xenial
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libboost-dev
-            - libeigen3-dev
-            - g++-7
-          update: true
-      env:
-        - CC=gcc-7
-        - CXX=c++-7
-        - LIBLA=eigen
-
+          
     - os: linux
       dist: xenial
       addons:
