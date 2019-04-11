@@ -2,10 +2,11 @@
 
 [![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
 [![codecov](https://codecov.io/gh/RMeli/irc/branch/master/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
-[![GitHub top language](https://img.shields.io/github/languages/top/RMeli/irc.svg)](https://isocpp.org/)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6cd91c20ae064924bc5c4e0181710bf3)](https://www.codacy.com/app/RMeli/irc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=RMeli/irc&amp;utm_campaign=Badge_Grade)
 [![GitHub license](https://img.shields.io/github/license/RMeli/irc.svg)](https://github.com/RMeli/irc/blob/master/LICENSE)
+[![GitHub top language](https://img.shields.io/github/languages/top/RMeli/irc.svg)](https://isocpp.org/)
 
-**DISCLAMIER:** *IRC is currently under developement. At the current sage is therefore unfinished, unpolished, and not extensively tested. It is open-sourced so that it is easy to contribute to its development.*
+**DISCLAMIER:** *IRC is currently under developement. It is integrated in the new quantum chemistry code [entos](https://www.doi.org/10.26434/chemrxiv.7762646.v2), soon to be released.*
 
 IRC is a modern C++ library allowing the determination of internal redundant coordinates (and transformation to and from Cartesian coordinates) for geometry optimization of molecules. The aim of this library is to provide an easy-to-use, flexible and portable implementation of internal redundant coordinates for modern electronic structure codes.
 
