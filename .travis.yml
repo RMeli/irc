@@ -3,62 +3,49 @@ language: cpp
 matrix:
   include:
     - os: osx
-      osx_image: xcode9.3
-      compiler: clang
+      osx_image: xcode10.1
       env:
-      - MATRIX_EVAL="CC=clang && CXX=clang++ && export LIBLA=arma"
-
+        - LIBLA=arma
+      addons:
+        homebrew:
+          packages:
+          - cmake
+          - boost
+          - armadillo
+          update: true
+    
     - os: osx
-      osx_image: xcode9.2
-      compiler: clang
+      osx_image: xcode10.1
       env:
-        - MATRIX_EVAL="CC=clang && CXX=clang++ && export LIBLA=arma"
-
-    - os: osx
-      osx_image: xcode8.3
-      compiler: clang
+        - LIBLA=eigen
+      addons:
+        homebrew:
+          packages:
+          - cmake
+          - boost
+          - eigen
+          update: true
+          
+    - os: linux
+      dist: xenial
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - liblapack-dev
+            - libblas-dev
+            - libboost-dev
+            - libarmadillo-dev
+            - g++-7
+          update: true
       env:
-        - MATRIX_EVAL="CC=clang && CXX=clang++ && export LIBLA=arma"
-
-    - os: osx
-      osx_image: xcode7.3
-      compiler: clang
-      env:
-        - MATRIX_EVAL="CC=clang && CXX=clang++ && export LIBLA=arma"
-
-    - os: osx
-      osx_image: xcode9.2
-      compiler: gcc
-      env:
-        - MATRIX_EVAL="brew install gcc@8 && CC=gcc-8 && CXX=g++-8 && export LIBLA=eigen"
-
-    - os: osx
-      osx_image: xcode9.2
-      compiler: gcc
-      env:
-        - MATRIX_EVAL="brew install gcc@7 && CC=gcc-7 && CXX=g++-7 && export LIBLA=eigen"
-
-    - os: osx
-      osx_image: xcode8.3
-      compiler: gcc
-      env:
-        - MATRIX_EVAL="brew install gcc@6 && CC=gcc-6 && CXX=g++-6 && export LIBLA=eigen"
-
-    - os: osx
-      osx_image: xcode7.3
-      compiler: gcc
-      env:
-        - MATRIX_EVAL="brew install gcc@5 && CC=gcc-5 && CXX=g++-5 && export LIBLA=eigen"
-
-before_install:
-  - bash .travis/before_install.sh
-  - eval "${MATRIX_EVAL}"
-
-install:
-  - bash .travis/install.sh
+        - CC=gcc-7
+        - CXX=c++-7
+        - LIBLA=arma
 
 script:
   - bash .travis/build.sh
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov failed to upload'
+  - bash .travis/cov.sh
