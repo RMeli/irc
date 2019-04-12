@@ -1,10 +1,12 @@
 #! /bin/bash
 
-mkdir -p build
+echo -n "Creating build directory..."
+mkdir -p build && cd build
+echo ""done
 
-cd build
+echo "Current directory: $PWD"
 
-echo "Building with ${LIBLA}..."
+echo "Linear algebra library: ${LIBLA}"
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     if [[ "$LIBLA" == "arma" ]]; then

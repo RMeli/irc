@@ -1,4 +1,4 @@
-cd ..
+echo "Current directory: $PWD"
 
 mkdir cov
 
