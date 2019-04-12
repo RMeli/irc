@@ -33,7 +33,7 @@ using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 
 using namespace irc;
 
-//TODO (Peter) Extend for linear angles
+// TODO (Peter) Extend for linear angles
 template<typename Vector3, typename Vector, typename Matrix>
 std::tuple<std::vector<connectivity::Bond>,
            std::vector<connectivity::Angle>,
@@ -585,8 +585,8 @@ TEST_CASE("Connectivity for bent water dimer") {
   CHECK(D.size() == 3);
 
   // Compute IRC
-  vec q{
-      cartesian_to_irc<vec3, vec>(to_cartesian<vec3, vec>(molecule), B, A, D, {})};
+  vec q{cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(molecule), B, A, D, {})};
 
   // Check number of IRC
   CHECK(linalg::size<vec>(q) == 13);
@@ -642,7 +642,7 @@ TEST_CASE("Connectivity for bent water dimer") {
 TEST_CASE("Linear angles") {
   using irc::connectivity::angle;
 
-  SECTION("orthogonal to X and Y"){
+  SECTION("orthogonal to X and Y") {
     const vec3 p1 = {0, 0, 0};
     const vec3 p2 = {1, 1, 1};
     const vec3 p3 = {2, 2, 2};

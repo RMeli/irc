@@ -42,7 +42,7 @@ using Edge = boost::graph_traits<UGraph>::edge_descriptor;
 using DistanceProperty = boost::exterior_vertex_property<UGraph, int>;
 using DistanceMatrix = DistanceProperty::matrix_type;
 
-enum class Constraint{constrained, unconstrained};
+enum class Constraint { constrained, unconstrained };
 
 /// Couple of atoms forming a bond
 /// Triplet of atoms forming an angle
@@ -50,7 +50,9 @@ enum class Constraint{constrained, unconstrained};
 /// Atoms are represented by their index in a list of coordinates.
 class Bond {
 public:
-  Bond(const std::size_t& i_, const std::size_t& j_, const Constraint& constraint_ = Constraint::unconstrained)
+  Bond(const std::size_t& i_,
+       const std::size_t& j_,
+       const Constraint& constraint_ = Constraint::unconstrained)
     : i(i_), j(j_), constraint(constraint_) {
     if (i == j) {
       throw std::logic_error("Bond error.");
@@ -67,9 +69,7 @@ public:
 
   Constraint constraint{Constraint::unconstrained};
 
-  bool operator==(const Bond& b) const {
-    return i == b.i && j == b.j;
-  }
+  bool operator==(const Bond& b) const { return i == b.i && j == b.j; }
 
   bool operator!=(const Bond& b) const { return !(*this == b); }
 };
@@ -79,7 +79,10 @@ public:
 /// Atoms are represented by their index in a list of coordinates.
 class Angle {
 public:
-  Angle(const std::size_t& i_, const std::size_t& j_, const std::size_t& k_, const Constraint& constraint_ = Constraint::unconstrained)
+  Angle(const std::size_t& i_,
+        const std::size_t& j_,
+        const std::size_t& k_,
+        const Constraint& constraint_ = Constraint::unconstrained)
     : i(i_), j(j_), k(k_), constraint(constraint_) {
     if (i == j || i == k || j == k) {
       throw std::logic_error("Angle error.");
@@ -105,13 +108,11 @@ public:
   bool operator!=(const Angle& a) const { return !(*this == a); }
 };
 
-enum class LinearAngleTag {
-  First, Second
-};
+enum class LinearAngleTag { First, Second };
 
 /// \brief String form of \p tag
 std::string inline to_string(const LinearAngleTag tag) {
-  switch(tag) {
+  switch (tag) {
     case LinearAngleTag::First:
       return "First";
     case LinearAngleTag::Second:
@@ -130,13 +131,14 @@ std::string inline to_string(const LinearAngleTag tag) {
 template<typename Vector3>
 class LinearAngle {
 public:
-  LinearAngle(const std::size_t i_, const std::size_t j_, const std::size_t k_,
+  LinearAngle(const std::size_t i_,
+              const std::size_t j_,
+              const std::size_t k_,
               const Vector3 orthogonal_direction_,
               const LinearAngleTag tag_,
               const Constraint constraint_ = Constraint::unconstrained)
-      : i(i_), j(j_), k(k_), tag(tag_),
-      orthogonal_direction(orthogonal_direction_),
-        constraint(constraint_) {
+    : i(i_), j(j_), k(k_), tag(tag_),
+      orthogonal_direction(orthogonal_direction_), constraint(constraint_) {
     if (i == j || i == k || j == k) {
       throw std::logic_error("Angle error.");
     }
@@ -155,11 +157,11 @@ public:
 
   Constraint constraint{Constraint::unconstrained};
 
-  bool operator==(const LinearAngle<Vector3> & a) const {
+  bool operator==(const LinearAngle<Vector3>& a) const {
     return i == a.i && j == a.j && k == a.k && tag == a.tag;
   }
 
-  bool operator!=(const LinearAngle<Vector3> & a) const { return !(*this == a); }
+  bool operator!=(const LinearAngle<Vector3>& a) const { return !(*this == a); }
 };
 
 /// Quadruplet of atoms forming an angle
@@ -277,9 +279,9 @@ inline double angle(const Vector3& v1, const Vector3& v2, const Vector3& v3) {
   const double N{linalg::norm(r1) * linalg::norm(r2)};
 
   const double dot_r1r2 = linalg::dot(r1, r2);
-  if(dot_r1r2 / N <= -1.0) {
+  if (dot_r1r2 / N <= -1.0) {
     return tools::constants::pi;
-  } else if(dot_r1r2 / N >= 1.0) {
+  } else if (dot_r1r2 / N >= 1.0) {
     return 0.0;
   } else {
     return std::acos(linalg::dot(r1, r2) / N);
@@ -330,7 +332,8 @@ inline double angle(const LinearAngle<Vector3>& a, const Vector& x_cartesian) {
                    x_cartesian(3 * a.k + 1),
                    x_cartesian(3 * a.k + 2)};
 
-  return angle(a1, a2, a.orthogonal_direction) + angle(a.orthogonal_direction, a2, a3);
+  return angle(a1, a2, a.orthogonal_direction) +
+         angle(a.orthogonal_direction, a2, a3);
 }
 
 /// Compute angle
@@ -528,8 +531,7 @@ min_interfragment_distance(std::size_t i,
  * @param ug Unsigned graph
  * @return Number of fragments and fragments indices
  */
-inline
-std::pair<std::size_t, std::vector<std::size_t>>
+inline std::pair<std::size_t, std::vector<std::size_t>>
 identify_fragments(const UGraph& ug) {
   // Fragment indices
   std::vector<std::size_t> fragments(boost::num_vertices(ug));
@@ -905,7 +907,7 @@ angles(std::size_t i, std::size_t j, const Matrix& distance) {
 /// \param molecule Molecule
 /// \return List of angles
 template<typename Vector3>
-std::vector<Angle> valid_angles(const std::vector<Angle> & angles,
+std::vector<Angle> valid_angles(const std::vector<Angle>& angles,
                                 const molecule::Molecule<Vector3>& molecule) {
   std::vector<Angle> new_angles;
 
@@ -1061,7 +1063,8 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
 
   // Check if dihedrals are found
   if (n_atoms >= 4 && dih.empty()) {
-    throw std::runtime_error("ERROR: Out of plane bending not implemented yet.");
+    throw std::runtime_error(
+        "ERROR: Out of plane bending not implemented yet.");
   }
 
   // Return list of dihedral angles
@@ -1070,27 +1073,23 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
 
 /// \brief Determines where x, y or z is most orthogonal to direction \p d.
 template<typename Vector3>
-inline Vector3 non_parallel_direction(const Vector3 & d) {
-  const std::vector<Vector3> directions = {{1, 0, 0},
-                                           {0, 1, 0},
-                                           {0, 0, 1}};
+inline Vector3 non_parallel_direction(const Vector3& d) {
+  const std::vector<Vector3> directions = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
   return *std::min_element(directions.begin(),
                            directions.end(),
-                           [d](const Vector3 & a, const Vector3 & b) {
-                               return linalg::dot(d, a) * linalg::dot(d, a) <
-                                      linalg::dot(d, b) * linalg::dot(d, b);
+                           [d](const Vector3& a, const Vector3& b) {
+                             return linalg::dot(d, a) * linalg::dot(d, a) <
+                                    linalg::dot(d, b) * linalg::dot(d, b);
                            });
-
 }
-
 
 /// \brief Determines where x, y or z is most orthogonal to angle \p a.
 template<typename Vector3>
-inline Vector3 non_parallel_direction(const Angle & a,
-                                      const molecule::Molecule<Vector3> & molecule) {
+inline Vector3
+non_parallel_direction(const Angle& a,
+                       const molecule::Molecule<Vector3>& molecule) {
   const Vector3 d = molecule[a.k].position - molecule[a.i].position;
   return non_parallel_direction(d);
-
 }
 
 /// \brief Returns two vectors that are orthogonal to \p d and each other
@@ -1098,53 +1097,49 @@ inline Vector3 non_parallel_direction(const Angle & a,
 /// The \p axis is required to form the first orthogonal vector. It must not
 /// be parallel to \p d.
 template<typename Vector3>
-inline std::pair<Vector3, Vector3>
-orthogonal_axis(const Vector3 & d,
-                const Vector3 & axis) {
+inline std::pair<Vector3, Vector3> orthogonal_axis(const Vector3& d,
+                                                   const Vector3& axis) {
 
   const Vector3 first = linalg::normalise(linalg::cross(d, axis));
   const Vector3 second = linalg::normalise(linalg::cross(d, first));
 
   return {first, second};
-
 }
 
-/// \brief Returns two vectors that are orthogonal to the Angle \p a and each other
+/// \brief Returns two vectors that are orthogonal to the Angle \p a and each
+/// other
 ///
 /// The \p axis is required to form the first orthogonal vector. It must not
 /// be parallel to \p d.
 template<typename Vector3>
 inline std::pair<Vector3, Vector3>
-orthogonal_axis(const Angle & a,
-                const molecule::Molecule<Vector3> & molecule,
-                const Vector3 & axis) {
+orthogonal_axis(const Angle& a,
+                const molecule::Molecule<Vector3>& molecule,
+                const Vector3& axis) {
   const Vector3 d = molecule[a.k].position - molecule[a.i].position;
   return orthogonal_axis(d, axis);
 }
 
 template<typename Vector3>
-std::vector<LinearAngle<Vector3>> valid_linear_angles(const std::vector<Angle> & angles,
-                                       const molecule::Molecule<Vector3>& molecule) {
+std::vector<LinearAngle<Vector3>>
+valid_linear_angles(const std::vector<Angle>& angles,
+                    const molecule::Molecule<Vector3>& molecule) {
   std::vector<LinearAngle<Vector3>> new_linear_angles;
 
   for (const auto& aa : angles) {
     const double a = angle<Vector3>(aa, molecule);
     if (a > tools::constants::quasi_linear_angle) {
       Vector3 direction = non_parallel_direction(aa, molecule);
-      std::pair<Vector3, Vector3> axis = orthogonal_axis(aa, molecule,
-                                                         direction);
-      new_linear_angles.push_back(
-          LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.first,
-                               LinearAngleTag::First,
-                               aa.constraint
-          }
-      );
-      new_linear_angles.push_back(
-          LinearAngle<Vector3>{aa.i, aa.j, aa.k, axis.second,
-                               LinearAngleTag::Second,
-                               aa.constraint
-          }
-      );
+      std::pair<Vector3, Vector3> axis =
+          orthogonal_axis(aa, molecule, direction);
+      new_linear_angles.push_back(LinearAngle<Vector3>{
+          aa.i, aa.j, aa.k, axis.first, LinearAngleTag::First, aa.constraint});
+      new_linear_angles.push_back(LinearAngle<Vector3>{aa.i,
+                                                       aa.j,
+                                                       aa.k,
+                                                       axis.second,
+                                                       LinearAngleTag::Second,
+                                                       aa.constraint});
     }
   }
 
@@ -1158,8 +1153,9 @@ std::vector<LinearAngle<Vector3>> valid_linear_angles(const std::vector<Angle> &
 /// tools::constants::quasi_linear_angle. For each linear angle two instances
 /// of a LinearAngle are formed to allow bending in any direction.
 template<typename Vector3, typename Matrix>
-std::vector<LinearAngle<Vector3>> linear_angles(const Matrix& distance_m,
-                                                const molecule::Molecule<Vector3>& molecule) {
+std::vector<LinearAngle<Vector3>>
+linear_angles(const Matrix& distance_m,
+              const molecule::Molecule<Vector3>& molecule) {
 
   return valid_linear_angles(all_angles(distance_m), molecule);
 }
@@ -1176,11 +1172,12 @@ std::vector<LinearAngle<Vector3>> linear_angles(const Matrix& distance_m,
 /// \param dihedrals List of dihedral angles
 /// \return
 template<typename Vector3, typename Vector>
-Vector cartesian_to_irc(const Vector& x_c,
-                        const std::vector<connectivity::Bond>& bonds,
-                        const std::vector<connectivity::Angle>& angles,
-                        const std::vector<connectivity::Dihedral>& dihedrals,
-                        const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles) {
+Vector cartesian_to_irc(
+    const Vector& x_c,
+    const std::vector<connectivity::Bond>& bonds,
+    const std::vector<connectivity::Angle>& angles,
+    const std::vector<connectivity::Dihedral>& dihedrals,
+    const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles) {
 
   const auto n_bonds = bonds.size();
   const auto n_angles = angles.size();

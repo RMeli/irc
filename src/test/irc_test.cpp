@@ -40,13 +40,12 @@ TEST_CASE("Internal Redundant Coordinates") {
   SECTION("User-defined Coordinates") {
 
     // Define methanol molecule
-    Molecule<vec3> molecule{{"O", {0.0000000000,        0.0000000000,    0.0000000000}},
-                            {"H", {-0.9658081475,       0.0000000000,    0.0000000000}},
-                            {"C", {0.4371881141,        1.3664973705,    0.0000000000}},
-                            {"H", {0.0965595997,        1.9062256626,    0.8987823813}},
-                            {"H", {1.5337031672,        1.3396209523,    0.0000000000}},
-                            {"H", {0.0965596000,        1.9062256619,    -0.8987823831}}
-    };
+    Molecule<vec3> molecule{{"O", {0.0000000000, 0.0000000000, 0.0000000000}},
+                            {"H", {-0.9658081475, 0.0000000000, 0.0000000000}},
+                            {"C", {0.4371881141, 1.3664973705, 0.0000000000}},
+                            {"H", {0.0965595997, 1.9062256626, 0.8987823813}},
+                            {"H", {1.5337031672, 1.3396209523, 0.0000000000}},
+                            {"H", {0.0965596000, 1.9062256619, -0.8987823831}}};
 
     // Transform molecular coordinates from angstrom to bohr
     multiply_positions(molecule, angstrom_to_bohr);
@@ -56,9 +55,11 @@ TEST_CASE("Internal Redundant Coordinates") {
     // Add H-O-H bonds: (1,0,3), (1,0,4), (1,0,5)
     // Add H-H-H-H dihedral: (1,3,4,5)
     // Add O-H-H-H dihedral: (0,3,4,5)
-    IRC<vec3, vec, mat> irc(
-        molecule, {{3, 4}, {4,5}, {5, 3}}, {{1, 0, 3}, {1, 0, 4}, {1, 0, 5}}, {{1, 3, 4, 5}, {0, 3,4, 5}});
-    
+    IRC<vec3, vec, mat> irc(molecule,
+                            {{3, 4}, {4, 5}, {5, 3}},
+                            {{1, 0, 3}, {1, 0, 4}, {1, 0, 5}},
+                            {{1, 3, 4, 5}, {0, 3, 4, 5}});
+
     // Compute internal coordinates
     vec q_irc{
         irc.cartesian_to_irc(molecule::to_cartesian<vec3, vec>(molecule))};
@@ -98,7 +99,7 @@ TEST_CASE("Internal Redundant Coordinates") {
 
       CHECK(d == target);
     }
-    
+
     // Check manually added H-O-H angle (1)
     SECTION("Manually added H-O-H angle (1)") {
       Approx target(q_irc(15));
@@ -118,7 +119,7 @@ TEST_CASE("Internal Redundant Coordinates") {
 
       // Compute H-O-H angle
       double a{angle(
-        molecule[1].position, molecule[0].position, molecule[4].position)};
+          molecule[1].position, molecule[0].position, molecule[4].position)};
 
       CHECK(a == target);
     }
@@ -130,7 +131,7 @@ TEST_CASE("Internal Redundant Coordinates") {
 
       // Compute H-O-H angle
       double a{angle(
-        molecule[1].position, molecule[0].position, molecule[5].position)};
+          molecule[1].position, molecule[0].position, molecule[5].position)};
 
       CHECK(a == target);
     }
@@ -156,9 +157,9 @@ TEST_CASE("Internal Redundant Coordinates") {
 
       // Compute H-O-C-H dihedral angle
       double d{dihedral(molecule[0].position,
-                  molecule[3].position,
-                  molecule[4].position,
-                  molecule[5].position)};
+                        molecule[3].position,
+                        molecule[4].position,
+                        molecule[5].position)};
 
       CHECK(d == target);
     }
@@ -170,43 +171,45 @@ TEST_CASE("Internal Redundant Coordinates") {
                             {"O", {0.000000, 0.000000, 0.662500}},
                             {"H", {0.000000, 0.866025, -1.037500}},
                             {"H", {0.000000, -0.866025, -1.037500}}};
-    
+
     // Transform molecular coordinates from angstrom to bohr
     multiply_positions(molecule, angstrom_to_bohr);
-    
+
     // Build internal reaction coordinates
     // Add C-O bond constraint: (0,1)
     // Add H-H bond constraint: (2,3)
     // Add H-C-H angle constraint: (2,0,3)
     // Add H-H-O-C dihedral constraint: (3,2,1,0)
     IRC<vec3, vec, mat> irc(
-        molecule, {{0,1,Constraint::constrained}, {2,3,Constraint::constrained}}, {{2,0,3,Constraint::constrained}}, {{3,2,1,0,Constraint::constrained}});
-    
+        molecule, {{0,1,Constraint::constrained},
+  {2,3,Constraint::constrained}}, {{2,0,3,Constraint::constrained}},
+  {{3,2,1,0,Constraint::constrained}});
+
     // Compute internal coordinates
     vec q_irc{
         irc.cartesian_to_irc(molecule::to_cartesian<vec3, vec>(molecule))};
-    
+
     // Check size (3+1 bonds, 3+0 angles, 0+1 dihedrals)
     REQUIRE(linalg::size(q_irc) == 8);
-    
+
     // Get bonds
     auto B = irc.get_bonds();
-    
+
     // Check bonds
     REQUIRE(B.size() == 4 );
     CHECK(B[0].constraint == Constraint::constrained);
     CHECK(B[3].constraint == Constraint::constrained);
-  
+
     // Get angles
     auto A = irc.get_angles();
-  
+
     // Check bonds
     REQUIRE(A.size() == 3 );
     CHECK(A[2].constraint == Constraint::constrained);
-  
+
     // Get angles
     //auto D = irc.get_dihedrals();
-  
+
     // Check bonds
     //REQUIRE(D.size() == 1 );
     CHECK(D[0].constraint == Constraint::constrained);
@@ -216,13 +219,12 @@ TEST_CASE("Internal Redundant Coordinates") {
   SECTION("Hessian projection") {
 
     // Define methanol molecule
-    Molecule<vec3> molecule{{"O", {0.0000000000,        0.0000000000,    0.0000000000}},
-                        {"H", {-0.9658081475,       0.0000000000,    0.0000000000}},
-                        {"C", {0.4371881141,        1.3664973705,    0.0000000000}},
-                        {"H", {0.0965595997,        1.9062256626,    0.8987823813}},
-                        {"H", {1.5337031672,        1.3396209523,    0.0000000000}},
-                        {"H", {0.0965596000,        1.9062256619,    -0.8987823831}}
-    };
+    Molecule<vec3> molecule{{"O", {0.0000000000, 0.0000000000, 0.0000000000}},
+                            {"H", {-0.9658081475, 0.0000000000, 0.0000000000}},
+                            {"C", {0.4371881141, 1.3664973705, 0.0000000000}},
+                            {"H", {0.0965595997, 1.9062256626, 0.8987823813}},
+                            {"H", {1.5337031672, 1.3396209523, 0.0000000000}},
+                            {"H", {0.0965596000, 1.9062256619, -0.8987823831}}};
 
     // Transform molecular coordinates from angstrom to bohr
     multiply_positions(molecule, angstrom_to_bohr);
