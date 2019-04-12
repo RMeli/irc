@@ -66,21 +66,21 @@ TEST_CASE("Test atom and periodic table lookup functions", "[atom]") {
 
       CHECK(symbol(a.atomic_number) == periodic_table::symbols[i]);
       CHECK(symbol(AtomicNumber(periodic_table::symbols[i])) ==
-              periodic_table::symbols[i]);
+            periodic_table::symbols[i]);
 
       CHECK(mass(a.atomic_number) == Approx(periodic_table::masses[i]));
       CHECK(mass(AtomicNumber(periodic_table::symbols[i])) ==
-              Approx(periodic_table::masses[i]));
+            Approx(periodic_table::masses[i]));
 
       CHECK(covalent_radius(a.atomic_number) ==
-              Approx(periodic_table::covalent_radii[i]));
+            Approx(periodic_table::covalent_radii[i]));
       CHECK(covalent_radius(AtomicNumber(periodic_table::symbols[i])) ==
-              Approx(periodic_table::covalent_radii[i]));
+            Approx(periodic_table::covalent_radii[i]));
 
       CHECK(vdw_radius(a.atomic_number) ==
-              Approx(periodic_table::vdw_radii[i]));
+            Approx(periodic_table::vdw_radii[i]));
       CHECK(vdw_radius(AtomicNumber(periodic_table::symbols[i])) ==
-              Approx(periodic_table::vdw_radii[i]));
+            Approx(periodic_table::vdw_radii[i]));
 
       // Atom in H-bond
       if (i == 1) {

@@ -25,5 +25,3 @@ fi
 make -j
 
 make -j test
-
-cd ..

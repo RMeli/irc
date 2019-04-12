@@ -314,47 +314,46 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
   }
 }
 
-
 TEST_CASE("Linear angle gradient", "[wilson]") {
-    using namespace connectivity;
-    using namespace molecule;
-    using namespace tools;
-    using namespace wilson;
-    using namespace io;
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+  using namespace wilson;
+  using namespace io;
 
-    const auto mol = load_xyz<vec3>(config::molecules_dir + "hcn.xyz");
-    REQUIRE(mol.size() == 3);
+  const auto mol = load_xyz<vec3>(config::molecules_dir + "hcn.xyz");
+  REQUIRE(mol.size() == 3);
 
-    // Compute interatomic distances
-    mat dd{distances<vec3, mat>(mol)};
-    UGraph adj{adjacency_matrix(dd, mol)};
-    mat dist{distance_matrix<mat>(adj)};
+  // Compute interatomic distances
+  mat dd{distances<vec3, mat>(mol)};
+  UGraph adj{adjacency_matrix(dd, mol)};
+  mat dist{distance_matrix<mat>(adj)};
 
-    // Compute bonds
-    std::vector<Bond> B{bonds(dist, mol)};
-    std::vector<Angle> A{angles(dist, mol)};
-    std::vector<Dihedral> D{dihedrals(dist, mol)};
-    std::vector<LinearAngle<vec3>> LA{linear_angles(dist, mol)};
-    REQUIRE(LA.size() == 2);
+  // Compute bonds
+  std::vector<Bond> B{bonds(dist, mol)};
+  std::vector<Angle> A{angles(dist, mol)};
+  std::vector<Dihedral> D{dihedrals(dist, mol)};
+  std::vector<LinearAngle<vec3>> LA{linear_angles(dist, mol)};
+  REQUIRE(LA.size() == 2);
 
-    const auto q = connectivity::cartesian_to_irc<vec3, vec>(
-        to_cartesian<vec3, vec>(mol), B, A, D, LA);
-    CAPTURE(q);
+  const auto q = connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(mol), B, A, D, LA);
+  CAPTURE(q);
 
-    const mat wilson_b_analytical =
-        wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA);
-    CAPTURE(wilson_b_analytical);
+  const mat wilson_b_analytical =
+      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA);
+  CAPTURE(wilson_b_analytical);
 
-    const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
-        to_cartesian<vec3, vec>(mol), B, A, D, LA);
-    CAPTURE(wilson_b_numerical);
+  const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
+      to_cartesian<vec3, vec>(mol), B, A, D, LA);
+  CAPTURE(wilson_b_numerical);
 
-    REQUIRE(linalg::size(wilson_b_analytical) ==
-            linalg::size(wilson_b_numerical));
+  REQUIRE(linalg::size(wilson_b_analytical) ==
+          linalg::size(wilson_b_numerical));
 
-    const std::size_t n = linalg::size(wilson_b_analytical);
-    for (std::size_t i{0}; i < n; i++) {
-      REQUIRE(wilson_b_analytical(i) ==
-              Approx(wilson_b_numerical(i)).margin(1e-5));
-    }
+  const std::size_t n = linalg::size(wilson_b_analytical);
+  for (std::size_t i{0}; i < n; i++) {
+    REQUIRE(wilson_b_analytical(i) ==
+            Approx(wilson_b_numerical(i)).margin(1e-5));
   }
+}

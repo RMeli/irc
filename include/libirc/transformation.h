@@ -75,16 +75,16 @@ struct IrcToCartesianResult {
 /// Since Cartesian coordinates are rectilinear and the internal coordinates are
 /// curvilinear, the transformation must be done iteratively.
 template<typename Vector3, typename Vector, typename Matrix>
-IrcToCartesianResult<Vector>
-irc_to_cartesian(const Vector& q_irc_old,
-                 const Vector& dq_irc,
-                 const Vector& x_c_old,
-                 const std::vector<connectivity::Bond>& bonds,
-                 const std::vector<connectivity::Angle>& angles,
-                 const std::vector<connectivity::Dihedral>& dihedrals,
-                 const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles,
-                 std::size_t max_iters = 25,
-                 double tolerance = 1e-6) {
+IrcToCartesianResult<Vector> irc_to_cartesian(
+    const Vector& q_irc_old,
+    const Vector& dq_irc,
+    const Vector& x_c_old,
+    const std::vector<connectivity::Bond>& bonds,
+    const std::vector<connectivity::Angle>& angles,
+    const std::vector<connectivity::Dihedral>& dihedrals,
+    const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles,
+    std::size_t max_iters = 25,
+    double tolerance = 1e-6) {
 
   bool converged{false};
 
