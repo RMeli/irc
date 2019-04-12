@@ -48,4 +48,4 @@ script:
   - bash .travis/build.sh
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov failed to upload'
+  - bash .travis/cov.sh
