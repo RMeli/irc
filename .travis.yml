@@ -12,6 +12,7 @@ matrix:
           - cmake
           - boost
           - armadillo
+          - lcov
           update: true
     
     - os: osx
@@ -24,6 +25,7 @@ matrix:
           - cmake
           - boost
           - eigen
+          - lcov
           update: true
           
     - os: linux
