@@ -26,15 +26,15 @@ add_compile_options(-Wall) # DON'T USE
 
 option(COVERAGE "Use code coverage if compiler is Clang" OFF)
 
-if(COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(CLANG_COVERAGE_COMPILE_FLAGS "--coverage -g -O0 -fno-inline")
-    set(CLANG_COVERAGE_LINK_FLAGS    "--coverage")
+if(COVERAGE)
+    set(COVERAGE_COMPILE_FLAGS "--coverage -g -O0 -fno-inline")
+    set(COVERAGE_LINK_FLAGS    "--coverage")
 
-    message("-- Code coverage enabled: ${CLANG_COVERAGE_COMPILE_FLAGS}")
+    message("-- Code coverage enabled: ${COVERAGE_COMPILE_FLAGS}")
 
-    set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${CLANG_COVERAGE_COMPILE_FLAGS}" )
-    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${CLANG_COVERAGE_COMPILE_FLAGS}" )
-    set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${CLANG_COVERAGE_LINK_FLAGS}" )
+    set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${COVERAGE_COMPILE_FLAGS}" )
+    set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILE_FLAGS}" )
+    set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${COVERAGE_LINK_FLAGS}" )
 endif()
 
 # + ----------- +
