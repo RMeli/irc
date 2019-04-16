@@ -12,6 +12,7 @@ matrix:
           - cmake
           - boost
           - armadillo
+          - lcov
           update: true
     
     - os: osx
@@ -24,6 +25,7 @@ matrix:
           - cmake
           - boost
           - eigen
+          - lcov
           update: true
           
     - os: linux
@@ -38,6 +40,7 @@ matrix:
             - libboost-dev
             - libarmadillo-dev
             - g++-7
+            - lcov
           update: true
       env:
         - CC=gcc-7
@@ -48,4 +51,4 @@ script:
   - bash .travis/build.sh
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) || echo 'Codecov failed to upload'
+  - bash .travis/cov.sh
