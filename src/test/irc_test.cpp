@@ -163,22 +163,8 @@ TEST_CASE("Internal Redundant Coordinates") {
 
       CHECK(d == target);
     }
-
-    // Check manually added H-H-O-C dihedral angle
-    SECTION("Manually added H-H-O-C out of plane angle") {
-      Approx target(q_irc(10));
-      target.margin(1e-6);
-
-      // Compute H-H-O-C dihedral angle
-      double d{out_of_plane_angle(molecule[0].position,
-                                  molecule[1].position,
-                                  molecule[2].position,
-                                  molecule[3].position)};
-
-      CHECK(d == target);
-      CHECK(d == Approx(0).margin(1e-6));
-    }
   }
+
   /*
   SECTION("Constraints") {
     // Define formaldehyde molecule (CH2O)

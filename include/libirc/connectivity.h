@@ -1178,7 +1178,8 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
 template<typename Vector3, typename Matrix>
 std::vector<OutOfPlaneBend>
 out_of_plane_bends(const Matrix& distance_m,
-                   const molecule::Molecule<Vector3>& molecule) {
+                   const molecule::Molecule<Vector3>& molecule,
+                   const double angle_threshold = 10.0 * tools::conversion::deg_to_rad) {
 
   using boost::math::iround;
 
@@ -1230,8 +1231,13 @@ out_of_plane_bends(const Matrix& distance_m,
             }
           }
 
+          const OutOfPlaneBend bend = OutOfPlaneBend(c, i, j, k);
+          const double angle = connectivity::out_of_plane_angle(bend, molecule);
+          if(std::abs(angle) > angle_threshold) {
+            continue;
+          }
           // No linear angles in the out-of-plane bend
-          bends.push_back(OutOfPlaneBend(c, i, j, k));
+          bends.push_back(bend);
         }
       }
     }
