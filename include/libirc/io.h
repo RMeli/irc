@@ -200,11 +200,11 @@ void print_dihedrals(const Vector& x_c,
   }
 }
 
-
 template<typename Vector3, typename Vector>
-void print_linear_angles(const Vector& x_c,
-                  const std::vector<connectivity::LinearAngle<Vector3>>& angles,
-                  std::ostream& out = std::cout) {
+void print_linear_angles(
+    const Vector& x_c,
+    const std::vector<connectivity::LinearAngle<Vector3>>& angles,
+    std::ostream& out = std::cout) {
 
   const std::size_t n_angles{angles.size()};
 

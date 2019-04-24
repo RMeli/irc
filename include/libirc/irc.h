@@ -75,11 +75,11 @@ public:
                           const Vector& x_c_old,
                           std::size_t max_iters = 25,
                           double tolerance = 1e-6);
-  
+
   std::vector<connectivity::Bond> get_bonds() const;
-  
+
   std::vector<connectivity::Angle> get_angles() const;
-  
+
   std::vector<connectivity::Dihedral> get_dihedrals() const;
 
   std::vector<connectivity::LinearAngle<Vector3>> get_linear_angles() const;
@@ -110,7 +110,7 @@ private:
 
   /// Wilson B matrix
   Matrix B;
-  
+
   // TODO: Move to std::optional with C++17
   /// Constraint matrix
   boost::optional<Matrix> C;
@@ -130,69 +130,68 @@ private:
  */
 // TODO: Use std::remove_copy_if?
 template<typename T>
-size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2){
+size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2) {
   size_t n{0};
-  
-  for(const auto& e : v2){
+
+  for (const auto& e : v2) {
     // TODO: Change to std::cbegin() and std::cend() with C++14
     auto iterator = std::find(v1.begin(), v1.end(), e);
-  
+
     // TODO: Change to std::cend() with C++14
-    if(iterator == v1.cend()){
+    if (iterator == v1.cend()) {
       v1.push_back(e);
       n++;
-    }
-    else{
+    } else {
       iterator->constraint = e.constraint;
     }
   }
-  
+
   return n;
 }
 
 // TODO: Switch to std::optional with C++17
 template<typename Matrix, typename Vector3>
-boost::optional<Matrix> constraints(const std::vector<connectivity::Bond>& B,
-    const std::vector<connectivity::Angle>& A,
-    const std::vector<connectivity::Dihedral>& D,
-    const std::vector<connectivity::LinearAngle<Vector3>>& LA,
-    const std::vector<connectivity::OutOfPlaneBend>& OOPB)
+boost::optional<Matrix>
+constraints(const std::vector<connectivity::Bond>& B,
+            const std::vector<connectivity::Angle>& A,
+            const std::vector<connectivity::Dihedral>& D,
+            const std::vector<connectivity::LinearAngle<Vector3>>& LA,
+            const std::vector<connectivity::OutOfPlaneBend>& OOPB)
 {
   std::size_t n{B.size() + A.size() + D.size() + LA.size() + OOPB.size()};
-  
   Matrix C{linalg::zeros<Matrix>(n, n)};
-  
+
   bool constrained{false};
-  
+
   std::size_t offset{0};
-  for(std::size_t i{0}; i < B.size(); i++){
-    if(B[i].constraint == connectivity::Constraint::constrained){
-      C(i + offset,i + offset) = 1;
-      constrained=true;
+  for (std::size_t i{0}; i < B.size(); i++) {
+    if (B[i].constraint == connectivity::Constraint::constrained) {
+      C(i + offset, i + offset) = 1;
+      constrained = true;
     }
   }
-  
+
   offset = B.size();
-  for(std::size_t i{0}; i < A.size(); i++){
-    if(A[i].constraint == connectivity::Constraint::constrained){
-      C(i + offset,i + offset) = 1;
-      constrained=true;
+  for (std::size_t i{0}; i < A.size(); i++) {
+    if (A[i].constraint == connectivity::Constraint::constrained) {
+      C(i + offset, i + offset) = 1;
+      constrained = true;
     }
   }
-  
+
   offset = B.size() + A.size();
-  for(std::size_t i{0}; i < D.size(); i++){
-    if(D[i].constraint == connectivity::Constraint::constrained){
-      C(i + offset,i + offset) = 1;
-      constrained=true;
+  for (std::size_t i{0}; i < D.size(); i++) {
+    if (D[i].constraint == connectivity::Constraint::constrained) {
+      C(i + offset, i + offset) = 1;
+      constrained = true;
     }
   }
 
   offset = B.size() + A.size() + D.size();
-  for(std::size_t i{0}; i < LA.size(); i++){
-    if(LA[i].constraint == connectivity::Constraint::constrained){
-      C(i + offset,i + offset) = 1;
-      constrained=true;
+  for (std::size_t i{0}; i < LA.size(); i++) {
+    if (LA[i].constraint == connectivity::Constraint::constrained) {
+      C(i + offset, i + offset) = 1;
+      constrained = true;
     }
   }
 
@@ -203,7 +202,7 @@ boost::optional<Matrix> constraints(const std::vector<connectivity::Bond>& B,
       constrained=true;
     }
   }
-  
+
   return constrained ? boost::optional<Matrix>(C) : boost::none;
 }
 
@@ -234,7 +233,7 @@ IRC<Vector3, Vector, Matrix>::IRC(
   if (!mybonds.empty()) { // For CodeCov, can be removed after tests
     add_without_duplicates(bonds, mybonds);
   }
-  
+
   // Compute angles
   angles = connectivity::angles(distance_m, molecule);
 
@@ -254,7 +253,8 @@ IRC<Vector3, Vector, Matrix>::IRC(
   // Compute linear angles
   linear_angles = connectivity::linear_angles<Vector3>(distance_m, molecule);
 
-  std::vector<connectivity::LinearAngle<Vector3>> mylinearangles = valid_linear_angles(myangles, molecule);
+  std::vector<connectivity::LinearAngle<Vector3>> mylinearangles =
+      valid_linear_angles(myangles, molecule);
   if (!mylinearangles.empty()) { // For CodeCov, can be removed after tests
     add_without_duplicates(linear_angles, mylinearangles);
   }
@@ -269,7 +269,9 @@ IRC<Vector3, Vector, Matrix>::IRC(
   }
 
   // Count the number of internal coordinates
-  n_irc = bonds.size() + angles.size() + dihedrals.size() + linear_angles.size() + out_of_plane_bends.size();
+  n_irc =
+      bonds.size() + angles.size() + dihedrals.size()
+      + linear_angles.size() + out_of_plane_bends.size();
 
   // Store initial Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
@@ -279,16 +281,15 @@ IRC<Vector3, Vector, Matrix>::IRC(
       dihedrals,
       linear_angles,
       out_of_plane_bends);
-  
+
   // Compute (optional) constraint matrix
   C = constraints<Matrix>(bonds, angles, dihedrals, linear_angles,
                           out_of_plane_bends);
 
   // Compute projector P
-  if(C){
+  if (C) {
     P = wilson::projector(B, *C);
-  }
-  else{
+  } else {
     P = wilson::projector(B);
   }
 }
@@ -457,13 +458,13 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
   // TODO: This computation can be avoided; B is computed in irc_to_cartesian
   // Update Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-      itc_result.x_c, bonds, angles, dihedrals, linear_angles, out_of_plane_bends);
+      itc_result.x_c, bonds, angles, dihedrals,
+      linear_angles, out_of_plane_bends);
 
   // Update projector P
-  if(C){
+  if (C) {
     P = wilson::projector(B, *C);
-  }
-  else{
+  } else {
     P = wilson::projector(B);
   }
 
@@ -472,27 +473,32 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-std::vector<connectivity::Bond> IRC<Vector3, Vector, Matrix>::get_bonds() const{
+std::vector<connectivity::Bond>
+IRC<Vector3, Vector, Matrix>::get_bonds() const {
   return bonds;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-std::vector<connectivity::Angle> IRC<Vector3, Vector, Matrix>::get_angles() const{
+std::vector<connectivity::Angle>
+IRC<Vector3, Vector, Matrix>::get_angles() const {
   return angles;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-std::vector<connectivity::Dihedral> IRC<Vector3, Vector, Matrix>::get_dihedrals() const{
+std::vector<connectivity::Dihedral>
+IRC<Vector3, Vector, Matrix>::get_dihedrals() const {
   return dihedrals;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-std::vector<connectivity::LinearAngle<Vector3>> IRC<Vector3, Vector, Matrix>::get_linear_angles() const{
+std::vector<connectivity::LinearAngle<Vector3>>
+IRC<Vector3, Vector, Matrix>::get_linear_angles() const {
   return linear_angles;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-std::vector<connectivity::OutOfPlaneBend> IRC<Vector3, Vector, Matrix>::get_out_of_plane_bends() const{
+std::vector<connectivity::OutOfPlaneBend>
+IRC<Vector3, Vector, Matrix>::get_out_of_plane_bends() const {
   return out_of_plane_bends;
 }
 

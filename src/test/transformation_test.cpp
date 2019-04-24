@@ -88,6 +88,7 @@ TEST_CASE("Transformation") {
       print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule), D);
     }
 
+
     // Compute linear angles
     std::vector<LinearAngle<vec3>> LA{linear_angles(dist, molecule)};
 
@@ -272,8 +273,8 @@ TEST_CASE("Transformation") {
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
 
     // Compute new cartesian coordinates
-    const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, {}, {}, {});
+    const auto itc_result = irc_to_cartesian<vec3, vec, mat>(
+        q_irc_old, dq_irc, x_c_old, B, A, {}, {}, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
@@ -386,8 +387,8 @@ TEST_CASE("Transformation") {
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
 
     // Compute new cartesian coordinates
-    const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D, {}, {});
+    const auto itc_result = irc_to_cartesian<vec3, vec, mat>(
+        q_irc_old, dq_irc, x_c_old, B, A, D, {}, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates
@@ -530,8 +531,8 @@ TEST_CASE("Transformation") {
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
 
     // Compute new cartesian coordinates
-    const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc_old, dq_irc, x_c_old, B, A, D, LA, {});
+    const auto itc_result = irc_to_cartesian<vec3, vec, mat>(
+        q_irc_old, dq_irc, x_c_old, B, A, D, LA, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates

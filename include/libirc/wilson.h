@@ -229,7 +229,8 @@ out_of_plane_gradient(const Vector3& vc,
 }
 
 /*!
- * \brief The linear angle gradient bending in the plane with the \p othogonal_direction
+ * \brief The linear angle gradient bending in the plane with the \p
+ * othogonal_direction
  *
  * The gradient contribution \f$ (g_1, g_2, g_3) \f$ is computed at positions
  * \p p1, \p p2 and \p p3. These are formed by first computing the standard
@@ -247,11 +248,12 @@ out_of_plane_gradient(const Vector3& vc,
  * \return
  */
 template<typename Vector3>
-std::tuple<Vector3, Vector3, Vector3> linear_angle_gradient(const Vector3& p1,
-                                                            const Vector3& p2,
-                                                            const Vector3& p3,
-                                                            const Vector3& orthogonal_direction,
-                                                            double tolerance = 1e-6) {
+std::tuple<Vector3, Vector3, Vector3>
+linear_angle_gradient(const Vector3& p1,
+                      const Vector3& p2,
+                      const Vector3& p3,
+                      const Vector3& orthogonal_direction,
+                      double tolerance = 1e-6) {
 
   Vector3 v1, v2, v2add, v3, vOrth;
 
@@ -260,7 +262,7 @@ std::tuple<Vector3, Vector3, Vector3> linear_angle_gradient(const Vector3& p1,
   std::tie(v1, v2, vOrth) = angle_gradient(p1, p2, p0, tolerance);
   std::tie(vOrth, v2add, v3) = angle_gradient(p0, p2, p3, tolerance);
 
-  return std::make_tuple(v1, v2+v2add, v3);
+  return std::make_tuple(v1, v2 + v2add, v3);
 }
 
 /// Function computing Wilson's \f$\mathbf{B}\f$ matrix from a set of internal
@@ -291,16 +293,17 @@ std::tuple<Vector3, Vector3, Vector3> linear_angle_gradient(const Vector3& p1,
 ///
 /// More details can be found in Peng et al., J. Comp. Chem. 17, 49-56, 1996.
 template<typename Vector3, typename Vector, typename Matrix>
-Matrix
-wilson_matrix(const Vector& x_cartesian,
-              const std::vector<connectivity::Bond>& bonds,
-              const std::vector<connectivity::Angle>& angles = {},
-              const std::vector<connectivity::Dihedral>& dihedrals = {},
-              const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {},
+Matrix wilson_matrix(
+    const Vector& x_cartesian,
+    const std::vector<connectivity::Bond>& bonds,
+    const std::vector<connectivity::Angle>& angles = {},
+    const std::vector<connectivity::Dihedral>& dihedrals = {},
+    const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {},
               const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends = {}) {
   const std::size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
 
-  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() + linear_angles.size() + out_of_plane_bends.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() +
+                          linear_angles.size() + out_of_plane_bends.size()};
 
   // Wilson's B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, 3 * n_atoms)};
@@ -373,7 +376,6 @@ wilson_matrix(const Vector& x_cartesian,
     }
   }
 
-
   // Populate B matrix's rows corresponding to linear angles
   offset = bonds.size() + angles.size() + dihedrals.size();
   for (std::size_t i{0}; i < linear_angles.size(); i++) {
@@ -385,7 +387,8 @@ wilson_matrix(const Vector& x_cartesian,
       p3(m) = x_cartesian(3 * linear_angle.k + m);
     }
 
-    std::tie(g1, g2, g3) = linear_angle_gradient(p1, p2, p3, linear_angle.orthogonal_direction);
+    std::tie(g1, g2, g3) =
+        linear_angle_gradient(p1, p2, p3, linear_angle.orthogonal_direction);
 
     for (std::size_t idx{0}; idx < 3; idx++) {
       B(i + offset, 3 * linear_angle.i + idx) = g1(idx);
@@ -430,7 +433,8 @@ Matrix wilson_matrix_numerical(
 
   const std::size_t n_c{linalg::size(x_c)};
 
-  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() + linear_angles.size() + out_of_plane_bends.size()};
+  const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() +
+                          linear_angles.size() + out_of_plane_bends.size()};
 
   // Wilson B matrix
   Matrix B{linalg::zeros<Matrix>(n_irc, n_c)};
@@ -487,7 +491,7 @@ template<typename Matrix>
 Matrix projector(const Matrix& B, const Matrix& C) {
   // Standard projector
   Matrix P{B * linalg::pseudo_inverse(B)};
-  
+
   // Projector with constraints
   return P - P * C * linalg::inv<Matrix>(C * P * C) * C * P;
 }

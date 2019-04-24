@@ -12,8 +12,9 @@ matrix:
           - cmake
           - boost
           - armadillo
+          - lcov
           update: true
-    
+
     - os: osx
       osx_image: xcode10.1
       env:
@@ -24,8 +25,9 @@ matrix:
           - cmake
           - boost
           - eigen
+          - lcov
           update: true
-          
+
     - os: linux
       dist: xenial
       addons:
@@ -38,6 +40,7 @@ matrix:
             - libboost-dev
             - libarmadillo-dev
             - g++-7
+            - lcov
           update: true
       env:
         - CC=gcc-7
