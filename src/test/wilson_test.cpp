@@ -293,6 +293,8 @@ TEST_CASE("Wilson B matrix for formalydehyde", "[wilson]") {
   std::vector<LinearAngle<vec3>> LA{linear_angles(dist, mol)};
   std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, mol)};
 
+  CHECK(OOPB.size() == 1);
+
   const auto q = connectivity::cartesian_to_irc<vec3, vec>(
       to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(q);
@@ -303,6 +305,56 @@ TEST_CASE("Wilson B matrix for formalydehyde", "[wilson]") {
 
   const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
       to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
+  CAPTURE(wilson_b_numerical);
+
+  REQUIRE(linalg::size(wilson_b_analytical) ==
+          linalg::size(wilson_b_numerical));
+
+
+  const std::size_t n = linalg::size(wilson_b_analytical);
+  for (std::size_t i{0}; i < n; i++) {
+    CAPTURE(i);
+    REQUIRE(wilson_b_analytical(i) ==
+            Approx(wilson_b_numerical(i)).margin(1e-5));
+  }
+}
+
+
+TEST_CASE("Wilson B matrix for bent out of plane bend", "[wilson]") {
+  using namespace connectivity;
+  using namespace molecule;
+  using namespace tools;
+  using namespace wilson;
+  using namespace io;
+
+
+  molecule::Molecule<vec3> molecule{
+      {"C", {0.200, 0.000, 2.800}},
+      {"C", {0.000, 0.000, 0.000}},
+      {"C", {0.000, 2.500, -0.500}},
+      {"C", {0.000, -2.500, -0.500}}};
+
+  // Compute interatomic distances
+  mat dd{distances<vec3, mat>(molecule)};
+  UGraph adj{adjacency_matrix(dd, molecule)};
+  mat dist{distance_matrix<mat>(adj)};
+
+  std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, molecule)};
+  CHECK(OOPB.size() == 1);
+
+  const auto q = connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(molecule), {}, {}, {}, {}, OOPB);
+  CAPTURE(q);
+  CHECK(q.size() == 1);
+  CHECK(q(0) == Approx(-0.0713074648));
+
+  const mat wilson_b_analytical =
+      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(molecule),
+          {}, {}, {}, {}, OOPB);
+  CAPTURE(wilson_b_analytical);
+
+  const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
+      to_cartesian<vec3, vec>(molecule), {}, {}, {}, {}, OOPB);
   CAPTURE(wilson_b_numerical);
 
   REQUIRE(linalg::size(wilson_b_analytical) ==
