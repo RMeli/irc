@@ -649,6 +649,44 @@ TEST_CASE("Linear angles") {
 
     CHECK(angle(p1, p2, p3) == tools::constants::pi);
   };
+
+  using namespace tools::conversion;
+  using namespace molecule;
+  using namespace connectivity;
+
+  // Define H2O2 molecule
+  Molecule<vec3> molecule{{"C", {0.0, 1.0, 2.0}},
+                          {"C", {2.0, 1.0, 2.0}},
+                          {"C", {4.0, 1.0, 2.0}},
+                          {"C", {6.0, 1.0, 2.0}}};
+
+  // Transform molecular coordinates from angstrom to bohr
+  multiply_positions(molecule, angstrom_to_bohr);
+
+  // Get bonds, angles and dihedrals
+  std::vector<Bond> B;
+  std::vector<Angle> A;
+  std::vector<Dihedral> D;
+  std::vector<LinearAngle<vec3>> LA;
+  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+
+  CHECK(B.size() == 3);
+  CHECK(A.size() == 0);
+  // TODO(Peter) set to == 0 when dihedral bug is fixed
+  CHECK(D.size() == 1);
+  CHECK(LA.size() == 2 * 2);
+
+  vec q{connectivity::cartesian_to_irc<vec3, vec>(
+      to_cartesian<vec3, vec>(molecule), B, A, D, LA)};
+
+  // TODO(Peter) set to == 7 when dihedral bug is fixed
+  REQUIRE(linalg::size<vec>(q) == 8);
+
+  // TODO(Peter) Check element q(3) rather than q(7) when dihedral bug is fixed
+  CHECK(q(4) == Approx(tools::constants::pi));
+  CHECK(q(5) == Approx(tools::constants::pi));
+  CHECK(q(6) == Approx(tools::constants::pi));
+  CHECK(q(7) == Approx(tools::constants::pi));
 }
 
 // Quasi-linear angles
