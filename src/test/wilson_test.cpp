@@ -321,7 +321,9 @@ TEST_CASE("Linear angle gradient", "[wilson]") {
   using namespace wilson;
   using namespace io;
 
-  const auto mol = load_xyz<vec3>(config::molecules_dir + "hcn.xyz");
+  Molecule<vec3> mol{{"H", {0.7, 1.1, 2.4}},
+                     {"C", {2.8, 1.2, 2.5}},
+                     {"N", {4.9, 1.3, 2.6}}};
   REQUIRE(mol.size() == 3);
 
   // Compute interatomic distances
