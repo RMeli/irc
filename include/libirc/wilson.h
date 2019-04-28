@@ -187,10 +187,10 @@ dihedral_gradient(const Vector3& p1,
  *
  * The gradient contribution \f$ (g_1, g_2, g_3) \f$ is computed at positions
  * \p p1, \p p2 and \p p3. These are formed by first computing the standard
- * angle gradients \f$ (g_1, g_{2a}, g_{0a}) \f$ at the positions
- * \f$ (p1, p2, p2+d_{orth}) \f$ and \f$ (g_{0b}, g_{2b}, g_3) \f$ at the
+ * angle gradients \f$ (v_1, v_{2}, v_\text{Orth}) \f$ at the positions
+ * \f$ (p1, p2, p2+d_{orth}) \f$ and \f$ (v_\text{Orth}, v_2, v_3) \f$ at the
  * positions \f$ (p2+d_{orth}, p2, p3) \f$. The linear angle gradient is then
- * formed as \f$ (g_1, g_{2a}+g_{2b}, g_3) \f$
+ * formed as \f$ (v_1, -(v_1 + v_3), v_3) \f$
  *
  * \tparam Vector3
  * \param p1 Point 1
