@@ -66,7 +66,7 @@ std::size_t n_cols(const T& a) {
 template<typename T>
 double norm(const T& a) {
 #ifdef HAVE_ARMA
-  return arma::norm(a);
+  return arma::norm(a, "fro");
 #elif HAVE_EIGEN3
   return a.norm();
 #else
