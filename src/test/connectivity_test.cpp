@@ -672,21 +672,18 @@ TEST_CASE("Linear angles") {
 
   CHECK(B.size() == 3);
   CHECK(A.size() == 0);
-  // TODO(Peter) set to == 0 when dihedral bug is fixed
-  CHECK(D.size() == 1);
+  CHECK(D.size() == 0);
   CHECK(LA.size() == 2 * 2);
 
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
       to_cartesian<vec3, vec>(molecule), B, A, D, LA)};
 
-  // TODO(Peter) set to == 7 when dihedral bug is fixed
-  REQUIRE(linalg::size<vec>(q) == 8);
+  REQUIRE(linalg::size<vec>(q) == 7);
 
-  // TODO(Peter) Check element q(3) rather than q(7) when dihedral bug is fixed
+  CHECK(q(3) == Approx(tools::constants::pi));
   CHECK(q(4) == Approx(tools::constants::pi));
   CHECK(q(5) == Approx(tools::constants::pi));
   CHECK(q(6) == Approx(tools::constants::pi));
-  CHECK(q(7) == Approx(tools::constants::pi));
 }
 
 TEST_CASE("Ignore invalid dihedral") {
