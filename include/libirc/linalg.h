@@ -59,6 +59,8 @@ std::size_t n_cols(const T& a) {
 
 /// Norm of a given vector or matrix
 ///
+/// 2-norm for both vectors and matrices
+///
 /// \tparam T
 /// \return Norm of \param a
 template<typename T>
@@ -77,7 +79,7 @@ double norm(const T& a) {
 /// \tparam T
 /// \return Normalised version of \param a
 template<typename T>
-T normalise(const T& a) {
+T normalize(const T& a) {
 #ifdef HAVE_ARMA
   return arma::normalise(a);
 #elif HAVE_EIGEN3
