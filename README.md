@@ -9,7 +9,7 @@
 
 IRC is a modern C++ library allowing the determination of internal redundant coordinates (and transformation to and from Cartesian coordinates) for geometry optimization of molecules. The aim of this library is to provide an easy-to-use, flexible and portable implementation of internal redundant coordinates for modern electronic structure codes.
 
-* TOC:
+* auto-gen TOC:
 {:toc}
 
 ## Compilation and Installation
