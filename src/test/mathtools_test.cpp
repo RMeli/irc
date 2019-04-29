@@ -4,6 +4,24 @@
 
 #include <cmath> // nextafter
 
+#ifdef HAVE_ARMA
+#include <armadillo>
+using vec3 = arma::vec3;
+using vec = arma::vec;
+using mat = arma::mat;
+template<typename T>
+using Mat = arma::Mat<T>;
+#elif HAVE_EIGEN3
+#include <Eigen3/Eigen/Dense>
+using vec3 = Eigen::Vector3d;
+using vec = Eigen::VectorXd;
+using mat = Eigen::MatrixXd;
+template<typename T>
+using Mat = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
+#else
+#error
+#endif
+
 using namespace irc;
 
 using tools::constants::pi;
@@ -68,4 +86,20 @@ TEST_CASE("pirange_deg produces angles in the interval (-180,180]") {
   CHECK(pirange_deg(-90) == Approx(-90));
   CHECK(pirange_deg(270) == Approx(-90));
   CHECK(pirange_deg(-270) == Approx(90));
+}
+
+TEST_CASE("collinear vectors") {
+
+vec3 v1 = {1., 0., 0.};
+vec3 v2 = {2., 0., 0.};
+vec3 v3 = {-0.5, 0., 0.};
+vec3 v4 = {1. , 1., 1.};
+
+CHECK(collinear(v1, v2));
+CHECK(collinear(v1, v3));
+CHECK(collinear(v2, v3));
+
+CHECK(!collinear(v1, v4));
+CHECK(!collinear(v2, v4));
+CHECK(!collinear(v3, v4));
 }
