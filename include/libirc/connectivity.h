@@ -940,7 +940,6 @@ std::vector<Angle> all_angles(const Matrix& distance_m) {
 
   std::vector<Angle> angs;
 
-  double a{0};
   for (std::size_t j{0}; j < n_rows; j++) {
     for (std::size_t i{0}; i < j; i++) {
 
