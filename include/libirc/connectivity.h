@@ -1016,9 +1016,10 @@ dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
 /// \param molecule Molecule
 /// \return List of dihedral angles
 template<typename Vector3, typename Matrix>
-std::vector<Dihedral> dihedrals(const Matrix& distance_m,
-                                const molecule::Molecule<Vector3>& molecule,
-                                const double linear_angle = tools::constants::quasi_linear_angle) {
+std::vector<Dihedral>
+dihedrals(const Matrix& distance_m,
+          const molecule::Molecule<Vector3>& molecule,
+          const double linear_angle = tools::constants::quasi_linear_angle) {
 
   using boost::math::iround;
 
