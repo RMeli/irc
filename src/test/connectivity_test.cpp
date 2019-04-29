@@ -547,15 +547,6 @@ TEST_CASE("Connectivity for bent water dimer") {
   using namespace molecule;
   using namespace connectivity;
 
-  double d1{1.3};
-  double d2{1.4};
-  double a_deg{102.03};
-
-  double a{(180. - a_deg) * deg_to_rad};
-
-  double cos_a{std::cos(a)};
-  double sin_a{std::sin(a)};
-
   // Define water dimer
   Molecule<vec3> molecule{{"O", {-1.464, 0.099, -0.300}},
                           {"H", {-1.956, 0.624, -0.340}},

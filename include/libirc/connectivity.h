@@ -942,7 +942,6 @@ std::vector<Angle> all_angles(const Matrix& distance_m) {
 
   std::vector<Angle> angs;
 
-  double a{0};
   for (std::size_t j{0}; j < n_rows; j++) {
     for (std::size_t i{0}; i < j; i++) {
 
@@ -1089,8 +1088,8 @@ template<typename Vector3>
 inline std::pair<Vector3, Vector3> orthogonal_axis(const Vector3& d,
                                                    const Vector3& axis) {
 
-  const Vector3 first = linalg::normalise(linalg::cross(d, axis));
-  const Vector3 second = linalg::normalise(linalg::cross(d, first));
+  const Vector3 first = linalg::normalize(linalg::cross(d, axis));
+  const Vector3 second = linalg::normalize(linalg::cross(d, first));
 
   return {first, second};
 }
