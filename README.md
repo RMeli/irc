@@ -9,8 +9,12 @@
 
 IRC is a modern C++ library allowing the determination of internal redundant coordinates (and transformation to and from Cartesian coordinates) for geometry optimization of molecules. The aim of this library is to provide an easy-to-use, flexible and portable implementation of internal redundant coordinates for modern electronic structure codes.
 
-* auto-gen TOC:
-{:toc}
+- [Compilation and Installation](https://github.com/RMeli/irc#compilation-and-installation)
+- [Usage](https://github.com/RMeli/irc#usage)
+- [Test Suite](https://github.com/RMeli/irc#test-suite)
+- [Contributions](https://github.com/RMeli/irc#contributions)
+- [Sources](https://github.com/RMeli/irc#sources)
+
 
 ## Compilation and Installation
 
