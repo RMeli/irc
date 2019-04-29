@@ -689,6 +689,68 @@ TEST_CASE("Linear angles") {
   CHECK(q(7) == Approx(tools::constants::pi));
 }
 
+TEST_CASE("Ignore invalid dihedral") {
+  using namespace molecule;
+  using namespace connectivity;
+
+  SECTION("Linear molecule") {
+    Molecule<vec3> molecule{{"C", {0, 0, 0}},
+                            {"C", {0, 0, 2}},
+                            {"C", {0, 0, 4}},
+                            {"C", {0, 0, 6}}};
+
+    std::vector<Bond> B;
+    std::vector<Angle> A;
+    std::vector<Dihedral> D;
+    std::vector<LinearAngle<vec3>> LA;
+    std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+
+
+    CHECK(B.size() == 3);
+    CHECK(A.size() == 0);
+    CHECK(D.size() == 0);
+    CHECK(LA.size() == 2 * 2);
+  }
+
+  SECTION("Single bend molecule") {
+    Molecule<vec3> molecule{{"C", {0, 0, 0}},
+                            {"C", {0, 0, 2}},
+                            {"C", {0, 0, 4}},
+                            {"C", {0, 1, 6}}};
+
+    std::vector<Bond> B;
+    std::vector<Angle> A;
+    std::vector<Dihedral> D;
+    std::vector<LinearAngle<vec3>> LA;
+    std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+
+
+    CHECK(B.size() == 3);
+    CHECK(A.size() == 1);
+    CHECK(D.size() == 0);
+    CHECK(LA.size() == 2 * 1);
+  }
+
+  SECTION("Two bends molecule") {
+    Molecule<vec3> molecule{{"C", {0, 1, 0}},
+                            {"C", {0, 0, 2}},
+                            {"C", {0, 0, 4}},
+                            {"C", {0, 1, 6}}};
+
+    std::vector<Bond> B;
+    std::vector<Angle> A;
+    std::vector<Dihedral> D;
+    std::vector<LinearAngle<vec3>> LA;
+    std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+
+
+    CHECK(B.size() == 3);
+    CHECK(A.size() == 2);
+    CHECK(D.size() == 1);
+    CHECK(LA.size() == 0);
+  }
+}
+
 // Quasi-linear angles
 TEST_CASE("Connectivity for water dimer") {
   // TODO
