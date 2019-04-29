@@ -75,8 +75,43 @@ TEST_CASE("Norm and normalization", "[norm]") {
   SECTION("Matrix") {
     mat m = {{1, 2, 3}, {4, 5, 6}};
 
-    Approx t(
-        std::sqrt(91));
+    Approx t(std::sqrt(91));
     CHECK(linalg::norm(m) == t);
   }
+}
+
+TEST_CASE("Dot product", "[dot]") {
+  vec v1 = {1, 2, 3, 4};
+  vec v2 = {4, 3, 2, 1};
+
+  CHECK(linalg::dot(v1, v1) == Approx(std::pow(linalg::norm(v1), 2)));
+
+  CHECK(linalg::dot(v2, v2) == Approx(std::pow(linalg::norm(v2), 2)));
+
+  CHECK(linalg::dot(v1, v2) == Approx(1 * 4 + 2 * 3 + 3 * 2 + 4 * 1));
+
+  CHECK(linalg::dot(v1, v2) == Approx(linalg::dot(v2, v1)));
+}
+
+TEST_CASE("Cross product", "[cross]") {
+  vec3 v1 = {1, 2, 3};
+  vec3 v2 = {3, 2, 1};
+
+  vec3 v = linalg::cross(v1, v2);
+
+  CHECK(v(0) == Approx(-4));
+  CHECK(v(1) == Approx(8));
+  CHECK(v(2) == Approx(-4));
+
+  v = linalg::cross(v1, v1);
+
+  CHECK(v(0) == Approx(0));
+  CHECK(v(1) == Approx(0));
+  CHECK(v(2) == Approx(0));
+
+  v = linalg::cross(v2, v2);
+
+  CHECK(v(0) == Approx(0));
+  CHECK(v(1) == Approx(0));
+  CHECK(v(2) == Approx(0));
 }
