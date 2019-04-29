@@ -95,8 +95,8 @@ T normalize(const T& a) {
 /// \param a Vector
 /// \param b Vector
 /// \return Dot product between \param a and \param b
-template<typename T>
-double dot(const T& a, const T& b) {
+template<typename Vector>
+double dot(const Vector& a, const Vector& b) {
 #ifdef HAVE_ARMA
   return arma::dot(a, b);
 #elif HAVE_EIGEN3
