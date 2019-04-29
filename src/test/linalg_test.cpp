@@ -18,64 +18,65 @@ using mat = Eigen::MatrixXd;
 
 using namespace irc;
 
-TEST_CASE("Size", "[size]"){
-    SECTION("Vector"){
-        vec v = {1, 2, 3, 4, 5};
-        
-        CHECK(linalg::size(v) == 5);
-    }
-    
-    SECTION("Matrix"){
-        mat m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-        
-        CHECK(linalg::size(m) == 9);
-    }
+TEST_CASE("Size", "[size]") {
+  SECTION("Vector") {
+    vec v = {1, 2, 3, 4, 5};
+
+    CHECK(linalg::size(v) == 5);
+  }
+
+  SECTION("Matrix") {
+    mat m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+
+    CHECK(linalg::size(m) == 9);
+  }
 }
 
-TEST_CASE("Number of rows", "[nrows]"){
-    SECTION("Vector"){
-        vec v = {1, 2, 3, 4, 5};
-        
-        CHECK(linalg::n_rows(v) == 5);
-    }
-    
-    SECTION("Matrix"){
-        mat m = {{1, 2, 3}, {4, 5, 6}};
+TEST_CASE("Number of rows", "[nrows]") {
+  SECTION("Vector") {
+    vec v = {1, 2, 3, 4, 5};
 
-        CHECK(linalg::n_rows(m) == 2);
-    }
+    CHECK(linalg::n_rows(v) == 5);
+  }
+
+  SECTION("Matrix") {
+    mat m = {{1, 2, 3}, {4, 5, 6}};
+
+    CHECK(linalg::n_rows(m) == 2);
+  }
 }
 
-TEST_CASE("Number of columns", "[ncols]"){
-    SECTION("Vector"){
-        vec v = {1, 2, 3, 4, 5};
-    
-        CHECK(linalg::n_cols(v) == 1);
-    }
+TEST_CASE("Number of columns", "[ncols]") {
+  SECTION("Vector") {
+    vec v = {1, 2, 3, 4, 5};
 
-    SECTION("Matrix"){
-        mat m = {{1, 2, 3}, {4, 5, 6}};
+    CHECK(linalg::n_cols(v) == 1);
+  }
 
-        CHECK(linalg::n_cols(m) == 3);
-    }
+  SECTION("Matrix") {
+    mat m = {{1, 2, 3}, {4, 5, 6}};
+
+    CHECK(linalg::n_cols(m) == 3);
+  }
 }
 
-TEST_CASE("Norm and normalization", "[norm]"){
-    SECTION("Vector"){
-        vec v = {1, 2, 3, 4};
-        
-        Approx t(std::sqrt(1*1 + 2*2 + 3*3 + 4*4));
-        CHECK(linalg::norm(v) == t);
-        
-        v = linalg::normalize(v);
-        
-        CHECK(linalg::norm(v) == Approx(1.0));
-    }
+TEST_CASE("Norm and normalization", "[norm]") {
+  SECTION("Vector") {
+    vec v = {1, 2, 3, 4};
 
-    SECTION("Matrix"){
-        mat m = {{1, 2, 3}, {4, 5, 6}};
+    Approx t(std::sqrt(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4));
+    CHECK(linalg::norm(v) == t);
 
-        Approx t(std::sqrt(0.5 * (91 + std::sqrt(8065)))); // Obtained from WolframAlpha
-        CHECK(linalg::norm(m) == t);
-    }
+    v = linalg::normalize(v);
+
+    CHECK(linalg::norm(v) == Approx(1.0));
+  }
+
+  SECTION("Matrix") {
+    mat m = {{1, 2, 3}, {4, 5, 6}};
+
+    Approx t(
+        std::sqrt(91));
+    CHECK(linalg::norm(m) == t);
+  }
 }

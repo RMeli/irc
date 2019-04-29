@@ -682,17 +682,14 @@ TEST_CASE("Ignore invalid dihedral") {
   using namespace connectivity;
 
   SECTION("Linear molecule") {
-    Molecule<vec3> molecule{{"C", {0, 0, 0}},
-                            {"C", {0, 0, 2}},
-                            {"C", {0, 0, 4}},
-                            {"C", {0, 0, 6}}};
+    Molecule<vec3> molecule{
+        {"C", {0, 0, 0}}, {"C", {0, 0, 2}}, {"C", {0, 0, 4}}, {"C", {0, 0, 6}}};
 
     std::vector<Bond> B;
     std::vector<Angle> A;
     std::vector<Dihedral> D;
     std::vector<LinearAngle<vec3>> LA;
     std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
-
 
     CHECK(B.size() == 3);
     CHECK(A.size() == 0);
@@ -701,17 +698,14 @@ TEST_CASE("Ignore invalid dihedral") {
   }
 
   SECTION("Single bend molecule") {
-    Molecule<vec3> molecule{{"C", {0, 0, 0}},
-                            {"C", {0, 0, 2}},
-                            {"C", {0, 0, 4}},
-                            {"C", {0, 1, 6}}};
+    Molecule<vec3> molecule{
+        {"C", {0, 0, 0}}, {"C", {0, 0, 2}}, {"C", {0, 0, 4}}, {"C", {0, 1, 6}}};
 
     std::vector<Bond> B;
     std::vector<Angle> A;
     std::vector<Dihedral> D;
     std::vector<LinearAngle<vec3>> LA;
     std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
-
 
     CHECK(B.size() == 3);
     CHECK(A.size() == 1);
@@ -720,17 +714,14 @@ TEST_CASE("Ignore invalid dihedral") {
   }
 
   SECTION("Two bends molecule") {
-    Molecule<vec3> molecule{{"C", {0, 1, 0}},
-                            {"C", {0, 0, 2}},
-                            {"C", {0, 0, 4}},
-                            {"C", {0, 1, 6}}};
+    Molecule<vec3> molecule{
+        {"C", {0, 1, 0}}, {"C", {0, 0, 2}}, {"C", {0, 0, 4}}, {"C", {0, 1, 6}}};
 
     std::vector<Bond> B;
     std::vector<Angle> A;
     std::vector<Dihedral> D;
     std::vector<LinearAngle<vec3>> LA;
     std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
-
 
     CHECK(B.size() == 3);
     CHECK(A.size() == 2);

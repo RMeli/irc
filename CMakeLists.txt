@@ -93,7 +93,7 @@ if(WITH_ARMA)
 elseif(WITH_EIGEN)
     find_package(
         Eigen3
-        3.2
+        3.0
         REQUIRED
     )
 
