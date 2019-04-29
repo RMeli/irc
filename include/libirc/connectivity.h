@@ -1086,8 +1086,8 @@ template<typename Vector3>
 inline std::pair<Vector3, Vector3> orthogonal_axis(const Vector3& d,
                                                    const Vector3& axis) {
 
-  const Vector3 first = linalg::normalise(linalg::cross(d, axis));
-  const Vector3 second = linalg::normalise(linalg::cross(d, first));
+  const Vector3 first = linalg::normalize(linalg::cross(d, axis));
+  const Vector3 second = linalg::normalize(linalg::cross(d, first));
 
   return {first, second};
 }
