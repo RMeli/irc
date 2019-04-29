@@ -27,7 +27,7 @@ add_compile_options(-Wall) # DON'T USE
 option(COVERAGE "Use code coverage if compiler is Clang" OFF)
 
 if(COVERAGE)
-    set(COVERAGE_COMPILE_FLAGS "--coverage -g -O0 -fno-inline")
+    set(COVERAGE_COMPILE_FLAGS "--coverage -g -O0 -fno-inline -fno-inline-small-functions -fno-default-inline")
     set(COVERAGE_LINK_FLAGS    "--coverage")
 
     message("-- Code coverage enabled: ${COVERAGE_COMPILE_FLAGS}")

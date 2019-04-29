@@ -1019,7 +1019,7 @@ dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
 template<typename Vector3, typename Matrix>
 std::vector<Dihedral> dihedrals(const Matrix& distance_m,
                                 const molecule::Molecule<Vector3>& molecule,
-                                double epsilon = 1.e-6) {
+                                const double linear_angle = tools::constants::quasi_linear_angle) {
 
   using boost::math::iround;
 
@@ -1027,11 +1027,6 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
 
   std::vector<Dihedral> dih;
 
-  // Declare temporary list of dihedrals
-  std::vector<Dihedral> D;
-
-  double a1{0}, a2{0};
-  bool linear{false};
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{0}; i < j; i++) {
 
@@ -1040,31 +1035,23 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
       // happen when a pentagon is present (i.e. in caffeine)
       if (iround(distance_m(i, j)) <= 3) {
 
-        D = dihedrals(i, j, distance_m);
+        const std::vector<Dihedral> D = dihedrals(i, j, distance_m);
 
         for (const auto& dd : D) {
-          a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
-          if (std::abs(a1 - 180) < epsilon) {
-            linear = true;
+          const double a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
+          if (a1 > linear_angle) {
+            continue;
           }
 
-          a2 = angle<Vector3>({dd.j, dd.k, dd.l}, molecule);
-          if (std::abs(a2 - 180) < epsilon) {
-            linear = true;
+          const double a2 = angle<Vector3>({dd.j, dd.k, dd.l}, molecule);
+          if (a2 > linear_angle) {
+            continue;
           }
 
-          if (!linear) {
-            dih.push_back(dd);
-          }
+          dih.push_back(dd);
         }
       }
     }
-  }
-
-  // Check if dihedrals are found
-  if (n_atoms >= 4 && dih.empty()) {
-    throw std::runtime_error(
-        "ERROR: Out of plane bending not implemented yet.");
   }
 
   // Return list of dihedral angles
