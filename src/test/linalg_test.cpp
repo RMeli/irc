@@ -76,7 +76,7 @@ TEST_CASE("Norm and normalization", "[norm]") {
     mat m = {{1, 2, 3}, {4, 5, 6}};
 
     Approx t(
-        std::sqrt(0.5 * (91 + std::sqrt(8065)))); // Obtained from WolframAlpha
+        std::sqrt(91));
     CHECK(linalg::norm(m) == t);
   }
 }
