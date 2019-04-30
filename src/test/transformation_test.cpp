@@ -88,7 +88,6 @@ TEST_CASE("Transformation") {
       print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule), D);
     }
 
-
     // Compute linear angles
     std::vector<LinearAngle<vec3>> LA{linear_angles(dist, molecule)};
 
@@ -102,7 +101,8 @@ TEST_CASE("Transformation") {
 
     // Print linear angles
     if (verbose) {
-      print_out_of_plane_bends<vec3, vec>(to_cartesian<vec3, vec>(molecule), OOPB);
+      print_out_of_plane_bends<vec3, vec>(to_cartesian<vec3, vec>(molecule),
+                                          OOPB);
     }
 
     // Compute number of cartesian coordinates
@@ -189,8 +189,8 @@ TEST_CASE("Transformation") {
     }
 
     // Compute new cartesian coordinates
-    const auto itc_result =
-        irc_to_cartesian<vec3, vec, mat>(q_irc, dq_irc, x_c_old, B, {}, {}, {}, {});
+    const auto itc_result = irc_to_cartesian<vec3, vec, mat>(
+        q_irc, dq_irc, x_c_old, B, {}, {}, {}, {});
     const auto x_c = itc_result.x_c;
 
     // Print cartesian coordinates

@@ -299,8 +299,8 @@ TEST_CASE("Wilson B matrix for formalydehyde", "[wilson]") {
       to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(q);
 
-  const mat wilson_b_analytical =
-      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
+  const mat wilson_b_analytical = wilson_matrix<vec3, vec, mat>(
+      to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(wilson_b_analytical);
 
   const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
@@ -310,7 +310,6 @@ TEST_CASE("Wilson B matrix for formalydehyde", "[wilson]") {
   REQUIRE(linalg::size(wilson_b_analytical) ==
           linalg::size(wilson_b_numerical));
 
-
   const std::size_t n = linalg::size(wilson_b_analytical);
   for (std::size_t i{0}; i < n; i++) {
     CAPTURE(i);
@@ -319,7 +318,6 @@ TEST_CASE("Wilson B matrix for formalydehyde", "[wilson]") {
   }
 }
 
-
 TEST_CASE("Wilson B matrix for bent out of plane bend", "[wilson]") {
   using namespace connectivity;
   using namespace molecule;
@@ -327,12 +325,10 @@ TEST_CASE("Wilson B matrix for bent out of plane bend", "[wilson]") {
   using namespace wilson;
   using namespace io;
 
-
-  molecule::Molecule<vec3> molecule{
-      {"C", {0.200, 0.000, 2.800}},
-      {"C", {0.000, 0.000, 0.000}},
-      {"C", {0.000, 2.500, -0.500}},
-      {"C", {0.000, -2.500, -0.500}}};
+  molecule::Molecule<vec3> molecule{{"C", {0.200, 0.000, 2.800}},
+                                    {"C", {0.000, 0.000, 0.000}},
+                                    {"C", {0.000, 2.500, -0.500}},
+                                    {"C", {0.000, -2.500, -0.500}}};
 
   // Compute interatomic distances
   mat dd{distances<vec3, mat>(molecule)};
@@ -348,9 +344,8 @@ TEST_CASE("Wilson B matrix for bent out of plane bend", "[wilson]") {
   CHECK(q.size() == 1);
   CHECK(q(0) == Approx(-0.0713074648));
 
-  const mat wilson_b_analytical =
-      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(molecule),
-          {}, {}, {}, {}, OOPB);
+  const mat wilson_b_analytical = wilson_matrix<vec3, vec, mat>(
+      to_cartesian<vec3, vec>(molecule), {}, {}, {}, {}, OOPB);
   CAPTURE(wilson_b_analytical);
 
   const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
@@ -359,7 +354,6 @@ TEST_CASE("Wilson B matrix for bent out of plane bend", "[wilson]") {
 
   REQUIRE(linalg::size(wilson_b_analytical) ==
           linalg::size(wilson_b_numerical));
-
 
   const std::size_t n = linalg::size(wilson_b_analytical);
   for (std::size_t i{0}; i < n; i++) {
@@ -394,8 +388,8 @@ TEST_CASE("Wilson B matrix for water dimer", "[wilson]") {
       to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(q);
 
-  const mat wilson_b_analytical =
-      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
+  const mat wilson_b_analytical = wilson_matrix<vec3, vec, mat>(
+      to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(wilson_b_analytical);
 
   const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(
@@ -439,8 +433,8 @@ TEST_CASE("Linear angle gradient", "[wilson]") {
       to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(q);
 
-  const mat wilson_b_analytical =
-      wilson_matrix<vec3, vec, mat>(to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
+  const mat wilson_b_analytical = wilson_matrix<vec3, vec, mat>(
+      to_cartesian<vec3, vec>(mol), B, A, D, LA, OOPB);
   CAPTURE(wilson_b_analytical);
 
   const mat wilson_b_numerical = wilson_matrix_numerical<vec3, vec, mat>(

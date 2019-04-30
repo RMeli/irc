@@ -104,6 +104,7 @@ void print_bonds(const Vector& x_c,
   }
 }
 
+/// Print angles
 template<typename Vector3, typename Vector>
 void print_angles(const Vector& x_c,
                   const std::vector<connectivity::Angle>& angles,
@@ -149,6 +150,7 @@ void print_angles(const Vector& x_c,
   }
 }
 
+/// Print dihedral angles
 template<typename Vector3, typename Vector>
 void print_dihedrals(const Vector& x_c,
                      const std::vector<connectivity::Dihedral>& dihedrals,
@@ -200,6 +202,7 @@ void print_dihedrals(const Vector& x_c,
   }
 }
 
+/// Print linear angles
 template<typename Vector3, typename Vector>
 void print_linear_angles(
     const Vector& x_c,
@@ -248,11 +251,12 @@ void print_linear_angles(
   }
 }
 
-
+/// Print out of plane bends
 template<typename Vector3, typename Vector>
-void print_out_of_plane_bends(const Vector& x_c,
-                     const std::vector<connectivity::OutOfPlaneBend>& bends,
-                     std::ostream& out = std::cout) {
+void print_out_of_plane_bends(
+    const Vector& x_c,
+    const std::vector<connectivity::OutOfPlaneBend>& bends,
+    std::ostream& out = std::cout) {
 
   const std::size_t n_bends{bends.size()};
 
@@ -295,7 +299,7 @@ void print_out_of_plane_bends(const Vector& x_c,
 
     out << std::setw(9) << std::fixed << std::right
         << connectivity::out_of_plane_angle(pc, p1, p2, p3) *
-           tools::conversion::rad_to_deg
+               tools::conversion::rad_to_deg
         << std::endl;
   }
 }

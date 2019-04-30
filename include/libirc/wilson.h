@@ -181,7 +181,6 @@ dihedral_gradient(const Vector3& p1,
   return std::make_tuple(v1, v2, v3, v4);
 }
 
-
 /*! Compute out of plane angle gradients
  */
 template<typename Vector3>
@@ -207,11 +206,11 @@ out_of_plane_gradient(const Vector3& vc,
   const double cos_a2{std::cos(a2)};
   const double cos_a3{std::cos(a3)};
 
-  const double ir1{1/linalg::norm(b1)};
-  const double ir2{1/linalg::norm(b2)};
-  const double ir3{1/linalg::norm(b3)};
+  const double ir1{1 / linalg::norm(b1)};
+  const double ir2{1 / linalg::norm(b2)};
+  const double ir3{1 / linalg::norm(b3)};
 
-  const Vector3 t1{linalg::cross(e2, e3)/std::sin(a1)};
+  const Vector3 t1{linalg::cross(e2, e3) / std::sin(a1)};
 
   // Out of plane angle
   const double angle = std::asin(linalg::dot(t1, e1));
@@ -219,11 +218,11 @@ out_of_plane_gradient(const Vector3& vc,
   const double cos_angle{std::cos(angle)};
   const double tan_angle{std::tan(angle)};
 
-  const Vector3 s1 = ir1 * (t1/cos_angle - tan_angle * e1);
+  const Vector3 s1 = ir1 * (t1 / cos_angle - tan_angle * e1);
   const double denominator = cos_angle * sin_a1 * sin_a1;
-  const Vector3 s2 = ir2 * t1 * (cos_a1 * cos_a2 - cos_a3)/denominator;
-  const Vector3 s3 = ir3 * t1 * (cos_a1 * cos_a3 - cos_a2)/denominator;
-  const Vector3 sc = - s1 - s2 - s3;
+  const Vector3 s2 = ir2 * t1 * (cos_a1 * cos_a2 - cos_a3) / denominator;
+  const Vector3 s3 = ir3 * t1 * (cos_a1 * cos_a3 - cos_a2) / denominator;
+  const Vector3 sc = -s1 - s2 - s3;
 
   return std::make_tuple(sc, s1, s2, s3);
 }
@@ -299,7 +298,7 @@ Matrix wilson_matrix(
     const std::vector<connectivity::Angle>& angles = {},
     const std::vector<connectivity::Dihedral>& dihedrals = {},
     const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles = {},
-              const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends = {}) {
+    const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends = {}) {
   const std::size_t n_atoms{linalg::size<Vector>(x_cartesian) / 3};
 
   const std::size_t n_irc{bonds.size() + angles.size() + dihedrals.size() +
@@ -398,7 +397,8 @@ Matrix wilson_matrix(
   }
 
   // Populate B matrix's rows corresponding to out of plane bends
-  offset = bonds.size() + angles.size() + dihedrals.size() + linear_angles.size();
+  offset =
+      bonds.size() + angles.size() + dihedrals.size() + linear_angles.size();
   for (std::size_t i{0}; i < out_of_plane_bends.size(); i++) {
     auto bend = out_of_plane_bends[i];
 
