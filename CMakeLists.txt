@@ -13,8 +13,8 @@ endif(NOT CMAKE_BUILD_TYPE)
 # | LANGUAGE SETTINGS |
 # + ----------------- +
 
-# C++11
-set(CMAKE_CXX_STANDARD 11)
+# C++14
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -27,7 +27,7 @@ add_compile_options(-Wall) # DON'T USE
 option(COVERAGE "Use code coverage if compiler is Clang" OFF)
 
 if(COVERAGE)
-    set(COVERAGE_COMPILE_FLAGS "--coverage -g -O0 -fno-inline")
+    set(COVERAGE_COMPILE_FLAGS "--coverage -g -O0 -fno-inline -fno-inline-small-functions -fno-default-inline")
     set(COVERAGE_LINK_FLAGS    "--coverage")
 
     message("-- Code coverage enabled: ${COVERAGE_COMPILE_FLAGS}")
@@ -93,7 +93,7 @@ if(WITH_ARMA)
 elseif(WITH_EIGEN)
     find_package(
         Eigen3
-        3.2
+        3.0
         REQUIRED
     )
 

@@ -24,6 +24,11 @@ add_executable( test_mathtools mathtools_test.cpp)
 target_link_libraries( test_mathtools irc catch_defined)
 add_test( UNITTEST_mathtools ${CMAKE_BINARY_DIR}/bin/test_mathtools )
 
+# linalg
+add_executable( test_linalg linalg_test.cpp)
+target_link_libraries( test_linalg irc catch_defined)
+add_test( UNITTEST_linalg ${CMAKE_BINARY_DIR}/bin/test_linalg )
+
 # periodic_table
 add_executable( test_periodic_table periodic_table_test.cpp)
 target_link_libraries( test_periodic_table irc catch_defined)

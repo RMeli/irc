@@ -47,6 +47,25 @@ matrix:
         - CXX=c++-7
         - LIBLA=arma
 
+#    - os: linux
+#      dist: xenial
+#      addons:
+#        apt:
+#          sources:
+#            - ubuntu-toolchain-r-test
+#          packages:
+#            - liblapack-dev
+#            - libblas-dev
+#            - libboost-dev
+#            - libeigen3-dev
+#            - g++-7
+#            - lcov
+#          update: true
+#      env:
+#        - CC=gcc-7
+#        - CXX=c++-7
+#        - LIBLA=eigen
+
 script:
   - bash .travis/build.sh
 

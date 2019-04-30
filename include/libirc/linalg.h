@@ -59,12 +59,14 @@ std::size_t n_cols(const T& a) {
 
 /// Norm of a given vector or matrix
 ///
+/// 2-norm for both vectors and matrices
+///
 /// \tparam T
 /// \return Norm of \param a
 template<typename T>
 double norm(const T& a) {
 #ifdef HAVE_ARMA
-  return arma::norm(a);
+  return arma::norm(a, "fro");
 #elif HAVE_EIGEN3
   return a.norm();
 #else
@@ -77,7 +79,7 @@ double norm(const T& a) {
 /// \tparam T
 /// \return Normalised version of \param a
 template<typename T>
-T normalise(const T& a) {
+T normalize(const T& a) {
 #ifdef HAVE_ARMA
   return arma::normalise(a);
 #elif HAVE_EIGEN3
@@ -93,8 +95,8 @@ T normalise(const T& a) {
 /// \param a Vector
 /// \param b Vector
 /// \return Dot product between \param a and \param b
-template<typename T>
-double dot(const T& a, const T& b) {
+template<typename Vector>
+double dot(const Vector& a, const Vector& b) {
 #ifdef HAVE_ARMA
   return arma::dot(a, b);
 #elif HAVE_EIGEN3

@@ -1048,7 +1048,6 @@ std::vector<Angle> all_angles(const Matrix& distance_m) {
 
   std::vector<Angle> angs;
 
-  double a{0};
   for (std::size_t j{0}; j < n_rows; j++) {
     for (std::size_t i{0}; i < j; i++) {
 
@@ -1125,9 +1124,10 @@ dihedrals(std::size_t i, std::size_t j, const Matrix& distance) {
 /// \param molecule Molecule
 /// \return List of dihedral angles
 template<typename Vector3, typename Matrix>
-std::vector<Dihedral> dihedrals(const Matrix& distance_m,
-                                const molecule::Molecule<Vector3>& molecule,
-                                double epsilon = 1.e-6) {
+std::vector<Dihedral>
+dihedrals(const Matrix& distance_m,
+          const molecule::Molecule<Vector3>& molecule,
+          const double linear_angle = tools::constants::quasi_linear_angle) {
 
   using boost::math::iround;
 
@@ -1135,11 +1135,6 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
 
   std::vector<Dihedral> dih;
 
-  // Declare temporary list of dihedrals
-  std::vector<Dihedral> D;
-
-  double a1{0}, a2{0};
-  bool linear{false};
   for (std::size_t j{0}; j < n_atoms; j++) {
     for (std::size_t i{0}; i < j; i++) {
 
@@ -1148,29 +1143,27 @@ std::vector<Dihedral> dihedrals(const Matrix& distance_m,
       // happen when a pentagon is present (i.e. in caffeine)
       if (iround(distance_m(i, j)) <= 3) {
 
-        D = dihedrals(i, j, distance_m);
+        const std::vector<Dihedral> D = dihedrals(i, j, distance_m);
 
         for (const auto& dd : D) {
-          a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
-          if (std::abs(a1 - 180) < epsilon) {
-            linear = true;
+          const double a1 = angle<Vector3>({dd.i, dd.j, dd.k}, molecule);
+          if (a1 > linear_angle) {
+            continue;
           }
 
-          a2 = angle<Vector3>({dd.j, dd.k, dd.l}, molecule);
-          if (std::abs(a2 - 180) < epsilon) {
-            linear = true;
+          const double a2 = angle<Vector3>({dd.j, dd.k, dd.l}, molecule);
+          if (a2 > linear_angle) {
+            continue;
           }
 
-          if (!linear) {
-            dih.push_back(dd);
-          }
+          dih.push_back(dd);
         }
       }
     }
   }
 
   // TODO Check if enough coordinates found elsewhere
-
+  
   // Return list of dihedral angles
   return dih;
 }
@@ -1275,8 +1268,8 @@ template<typename Vector3>
 inline std::pair<Vector3, Vector3> orthogonal_axis(const Vector3& d,
                                                    const Vector3& axis) {
 
-  const Vector3 first = linalg::normalise(linalg::cross(d, axis));
-  const Vector3 second = linalg::normalise(linalg::cross(d, first));
+  const Vector3 first = linalg::normalize(linalg::cross(d, axis));
+  const Vector3 second = linalg::normalize(linalg::cross(d, first));
 
   return {first, second};
 }

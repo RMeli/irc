@@ -132,13 +132,11 @@ private:
 template<typename T>
 size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2) {
   size_t n{0};
-
-  for (const auto& e : v2) {
-    // TODO: Change to std::cbegin() and std::cend() with C++14
-    auto iterator = std::find(v1.begin(), v1.end(), e);
-
-    // TODO: Change to std::cend() with C++14
-    if (iterator == v1.cend()) {
+  
+  for(const auto& e : v2){
+    auto iterator = std::find(std::begin(v1), std::end(v1), e);
+  
+    if(iterator == std::cend(v1)){
       v1.push_back(e);
       n++;
     } else {

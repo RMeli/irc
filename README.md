@@ -5,7 +5,7 @@
 [![GitHub license](https://img.shields.io/github/license/RMeli/irc.svg)](https://github.com/RMeli/irc/blob/master/LICENSE)
 [![GitHub top language](https://img.shields.io/github/languages/top/RMeli/irc.svg)](https://isocpp.org/)
 
-**DISCLAMIER:** *IRC is currently under developement. It is integrated in the new quantum chemistry code [entos](https://www.doi.org/10.26434/chemrxiv.7762646.v2), soon to be released.*
+**DISCLAMIER:** *IRC is currently under development. It is integrated in the new quantum chemistry code [entos](https://www.doi.org/10.26434/chemrxiv.7762646.v2), soon to be released.*
 
 IRC is a modern C++ library allowing the determination of internal redundant coordinates (and transformation to and from Cartesian coordinates) for geometry optimization of molecules. The aim of this library is to provide an easy-to-use, flexible and portable implementation of internal redundant coordinates for modern electronic structure codes.
 
@@ -15,15 +15,60 @@ IRC is a modern C++ library allowing the determination of internal redundant coo
 - [Contributions](https://github.com/RMeli/irc#contributions)
 - [Sources](https://github.com/RMeli/irc#sources)
 
+
 ## Compilation and Installation
 
 ### Dependencies
 
-IRC uses the Boost Graph Library ([BGL](http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/index.html)) to determine the connectivity of the molecule. [Boost](http://www.boost.org/) is therefore a requirement for the library to work.
+IRC has the following dependencies:
 
-IRC needs a linear algebra library. Support for [Armadillo](http://arma.sourceforge.net/) and [Eigen](http://eigen.tuxfamily.org) is provided, but other linear algebra libraries can be easily added (see `include/linalg.h`).
+* Boost Graph Library ([BGL](http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/index.html))
+* A linear algebra library ([Armadillo](http://arma.sourceforge.net/) or [Eigen](http://eigen.tuxfamily.org))
+
+[BGL](http://www.boost.org/doc/libs/1_66_0/libs/graph/doc/index.html) functionality is used determine the connectivity of the molecule and therefore the [Boost](http://www.boost.org/) is a requirement for the library to work.
+
+IRC also needs a linear algebra library. [Armadillo](http://arma.sourceforge.net/) and [Eigen](http://eigen.tuxfamily.org) are supported out-of-the-box, but other linear algebra libraries can be easily added.
+
+For standalone installation and testing, IRC also requires [CMake](https://cmake.org/).
+
+#### Install Dependencies on MacOS
+
+Install [Boost](http://www.boost.org/) and [Armadillo](http://arma.sourceforge.net/) with [Homebrew](https://brew.sh/):
+```
+brew install boost armadillo
+```
+
+Install [Boost](http://www.boost.org/) and [Eigen](http://eigen.tuxfamily.org) with [Homebrew](https://brew.sh/):
+```
+brew install boost eigen
+```
+
+Install [Boost](http://www.boost.org/) and [Armadillo](http://arma.sourceforge.net/) with [MacPorts](https://brew.sh/):
+```
+sudo port install boost armadillo
+```
+
+Install [Boost](http://www.boost.org/) and [Eigen](http://eigen.tuxfamily.org) with [MacPorts](https://brew.sh/):
+```
+sudo port install boost eigen3
+```
+
+#### Install Dependencies on Ubuntu
+
+
+Install [Boost](http://www.boost.org/) and [Armadillo](http://arma.sourceforge.net/):
+```
+sudo apt install libboost-dev liblapack-dev libblas-dev libarmadillo-dev
+```
+
+Install [Boost](http://www.boost.org/) and [Eigen](http://eigen.tuxfamily.org):
+```
+sudo apt install libboost-dev liblapack-dev libblas-dev libeigen3-dev
+```
+
 
 ### Build IRC
+
 Debug with Armadillo:
 ```CMake
   mkdir build && cd build
@@ -54,7 +99,7 @@ Release with Eigen:
 
 ### Test
 
-```Shell
+```bash
   make -j test
 ```
 
@@ -96,7 +141,7 @@ The `irc::IRC` class provides an initial guess of the Hessian in redundant inter
 
 ### User-defined internal coordinates
 
-## Tests and code coverage
+## Tests and Code Coverage
 
 ### Catch2
 Tests are written using the multi-paradigm test framework [Catch2](https://github.com/catchorg/Catch2). Catch2 is included as a single header file in `include/catch`.

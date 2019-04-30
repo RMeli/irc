@@ -266,9 +266,6 @@ TEST_CASE("Transformation") {
       cout << "\nNew internal coordinates:\n " << q_irc_new << endl;
     }
 
-    // Compute number of cartesian coordinates
-    std::size_t n_c{3 * molecule.size()};
-
     // Allocate vector for cartesian positions
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
 
@@ -379,9 +376,6 @@ TEST_CASE("Transformation") {
     if (verbose) {
       cout << "\nNew internal coordinates:\n " << q_irc_new << endl;
     }
-
-    // Compute number of cartesian coordinates
-    std::size_t n_c{3 * molecule.size()};
 
     // Allocate vector for cartesian positions
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
@@ -523,9 +517,6 @@ TEST_CASE("Transformation") {
     if (verbose) {
       cout << "\nNew internal coordinates:\n " << q_irc_new << endl;
     }
-
-    // Compute number of cartesian coordinates
-    std::size_t n_c{3 * molecule.size()};
 
     // Allocate vector for cartesian positions
     vec x_c_old{to_cartesian<vec3, vec>(molecule)};
