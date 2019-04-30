@@ -194,9 +194,9 @@ out_of_plane_gradient(const Vector3& vc,
   const Vector3 b2{v2 - vc};
   const Vector3 b3{v3 - vc};
 
-  const Vector3 e1{linalg::normalise(b1)};
-  const Vector3 e2{linalg::normalise(b2)};
-  const Vector3 e3{linalg::normalise(b3)};
+  const Vector3 e1{linalg::normalize(b1)};
+  const Vector3 e2{linalg::normalize(b2)};
+  const Vector3 e3{linalg::normalize(b3)};
 
   const double a1{connectivity::angle(v2, vc, v3)};
   const double a2{connectivity::angle(v3, vc, v1)};
