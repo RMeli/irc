@@ -187,10 +187,10 @@ dihedral_gradient(const Vector3& p1,
  *
  * The gradient contribution \f$ (g_1, g_2, g_3) \f$ is computed at positions
  * \p p1, \p p2 and \p p3. These are formed by first computing the standard
- * angle gradients \f$ (g_1, g_{2a}, g_{0a}) \f$ at the positions
- * \f$ (p1, p2, p2+d_{orth}) \f$ and \f$ (g_{0b}, g_{2b}, g_3) \f$ at the
+ * angle gradients \f$ (v_1, v_{2}, v_\text{Orth}) \f$ at the positions
+ * \f$ (p1, p2, p2+d_{orth}) \f$ and \f$ (v_\text{Orth}, v_2, v_3) \f$ at the
  * positions \f$ (p2+d_{orth}, p2, p3) \f$. The linear angle gradient is then
- * formed as \f$ (g_1, g_{2a}+g_{2b}, g_3) \f$
+ * formed as \f$ (v_1, -(v_1 + v_3), v_3) \f$
  *
  * \tparam Vector3
  * \param p1 Point 1
@@ -208,14 +208,14 @@ linear_angle_gradient(const Vector3& p1,
                       const Vector3& orthogonal_direction,
                       double tolerance = 1e-6) {
 
-  Vector3 v1, v2, v2add, v3, vOrth;
+  Vector3 v1, v2, v3, vOrth;
 
-  const Vector3 p0 = p2 + orthogonal_direction;
+  const Vector3 pOrth = p2 + orthogonal_direction;
 
-  std::tie(v1, v2, vOrth) = angle_gradient(p1, p2, p0, tolerance);
-  std::tie(vOrth, v2add, v3) = angle_gradient(p0, p2, p3, tolerance);
+  std::tie(v1, v2, vOrth) = angle_gradient(p1, p2, pOrth, tolerance);
+  std::tie(vOrth, v2, v3) = angle_gradient(pOrth, p2, p3, tolerance);
 
-  return std::make_tuple(v1, v2 + v2add, v3);
+  return std::make_tuple(v1, -(v1 + v3), v3);
 }
 
 /// Function computing Wilson's \f$\mathbf{B}\f$ matrix from a set of internal
