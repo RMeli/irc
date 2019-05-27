@@ -38,7 +38,8 @@ template<typename Vector3, typename Vector, typename Matrix>
 std::tuple<std::vector<connectivity::Bond>,
            std::vector<connectivity::Angle>,
            std::vector<connectivity::Dihedral>,
-           std::vector<connectivity::LinearAngle<Vector3>>>
+           std::vector<connectivity::LinearAngle<Vector3>>,
+           std::vector<connectivity::OutOfPlaneBend>>
 badla_from_molecule(const molecule::Molecule<Vector3>& mol) {
 
   using namespace connectivity;
@@ -64,8 +65,11 @@ badla_from_molecule(const molecule::Molecule<Vector3>& mol) {
   // Compute linear angles
   std::vector<LinearAngle<Vector3>> LA{linear_angles(dist, mol)};
 
+  // Compute out of plane bends
+  std::vector<OutOfPlaneBend> OoPB{out_of_plane_bends(dist, mol)};
+
   // Return bonds, angles and dihedral angles
-  return std::make_tuple(B, A, D, LA);
+  return std::make_tuple(B, A, D, LA, OoPB);
 }
 
 TEST_CASE("Bonds, angles and dihedral angles") {
@@ -163,16 +167,14 @@ TEST_CASE("Connectivity for compressed H2") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
-  // Check number of bonds
   CHECK(B.size() == 1);
-
-  // Check number of angles
   CHECK(A.empty());
-
-  // Check number of dihedral angles
   CHECK(D.empty());
+  CHECK(LA.empty());
+  CHECK(OoPB.empty());
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -206,16 +208,14 @@ TEST_CASE("Connectivity for stretched H2") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
-  // Check number of bonds
   CHECK(B.size() == 1);
-
-  // Check number of angles
   CHECK(A.empty());
-
-  // Check number of dihedral angles
   CHECK(D.empty());
+  CHECK(LA.empty());
+  CHECK(OoPB.empty());
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -258,16 +258,14 @@ TEST_CASE("Connectivity for compressed H2O") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
-  // Check number of bonds
   CHECK(B.size() == 2);
-
-  // Check number of angles
   CHECK(A.size() == 1);
-
-  // Check number of dihedral angles
   CHECK(D.empty());
+  CHECK(LA.empty());
+  CHECK(OoPB.empty());
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -316,16 +314,14 @@ TEST_CASE("Connectivity for stretched H2O") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
-  // Check number of bonds
   CHECK(B.size() == 2);
-
-  // Check number of angles
   CHECK(A.size() == 1);
-
-  // Check number of dihedral angles
   CHECK(D.empty());
+  CHECK(LA.empty());
+  CHECK(OoPB.empty());
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -366,7 +362,8 @@ TEST_CASE("Connectivity for compressed H2O2") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 3);
@@ -431,7 +428,8 @@ TEST_CASE("Connectivity for stretched H2O2") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 3);
@@ -496,16 +494,14 @@ TEST_CASE("Connectivity for two stretched H2 molecules") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
-  // Check number of bonds
   CHECK(B.size() == 3);
-
-  // Check number of angles
   CHECK(A.size() == 2);
-
-  // Check number of dihedral angles
   CHECK(D.size() == 1);
+  CHECK(LA.size() == 0);
+  CHECK(OoPB.size() == 0);
 
   // Compute IRC
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
@@ -563,7 +559,8 @@ TEST_CASE("Connectivity for bent water dimer") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   // Check number of bonds
   CHECK(B.size() == 5);
@@ -645,7 +642,6 @@ TEST_CASE("Linear angles") {
   using namespace molecule;
   using namespace connectivity;
 
-  // Define H2O2 molecule
   Molecule<vec3> molecule{{"C", {0.0, 1.0, 2.0}},
                           {"C", {2.0, 1.0, 2.0}},
                           {"C", {4.0, 1.0, 2.0}},
@@ -659,15 +655,17 @@ TEST_CASE("Linear angles") {
   std::vector<Angle> A;
   std::vector<Dihedral> D;
   std::vector<LinearAngle<vec3>> LA;
-  std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+  std::vector<OutOfPlaneBend> OoPB;
+  std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
   CHECK(B.size() == 3);
   CHECK(A.size() == 0);
   CHECK(D.size() == 0);
   CHECK(LA.size() == 2 * 2);
+  CHECK(OoPB.size() == 0);
 
   vec q{connectivity::cartesian_to_irc<vec3, vec>(
-      to_cartesian<vec3, vec>(molecule), B, A, D, LA)};
+      to_cartesian<vec3, vec>(molecule), B, A, D, LA, OoPB)};
 
   REQUIRE(linalg::size<vec>(q) == 7);
 
@@ -689,12 +687,14 @@ TEST_CASE("Ignore invalid dihedral") {
     std::vector<Angle> A;
     std::vector<Dihedral> D;
     std::vector<LinearAngle<vec3>> LA;
-    std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+    std::vector<OutOfPlaneBend> OoPB;
+    std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
     CHECK(B.size() == 3);
     CHECK(A.size() == 0);
     CHECK(D.size() == 0);
     CHECK(LA.size() == 2 * 2);
+    CHECK(OoPB.size() == 0);
   }
 
   SECTION("Single bend molecule") {
@@ -705,12 +705,14 @@ TEST_CASE("Ignore invalid dihedral") {
     std::vector<Angle> A;
     std::vector<Dihedral> D;
     std::vector<LinearAngle<vec3>> LA;
-    std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+    std::vector<OutOfPlaneBend> OoPB;
+    std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
     CHECK(B.size() == 3);
     CHECK(A.size() == 1);
     CHECK(D.size() == 0);
     CHECK(LA.size() == 2 * 1);
+    CHECK(OoPB.size() == 0);
   }
 
   SECTION("Two bends molecule") {
@@ -721,12 +723,14 @@ TEST_CASE("Ignore invalid dihedral") {
     std::vector<Angle> A;
     std::vector<Dihedral> D;
     std::vector<LinearAngle<vec3>> LA;
-    std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(molecule);
+    std::vector<OutOfPlaneBend> OoPB;
+    std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(molecule);
 
     CHECK(B.size() == 3);
     CHECK(A.size() == 2);
     CHECK(D.size() == 1);
     CHECK(LA.size() == 0);
+    CHECK(OoPB.size() == 0);
   }
 }
 
@@ -831,11 +835,13 @@ TEST_CASE("Connectivity of molecule database") {
     std::vector<Angle> A;
     std::vector<Dihedral> D;
     std::vector<LinearAngle<vec3>> LA;
-    std::tie(B, A, D, LA) = badla_from_molecule<vec3, vec, mat>(mol);
+    std::vector<OutOfPlaneBend> OoPB;
+    std::tie(B, A, D, LA, OoPB) = badla_from_molecule<vec3, vec, mat>(mol);
 
     CHECK(B.size() == molecule_parameters.n_bonds);
     CHECK(A.size() == molecule_parameters.n_angles);
     CHECK(D.size() == molecule_parameters.n_dihedrals);
     CHECK(LA.size() == molecule_parameters.n_linear_angles);
+    CHECK(OoPB.size() == 0);
   }
 }
