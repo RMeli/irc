@@ -63,7 +63,7 @@ matrix:
           update: true
       env:
         - CC=gcc-7
-        - CXX=c++-7
+        - CXX=g++-7
         - LIBLA=eigen
 
 script:
