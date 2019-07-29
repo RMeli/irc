@@ -812,18 +812,19 @@ TEST_CASE("Connectivity of molecule database") {
     std::size_t n_angles;
     std::size_t n_dihedrals;
     std::size_t n_linear_angles;
+    std::size_t n_out_of_plane_bends;
   };
 
   auto results =
-      std::vector<ConnectivityResult>{{"carbon_dioxide.xyz", 2, 0, 0, 2},
-                                      {"hydrogen_peroxide.xyz", 3, 2, 1, 0},
-                                      {"ethanol.xyz", 8, 13, 12, 0},
-                                      {"glycerol.xyz", 13, 21, 27, 0},
-                                      {"octane.xyz", 25, 48, 63, 0},
-                                      {"phenol.xyz", 13, 19, 26, 0},
-                                      {"indene.xyz", 18, 30, 44, 0},
-                                      {"toluene.xyz", 15, 24, 30, 0},
-                                      {"caffeine.xyz", 25, 43, 54, 0}};
+      std::vector<ConnectivityResult>{{"carbon_dioxide.xyz", 2, 0, 0, 2, 0},
+                                      {"hydrogen_peroxide.xyz", 3, 2, 1, 0, 0},
+                                      {"ethanol.xyz", 8, 13, 12, 0, 0},
+                                      {"glycerol.xyz", 13, 21, 27, 0, 0},
+                                      {"octane.xyz", 25, 48, 63, 0, 0},
+                                      {"phenol.xyz", 13, 19, 26, 0, 6},
+                                      {"indene.xyz", 18, 30, 44, 0, 8},
+                                      {"toluene.xyz", 15, 24, 30, 0, 6},
+                                      {"caffeine.xyz", 25, 43, 54, 0, 6}};
 
   for (const auto& molecule_parameters : results) {
     CAPTURE(molecule_parameters.filename);
@@ -842,6 +843,6 @@ TEST_CASE("Connectivity of molecule database") {
     CHECK(A.size() == molecule_parameters.n_angles);
     CHECK(D.size() == molecule_parameters.n_dihedrals);
     CHECK(LA.size() == molecule_parameters.n_linear_angles);
-    CHECK(OoPB.size() == 0);
+    CHECK(OoPB.size() == molecule_parameters.n_out_of_plane_bends);
   }
 }
