@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <exception>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -117,6 +118,8 @@ std::string inline to_string(const LinearAngleTag tag) {
       return "First";
     case LinearAngleTag::Second:
       return "Second";
+    default:
+      throw std::invalid_argument("Invalid tag.");
   }
 }
 
