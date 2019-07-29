@@ -83,6 +83,7 @@ IrcToCartesianResult<Vector> irc_to_cartesian(
     const std::vector<connectivity::Angle>& angles,
     const std::vector<connectivity::Dihedral>& dihedrals,
     const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles,
+    const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends,
     std::size_t max_iters = 25,
     double tolerance = 1e-6) {
 
@@ -102,7 +103,7 @@ IrcToCartesianResult<Vector> irc_to_cartesian(
 
   // Wilson's B matrix
   const Matrix B{wilson::wilson_matrix<Vector3, Vector, Matrix>(
-      x_c, bonds, angles, dihedrals, linear_angles)};
+      x_c, bonds, angles, dihedrals, linear_angles, out_of_plane_bends)};
 
   // Transpose of B
   const Matrix iB{linalg::pseudo_inverse(B)};
@@ -129,7 +130,7 @@ IrcToCartesianResult<Vector> irc_to_cartesian(
 
     // Compute new internal coordinates
     q_new = connectivity::cartesian_to_irc<Vector3, Vector>(
-        x_c, bonds, angles, dihedrals, linear_angles);
+        x_c, bonds, angles, dihedrals, linear_angles, out_of_plane_bends);
 
     // Restrain dihedral angle on the interval (-pi,pi]
     for (std::size_t i{offset}; i < offset + dihedrals.size(); i++) {

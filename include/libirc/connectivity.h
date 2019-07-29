@@ -203,6 +203,50 @@ public:
   bool operator!=(const Dihedral& d) const { return !(*this == d); }
 };
 
+/// Quadruplet of atoms forming an out of plane bend
+///
+/// Atoms are represented by their index in a list of coordinates.
+class OutOfPlaneBend {
+public:
+  OutOfPlaneBend(const std::size_t& c_,
+                 const std::size_t& i_,
+                 const std::size_t& j_,
+                 const std::size_t& k_,
+                 const Constraint& constraint_ = Constraint::unconstrained)
+    : c(c_), i(i_), j(j_), k(k_), constraint(constraint_) {
+    if (c == i || c == j || c == k || i == j || i == k || j == k) {
+      throw std::logic_error("OutOfPlaneBend error.");
+    }
+
+    using std::swap;
+    // Sort such that i <= j <= k
+    if (i > k) {
+      swap(i, k);
+    }
+
+    if (i > j) {
+      swap(i, j);
+    }
+
+    if (j > k) {
+      swap(j, k);
+    }
+  }
+
+  std::size_t c; ///<! Central atom
+  std::size_t i;
+  std::size_t j;
+  std::size_t k;
+
+  Constraint constraint{Constraint::unconstrained};
+
+  bool operator==(const OutOfPlaneBend& d) const {
+    return c == d.c && i == d.i && j == d.j && k == d.k;
+  }
+
+  bool operator!=(const OutOfPlaneBend& d) const { return !(*this == d); }
+};
+
 /// Compute the distance between two points
 ///
 /// \tparam Vector3
@@ -447,6 +491,65 @@ inline double dihedral(const Dihedral& d,
   const Vector3 d4{molecule[d.l].position};
 
   return dihedral(d1, d2, d3, d4);
+}
+
+/// Compute dihedral angle formed by four points
+template<typename Vector3>
+double out_of_plane_angle(const Vector3& vc,
+                          const Vector3& v1,
+                          const Vector3& v2,
+                          const Vector3& v3) {
+  const Vector3 b1{v1 - vc};
+  const Vector3 b2{v2 - vc};
+  const Vector3 b3{v3 - vc};
+
+  const Vector3 e1{linalg::normalize(b1)};
+  const Vector3 e2{linalg::normalize(b2)};
+  const Vector3 e3{linalg::normalize(b3)};
+
+  const double a1{angle(v2, vc, v3)};
+  const Vector3 t1{linalg::cross(e2, e3) / std::sin(a1)};
+
+  return std::asin(linalg::dot(t1, e1));
+}
+
+/// Compute dihedral angle \param d, given cartesian coordinates
+///
+/// Given a (linear) vector of cartesian atomic coordinates \param x_cartesian
+/// and a bond \param b, the corresponding bond length is computed.
+template<typename Vector3, typename Vector>
+double out_of_plane_angle(const OutOfPlaneBend& d, const Vector& x_cartesian) {
+  // Temporary positions
+  const Vector3 dc{x_cartesian(3 * d.c + 0),
+                   x_cartesian(3 * d.c + 1),
+                   x_cartesian(3 * d.c + 2)};
+
+  const Vector3 d1{x_cartesian(3 * d.i + 0),
+                   x_cartesian(3 * d.i + 1),
+                   x_cartesian(3 * d.i + 2)};
+
+  const Vector3 d2{x_cartesian(3 * d.j + 0),
+                   x_cartesian(3 * d.j + 1),
+                   x_cartesian(3 * d.j + 2)};
+
+  const Vector3 d3{x_cartesian(3 * d.k + 0),
+                   x_cartesian(3 * d.k + 1),
+                   x_cartesian(3 * d.k + 2)};
+
+  return out_of_plane_angle(dc, d1, d2, d3);
+}
+
+/// Compute dihedral angle \param d, given a molecule
+template<typename Vector3>
+double out_of_plane_angle(const OutOfPlaneBend& d,
+                          const molecule::Molecule<Vector3>& molecule) {
+
+  const Vector3 dc{molecule[d.c].position};
+  const Vector3 d1{molecule[d.i].position};
+  const Vector3 d2{molecule[d.j].position};
+  const Vector3 d3{molecule[d.k].position};
+
+  return out_of_plane_angle(dc, d1, d2, d3);
 }
 
 /// Compute all distances between atoms in \param molecule
@@ -1059,8 +1162,81 @@ dihedrals(const Matrix& distance_m,
     }
   }
 
+  // TODO Check if enough coordinates found elsewhere
+
   // Return list of dihedral angles
   return dih;
+}
+
+template<typename Vector3, typename Matrix>
+std::vector<OutOfPlaneBend> out_of_plane_bends(
+    const Matrix& distance_m,
+    const molecule::Molecule<Vector3>& molecule,
+    const double angle_threshold = 10.0 * tools::conversion::deg_to_rad) {
+
+  using boost::math::iround;
+
+  const std::size_t n_atoms{molecule.size()};
+
+  std::vector<OutOfPlaneBend> bends;
+
+  for (std::size_t c{0}; c < n_atoms; c++) {
+    std::vector<size_t> bonded_to_c;
+
+    for (std::size_t i{0}; i < n_atoms; i++) {
+      if (iround(distance_m(i, c)) == 1) {
+        bonded_to_c.push_back(i);
+      }
+    }
+    const size_t n_bonded = bonded_to_c.size();
+    if (n_bonded < 3) {
+      continue;
+    }
+
+    // determine all set of 3 others with no linear angles
+    for (std::size_t b_i{0}; b_i < n_bonded; b_i++) {
+      const size_t i = bonded_to_c[b_i];
+      for (std::size_t b_j{0}; b_j < b_i; b_j++) {
+        const size_t j = bonded_to_c[b_j];
+
+        // Check i-c-j angle not linear
+        {
+          const double a_icj = angle<Vector3>(Angle(i, c, j), molecule);
+          if (a_icj > tools::constants::quasi_linear_angle) {
+            continue;
+          }
+        }
+        for (std::size_t b_k{0}; b_k < b_j; b_k++) {
+          const size_t k = bonded_to_c[b_k];
+          // Check i-c-k angle not linear
+          {
+            const double a_ick = angle<Vector3>(Angle(i, c, k), molecule);
+            if (a_ick > tools::constants::quasi_linear_angle) {
+              continue;
+            }
+          }
+
+          // Check j-c-k angle not linear
+          {
+            const double a_jck = angle<Vector3>(Angle(j, c, k), molecule);
+            if (a_jck > tools::constants::quasi_linear_angle) {
+              continue;
+            }
+          }
+
+          const OutOfPlaneBend bend = OutOfPlaneBend(c, i, j, k);
+          const double angle = connectivity::out_of_plane_angle(bend, molecule);
+          if (std::abs(angle) > angle_threshold) {
+            continue;
+          }
+          // No linear angles in the out-of-plane bend
+          bends.push_back(bend);
+        }
+      }
+    }
+  }
+
+  return bends;
 }
 
 /// \brief Determines where x, y or z is most orthogonal to direction \p d.
@@ -1169,15 +1345,18 @@ Vector cartesian_to_irc(
     const std::vector<connectivity::Bond>& bonds,
     const std::vector<connectivity::Angle>& angles,
     const std::vector<connectivity::Dihedral>& dihedrals,
-    const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles) {
+    const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles,
+    const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends) {
 
   const auto n_bonds = bonds.size();
   const auto n_angles = angles.size();
   const auto n_dihedrals = dihedrals.size();
   const auto n_linear_angles = linear_angles.size();
+  const auto n_bends = out_of_plane_bends.size();
 
   // Number of internal redundant coordinates
-  const auto n_irc = n_bonds + n_angles + n_dihedrals + n_linear_angles;
+  const auto n_irc =
+      n_bonds + n_angles + n_dihedrals + n_linear_angles + n_bends;
 
   // Allocate vector for internal redundant coordinates
   Vector q_irc{linalg::zeros<Vector>(n_irc)};
@@ -1206,6 +1385,13 @@ Vector cartesian_to_irc(
   offset = n_bonds + n_angles + n_dihedrals;
   for (std::size_t i{0}; i < n_linear_angles; i++) {
     q_irc(i + offset) = angle<Vector3, Vector>(linear_angles[i], x_c);
+  }
+
+  // Compute out of plane bends
+  offset = n_bonds + n_angles + n_dihedrals + n_linear_angles;
+  for (std::size_t i{0}; i < n_bends; i++) {
+    q_irc(i + offset) =
+        out_of_plane_angle<Vector3, Vector>(out_of_plane_bends[i], x_c);
   }
 
   // Return internal redundant coordinates

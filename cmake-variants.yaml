@@ -1,0 +1,21 @@
+buildType:
+  default: debug
+  choices:
+    debug:
+      short: Debug
+      buildType: Debug
+    release:
+      short: Release
+      buildType: Release
+
+linAlg:
+  default: arma
+  choices:
+    arma:
+      short: Armadillo
+      settings:
+        WITH_ARMA: yes
+    eigen:
+      short: Eigen3
+      settings:
+        WITH_EIGEN: yes

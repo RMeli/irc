@@ -64,4 +64,10 @@ TEST_CASE("Print molecule") {
 
   // Print dihedrals to std::cout
   print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(mol), D);
+
+  // Compute out of plane bends
+  const std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, mol)};
+
+  // Print dihedrals to std::cout
+  print_out_of_plane_bends<vec3, vec>(to_cartesian<vec3, vec>(mol), OOPB);
 }

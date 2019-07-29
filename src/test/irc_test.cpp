@@ -164,6 +164,7 @@ TEST_CASE("Internal Redundant Coordinates") {
       CHECK(d == target);
     }
   }
+
   /*
   SECTION("Constraints") {
     // Define formaldehyde molecule (CH2O)

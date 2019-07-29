@@ -14,7 +14,7 @@ matrix:
           - armadillo
           - lcov
           update: true
-    
+
     - os: osx
       osx_image: xcode10.1
       env:
@@ -27,7 +27,7 @@ matrix:
           - eigen
           - lcov
           update: true
-          
+
     - os: linux
       dist: xenial
       addons:

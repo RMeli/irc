@@ -20,7 +20,9 @@ public:
   IRC(const molecule::Molecule<Vector3>& molecule = {},
       const std::vector<connectivity::Bond>& mybonds = {},
       const std::vector<connectivity::Angle>& myangles = {},
-      const std::vector<connectivity::Dihedral>& mydihedrals = {});
+      const std::vector<connectivity::Dihedral>& mydihedrals = {},
+      const std::vector<connectivity::OutOfPlaneBend>& myout_of_plane_bends =
+          {});
 
   /// Compute initial projected inverted Hessian estimate
   ///
@@ -79,9 +81,11 @@ public:
 
   std::vector<connectivity::Angle> get_angles() const;
 
+  std::vector<connectivity::Dihedral> get_dihedrals() const;
+
   std::vector<connectivity::LinearAngle<Vector3>> get_linear_angles() const;
 
-  std::vector<connectivity::Dihedral> get_dihedrals() const;
+  std::vector<connectivity::OutOfPlaneBend> get_out_of_plane_bends() const;
 
 private:
   /// List of bonds
@@ -93,8 +97,11 @@ private:
   /// List of dihedral angles
   std::vector<connectivity::Dihedral> dihedrals;
 
-  /// List of lienar angles
+  /// List of linear angles
   std::vector<connectivity::LinearAngle<Vector3>> linear_angles;
+
+  /// List of out of plane bends
+  std::vector<connectivity::OutOfPlaneBend> out_of_plane_bends;
 
   /// Number of internal coordinates
   std::size_t n_irc;
@@ -126,11 +133,11 @@ private:
 template<typename T>
 size_t add_without_duplicates(std::vector<T>& v1, const std::vector<T>& v2) {
   size_t n{0};
-  
-  for(const auto& e : v2){
+
+  for (const auto& e : v2) {
     auto iterator = std::find(std::begin(v1), std::end(v1), e);
-  
-    if(iterator == std::cend(v1)){
+
+    if (iterator == std::cend(v1)) {
       v1.push_back(e);
       n++;
     } else {
@@ -147,9 +154,9 @@ boost::optional<Matrix>
 constraints(const std::vector<connectivity::Bond>& B,
             const std::vector<connectivity::Angle>& A,
             const std::vector<connectivity::Dihedral>& D,
-            const std::vector<connectivity::LinearAngle<Vector3>>& LA) {
-  std::size_t n{B.size() + A.size() + D.size() + LA.size()};
-
+            const std::vector<connectivity::LinearAngle<Vector3>>& LA,
+            const std::vector<connectivity::OutOfPlaneBend>& OOPB) {
+  std::size_t n{B.size() + A.size() + D.size() + LA.size() + OOPB.size()};
   Matrix C{linalg::zeros<Matrix>(n, n)};
 
   bool constrained{false};
@@ -186,6 +193,14 @@ constraints(const std::vector<connectivity::Bond>& B,
     }
   }
 
+  offset = B.size() + A.size() + D.size() + LA.size();
+  for (std::size_t i{0}; i < OOPB.size(); i++) {
+    if (OOPB[i].constraint == connectivity::Constraint::constrained) {
+      C(i + offset, i + offset) = 1;
+      constrained = true;
+    }
+  }
+
   return constrained ? boost::optional<Matrix>(C) : boost::none;
 }
 
@@ -194,7 +209,8 @@ IRC<Vector3, Vector, Matrix>::IRC(
     const molecule::Molecule<Vector3>& molecule,
     const std::vector<connectivity::Bond>& mybonds,
     const std::vector<connectivity::Angle>& myangles,
-    const std::vector<connectivity::Dihedral>& mydihedrals) {
+    const std::vector<connectivity::Dihedral>& mydihedrals,
+    const std::vector<connectivity::OutOfPlaneBend>& myout_of_plane_bends) {
 
   // Number of cartesian coordinates
   n_c = 3 * molecule.size();
@@ -241,9 +257,18 @@ IRC<Vector3, Vector, Matrix>::IRC(
     add_without_duplicates(linear_angles, mylinearangles);
   }
 
+  // Compute dihedrals
+  out_of_plane_bends = connectivity::out_of_plane_bends(distance_m, molecule);
+
+  // Add user-defined out of plane bends
+  if (!myout_of_plane_bends
+           .empty()) { // For CodeCov, can be removed after tests
+    add_without_duplicates(out_of_plane_bends, myout_of_plane_bends);
+  }
+
   // Count the number of internal coordinates
-  n_irc =
-      bonds.size() + angles.size() + dihedrals.size() + linear_angles.size();
+  n_irc = bonds.size() + angles.size() + dihedrals.size() +
+          linear_angles.size() + out_of_plane_bends.size();
 
   // Store initial Wilson's B matrix
   B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
@@ -251,10 +276,12 @@ IRC<Vector3, Vector, Matrix>::IRC(
       bonds,
       angles,
       dihedrals,
-      linear_angles);
+      linear_angles,
+      out_of_plane_bends);
 
   // Compute (optional) constraint matrix
-  C = constraints<Matrix>(bonds, angles, dihedrals, linear_angles);
+  C = constraints<Matrix>(
+      bonds, angles, dihedrals, linear_angles, out_of_plane_bends);
 
   // Compute projector P
   if (C) {
@@ -391,7 +418,7 @@ Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const {
   }
 
   return connectivity::cartesian_to_irc<Vector3, Vector>(
-      x_c, bonds, angles, dihedrals, linear_angles);
+      x_c, bonds, angles, dihedrals, linear_angles, out_of_plane_bends);
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
@@ -414,20 +441,26 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
   }
 
   const auto itc_result =
-      transformation::irc_to_cartesian<Vector3, Vector, Matrix>(q_irc_old,
-                                                                dq_irc,
-                                                                x_c_old,
-                                                                bonds,
-                                                                angles,
-                                                                dihedrals,
-                                                                linear_angles,
-                                                                max_iters,
-                                                                tolerance);
+      transformation::irc_to_cartesian<Vector3, Vector, Matrix>(
+          q_irc_old,
+          dq_irc,
+          x_c_old,
+          bonds,
+          angles,
+          dihedrals,
+          linear_angles,
+          out_of_plane_bends,
+          max_iters,
+          tolerance);
 
   // TODO: This computation can be avoided; B is computed in irc_to_cartesian
   // Update Wilson's B matrix
-  B = wilson::wilson_matrix<Vector3, Vector, Matrix>(
-      itc_result.x_c, bonds, angles, dihedrals, linear_angles);
+  B = wilson::wilson_matrix<Vector3, Vector, Matrix>(itc_result.x_c,
+                                                     bonds,
+                                                     angles,
+                                                     dihedrals,
+                                                     linear_angles,
+                                                     out_of_plane_bends);
 
   // Update projector P
   if (C) {
@@ -462,6 +495,12 @@ template<typename Vector3, typename Vector, typename Matrix>
 std::vector<connectivity::LinearAngle<Vector3>>
 IRC<Vector3, Vector, Matrix>::get_linear_angles() const {
   return linear_angles;
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+std::vector<connectivity::OutOfPlaneBend>
+IRC<Vector3, Vector, Matrix>::get_out_of_plane_bends() const {
+  return out_of_plane_bends;
 }
 
 } // namespace irc

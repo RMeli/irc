@@ -4,22 +4,18 @@ build-*/
 build_*/
 debug/
 release/
+cmake-build-*/
+
+# editors
+*~
+*.swp
+.idea
+.vscode
 
 # Doxygen
 doc/
 
 # macOS
 .DS_Store
-
-# vim
-*~
-*.swp
-
-# CLion
-.idea/
-cmake-build-*/
-
-# vscode
-.vscode
 
 
