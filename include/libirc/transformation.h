@@ -75,7 +75,7 @@ struct IrcToCartesianResult {
 /// Since Cartesian coordinates are rectilinear and the internal coordinates are
 /// curvilinear, the transformation must be done iteratively.
 template<typename Vector3, typename Vector, typename Matrix>
-IrcToCartesianResult<Vector> irc_to_cartesian(
+IrcToCartesianResult<Vector> irc_to_cartesian_single(
     const Vector& q_irc_old,
     const Vector& dq_irc,
     const Vector& x_c_old,
@@ -84,8 +84,8 @@ IrcToCartesianResult<Vector> irc_to_cartesian(
     const std::vector<connectivity::Dihedral>& dihedrals,
     const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles,
     const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends,
-    std::size_t max_iters = 25,
-    double tolerance = 1e-6) {
+    const std::size_t max_iters = 25,
+    const double tolerance = 1e-6) {
 
   bool converged{false};
 
@@ -149,6 +149,65 @@ IrcToCartesianResult<Vector> irc_to_cartesian(
   }
 
   return {x_c, converged, n_iterations};
+}
+
+template<typename Vector3, typename Vector, typename Matrix>
+IrcToCartesianResult<Vector> irc_to_cartesian(
+    const Vector& q_irc_old,
+    const Vector& dq_irc,
+    const Vector& x_c_old,
+    const std::vector<connectivity::Bond>& bonds,
+    const std::vector<connectivity::Angle>& angles,
+    const std::vector<connectivity::Dihedral>& dihedrals,
+    const std::vector<connectivity::LinearAngle<Vector3>>& linear_angles,
+    const std::vector<connectivity::OutOfPlaneBend>& out_of_plane_bends,
+    const std::size_t max_iters = 25,
+    const double tolerance = 1e-6,
+    const std::size_t max_bisects = 6) {
+
+  const auto result = irc_to_cartesian_single<Vector3, Vector, Matrix>(
+      q_irc_old, dq_irc, x_c_old,
+      bonds, angles, dihedrals,
+      linear_angles, out_of_plane_bends,
+      max_iters, tolerance);
+
+  if(result.converged) {
+    return result;
+  }
+
+  // Try bisecting step
+  constexpr std::size_t n_divs = 2;
+  if(max_bisects > 0) {
+    Vector x_c_start = x_c_old;
+    const Vector dq_irc_part = dq_irc_target / n_divs;
+
+    IrcToCartesianResult<Vector> partial_step;
+    for (std::size_t j = 0; j < n_divs; ++j) {
+      partial_step =
+          irc_to_cartesian_assisted<Vector3, Vector, Matrix>(
+              q_irc_old + j * dq_irc_part,
+              dq_irc_part,
+              x_c_start,
+              bonds, angles, dihedrals,
+              linear_angles, out_of_plane_bends,
+              max_iters, tolerance, max_bisects-1);
+
+      // Update starting cartesian for next iteration
+      x_c_start = partial_step.x_c;
+
+      if (!partial_step.converged) {
+        // Break out and eventually just return non-converged result
+        break;
+      }
+    }
+    if (partial_step.converged) {
+      // partial_step is the combined set of steps
+      return partial_step;
+    }
+  }
+
+  // Bisecting didn't work, return the original non-converged result
+  return result;
 }
 
 } // namespace transformation
