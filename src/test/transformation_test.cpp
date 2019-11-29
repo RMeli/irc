@@ -554,4 +554,104 @@ TEST_CASE("Transformation") {
       REQUIRE(angle(LA[1], x_c) == target);
     }
   }
+
+
+}
+
+TEST_CASE("Issue 41") {
+  SECTION("Big change in water") {
+    using namespace molecule;
+    using namespace connectivity;
+    using namespace transformation;
+    using namespace tools::conversion;
+    using namespace io;
+    using namespace std;
+    using namespace wilson;
+
+    auto molecule = molecule::Molecule<vec3>{
+      {
+        {"O", {0., 0., 0.}},
+        {"H", {1., 0., 0.}},
+        {"H", {0., 1., 0.}}
+      }
+    };
+    multiply_positions(molecule, tools::conversion::angstrom_to_bohr);
+
+    // Compute interatomic distance for formaldehyde molecule
+    mat dd{distances<vec3, mat>(molecule)};
+
+    // Build graph based on the adjacency matrix
+    UGraph adj{adjacency_matrix(dd, molecule)};
+
+    // Compute distance matrix and predecessor matrix
+    mat dist{distance_matrix<mat>(adj)};
+
+    // Compute bonds
+    std::vector<Bond> B{bonds(dist, molecule)};
+
+    // Check number of bonds
+    REQUIRE(B.size() == 2);
+
+    // Compute angle
+    std::vector<Angle> A{angles(dist, molecule)};
+
+    // Compute Wilson B matrix
+    mat W = wilson_matrix<vec3, vec, mat>(
+        molecule::to_cartesian<vec3, vec>(molecule), B, A);
+
+    // Allocate vector for internal reaction coordinates
+    vec q_irc_old{connectivity::cartesian_to_irc<vec3, vec>(
+        molecule::to_cartesian<vec3, vec>(molecule), B, A, {}, {}, {})};
+
+    // Displacement in internal coordinates
+    vec dq_irc_75{0.5, 0.5, 75. / 180. * tools::constants::pi};
+    vec dq_irc_89{0.5, 0.5, 89. / 180. * tools::constants::pi};
+
+    // Compute new internal coordinates
+    vec q_irc_new{q_irc_old + dq_irc_75};
+    CAPTURE(q_irc_new);
+
+    // Allocate vector for cartesian positions
+    vec x_c_old{to_cartesian<vec3, vec>(molecule)};
+
+    // Compute new cartesian coordinates
+    const auto itc_result_single = irc_to_cartesian_single<vec3, vec, mat>(
+        q_irc_old, dq_irc_75, x_c_old, B, A, {}, {}, {});
+    CHECK(!itc_result_single.converged);
+
+    const auto itc_result = irc_to_cartesian<vec3, vec, mat>(
+        q_irc_old, dq_irc_75, x_c_old, B, A, {}, {}, {});
+    CHECK(itc_result.converged);
+    const auto x_c = itc_result.x_c;
+
+    const auto itc_result89 = irc_to_cartesian<vec3, vec, mat>(
+        q_irc_old, dq_irc_89, x_c_old, B, A, {}, {}, {});
+    CHECK(itc_result89.converged);
+
+    // Print cartesian coordinates
+    CAPTURE(x_c);
+
+    // Reconstruct atomic positions (points in 3D space)
+    vec3 p1{x_c(0), x_c(1), x_c(2)};
+    vec3 p2{x_c(3), x_c(4), x_c(5)};
+    vec3 p3{x_c(6), x_c(7), x_c(8)};
+
+    SECTION("Bond 1") {
+    Approx target{q_irc_new(0)};
+    target.margin(1e-4);
+    REQUIRE(distance(p1, p2) == target);
+    }
+
+    SECTION("Bond 2") {
+    Approx target{q_irc_new(1)};
+    target.margin(1e-4);
+    REQUIRE(distance(p1, p3) == target);
+    }
+
+    SECTION("Angle") {
+    Approx target{q_irc_new(2)};
+    target.margin(1e-4);
+    REQUIRE(angle(p2, p1, p3) == target);
+    }
+  }
 }

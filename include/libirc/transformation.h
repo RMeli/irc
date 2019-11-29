@@ -179,7 +179,7 @@ IrcToCartesianResult<Vector> irc_to_cartesian(
   constexpr std::size_t n_divs = 2;
   if(max_bisects > 0) {
     Vector x_c_start = x_c_old;
-    const Vector dq_irc_part = q_irc_old / n_divs;
+    const Vector dq_irc_part = dq_irc / n_divs;
 
     IrcToCartesianResult<Vector> partial_step;
     for (std::size_t j = 0; j < n_divs; ++j) {
