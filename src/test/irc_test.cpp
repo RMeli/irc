@@ -272,7 +272,7 @@ TEST_CASE("Internal Redundant Coordinates") {
     vec dq{linalg::zeros<vec>(linalg::size(q_irc))};
 
     // Compute cartesian coordinate from IRC
-    vec x_c_from_irc{irc.irc_to_cartesian(q_irc, dq, x_c)};
+    vec x_c_from_irc{irc.irc_to_cartesian(q_irc, dq, x_c).x_c};
 
     std::size_t n{linalg::size(x_c)};
     for (std::size_t i{0}; i < n; i++) {

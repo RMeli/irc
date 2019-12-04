@@ -71,7 +71,7 @@ public:
   /// \param max_iters Maximum number of iterations
   /// \param tolerance Convergence tolerance
   /// \return New cartesian coordinates
-  Vector irc_to_cartesian(const Vector& q_irc_old,
+  transformation::IrcToCartesianResult<Vector> irc_to_cartesian(const Vector& q_irc_old,
                           const Vector& dq_irc,
                           const Vector& x_c_old,
                           std::size_t max_iters = 25,
@@ -422,7 +422,7 @@ Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const {
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
+transformation::IrcToCartesianResult<Vector> IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
                                                       const Vector& dq_irc,
                                                       const Vector& x_c_old,
                                                       std::size_t max_iters,
@@ -440,7 +440,7 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
     throw std::length_error("ERROR: Wrong old cartesian coordinates size.");
   }
 
-  const auto itc_result =
+  const auto irc_result =
       transformation::irc_to_cartesian<Vector3, Vector, Matrix>(
           q_irc_old,
           dq_irc,
@@ -455,7 +455,7 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
 
   // TODO: This computation can be avoided; B is computed in irc_to_cartesian
   // Update Wilson's B matrix
-  B = wilson::wilson_matrix<Vector3, Vector, Matrix>(itc_result.x_c,
+  B = wilson::wilson_matrix<Vector3, Vector, Matrix>(irc_result.x_c,
                                                      bonds,
                                                      angles,
                                                      dihedrals,
@@ -470,7 +470,7 @@ Vector IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
   }
 
   // Return new cartesian coordinates
-  return itc_result.x_c;
+  return irc_result;
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
