@@ -282,14 +282,22 @@ TEST_CASE("Internal Redundant Coordinates") {
       REQUIRE(x_c_from_irc(i) == target);
     }
   }
+}
 
-  SECTION("IRC to Cartesian - Issue #41") {
+TEST_CASE("Issues") {
+  using namespace molecule;
+  using namespace connectivity;
+  using namespace transformation;
+  using namespace tools::conversion;
+  using namespace io;
+  using namespace std;
+
+  SECTION("Issue #41") {
     // Define molecule in Issue #41
-    const auto molecule =
-        io::load_xyz<vec3>(config::molecules_dir + "issue41.xyz");
+    const auto molecule = load_xyz<vec3>(config::molecules_dir + "issue41.xyz");
 
     // Build internal reaction coordinates
-    IRC<vec3, vec, mat> irc(molecule);
+    IRC<vec3, vec, mat> ircs(molecule);
 
     vec q_irc_next = {
         2.69873,    2.63216,     2.75051,     2.7331,      2.6465,
@@ -323,15 +331,23 @@ TEST_CASE("Internal Redundant Coordinates") {
     vec x_c{to_cartesian<vec3, vec>(molecule)};
 
     // Compute internal redundant coordinates
-    vec q_irc{irc.cartesian_to_irc(x_c)};
+    vec q_irc{ircs.cartesian_to_irc(x_c)};
+
+    cout << q_irc << endl;
 
     // Define no displacement in IRC
     vec dq{q_irc_next - q_irc};
 
     // Compute cartesian coordinate from IRC
-    auto result = irc.irc_to_cartesian(q_irc_next, dq, x_c);
+    auto result = ircs.irc_to_cartesian(q_irc_next, dq, x_c);
 
     vec x_c_from_irc{result.x_c};
+
+    CAPTURE(ircs.get_bonds().size());
+    CAPTURE(ircs.get_angles().size());
+    CAPTURE(ircs.get_dihedrals().size());
+    CAPTURE(ircs.get_linear_angles().size());
+    CAPTURE(ircs.get_out_of_plane_bends().size());
 
     CHECK(result.converged);
   }
