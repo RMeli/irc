@@ -554,8 +554,6 @@ TEST_CASE("Transformation") {
       REQUIRE(angle(LA[1], x_c) == target);
     }
   }
-
-
 }
 
 TEST_CASE("Issue 41") {
@@ -569,12 +567,7 @@ TEST_CASE("Issue 41") {
     using namespace wilson;
 
     auto molecule = molecule::Molecule<vec3>{
-      {
-        {"O", {0., 0., 0.}},
-        {"H", {1., 0., 0.}},
-        {"H", {0., 1., 0.}}
-      }
-    };
+        {{"O", {0., 0., 0.}}, {"H", {1., 0., 0.}}, {"H", {0., 1., 0.}}}};
     multiply_positions(molecule, tools::conversion::angstrom_to_bohr);
 
     // Compute interatomic distance for formaldehyde molecule
@@ -637,21 +630,21 @@ TEST_CASE("Issue 41") {
     vec3 p3{x_c(6), x_c(7), x_c(8)};
 
     SECTION("Bond 1") {
-    Approx target{q_irc_new(0)};
-    target.margin(1e-4);
-    REQUIRE(distance(p1, p2) == target);
+      Approx target{q_irc_new(0)};
+      target.margin(1e-4);
+      REQUIRE(distance(p1, p2) == target);
     }
 
     SECTION("Bond 2") {
-    Approx target{q_irc_new(1)};
-    target.margin(1e-4);
-    REQUIRE(distance(p1, p3) == target);
+      Approx target{q_irc_new(1)};
+      target.margin(1e-4);
+      REQUIRE(distance(p1, p3) == target);
     }
 
     SECTION("Angle") {
-    Approx target{q_irc_new(2)};
-    target.margin(1e-4);
-    REQUIRE(angle(p2, p1, p3) == target);
+      Approx target{q_irc_new(2)};
+      target.margin(1e-4);
+      REQUIRE(angle(p2, p1, p3) == target);
     }
   }
 }

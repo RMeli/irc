@@ -71,11 +71,12 @@ public:
   /// \param max_iters Maximum number of iterations
   /// \param tolerance Convergence tolerance
   /// \return New cartesian coordinates
-  transformation::IrcToCartesianResult<Vector> irc_to_cartesian(const Vector& q_irc_old,
-                          const Vector& dq_irc,
-                          const Vector& x_c_old,
-                          std::size_t max_iters = 25,
-                          double tolerance = 1e-6);
+  transformation::IrcToCartesianResult<Vector>
+  irc_to_cartesian(const Vector& q_irc_old,
+                   const Vector& dq_irc,
+                   const Vector& x_c_old,
+                   std::size_t max_iters = 25,
+                   double tolerance = 1e-6);
 
   std::vector<connectivity::Bond> get_bonds() const;
 
@@ -422,11 +423,12 @@ Vector IRC<Vector3, Vector, Matrix>::cartesian_to_irc(const Vector& x_c) const {
 }
 
 template<typename Vector3, typename Vector, typename Matrix>
-transformation::IrcToCartesianResult<Vector> IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
-                                                      const Vector& dq_irc,
-                                                      const Vector& x_c_old,
-                                                      std::size_t max_iters,
-                                                      double tolerance) {
+transformation::IrcToCartesianResult<Vector>
+IRC<Vector3, Vector, Matrix>::irc_to_cartesian(const Vector& q_irc_old,
+                                               const Vector& dq_irc,
+                                               const Vector& x_c_old,
+                                               std::size_t max_iters,
+                                               double tolerance) {
 
   if (linalg::size(q_irc_old) != n_irc) {
     throw std::length_error("ERROR: Wrong old IRC coordinates size.");
