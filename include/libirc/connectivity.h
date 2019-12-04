@@ -381,8 +381,7 @@ inline double angle(const LinearAngle<Vector3>& a, const Vector& x_cartesian) {
 
   const Vector3 aOrth = a2 + a.orthogonal_direction;
 
-  return angle(a1, a2, aOrth) +
-         angle(aOrth, a2, a3);
+  return angle(a1, a2, aOrth) + angle(aOrth, a2, a3);
 }
 
 /// Compute angle

@@ -272,7 +272,7 @@ TEST_CASE("Internal Redundant Coordinates") {
     vec dq{linalg::zeros<vec>(linalg::size(q_irc))};
 
     // Compute cartesian coordinate from IRC
-    vec x_c_from_irc{irc.irc_to_cartesian(q_irc, dq, x_c)};
+    vec x_c_from_irc{irc.irc_to_cartesian(q_irc, dq, x_c).x_c};
 
     std::size_t n{linalg::size(x_c)};
     for (std::size_t i{0}; i < n; i++) {
@@ -281,5 +281,58 @@ TEST_CASE("Internal Redundant Coordinates") {
 
       REQUIRE(x_c_from_irc(i) == target);
     }
+  }
+
+  SECTION("IRC to Cartesian - Issue #41") {
+    // Define molecule in Issue #41
+    const auto molecule =
+        io::load_xyz<vec3>(config::molecules_dir + "issue41.xyz");
+
+    // Build internal reaction coordinates
+    IRC<vec3, vec, mat> irc(molecule);
+
+    vec q_irc_next = {
+        2.69873,    2.63216,     2.75051,     2.7331,      2.6465,
+        2.66307,    2.83097,     2.74455,     2.58185,     2.84907,
+        2.82958,    2.75401,     2.58345,     2.33196,     2.4169,
+        2.08872,    2.10057,     2.08658,     2.09745,     2.08976,
+        2.1038,     2.09314,     2.09084,     2.07154,     2.09745,
+        2.10667,    2.09451,     2.13115,     2.06417,     2.04088,
+        2.11113,    2.13647,     2.08623,     2.04094,     2.10441,
+        1.95211,    2.0311,      1.96448,     2.02538,     2.09322,
+        2.13935,    2.08234,     2.10632,     2.14114,     2.11665,
+        2.08578,    2.09212,     2.17156,     2.07068,     2.10512,
+        2.0892,     2.12405,     2.06167,     2.10058,     2.11018,
+        2.10038,    2.07596,     2.08923,     2.12978,     0.0192478,
+        0.0107708,  0.0258413,   0.0163308,   -0.0410394,  -0.0314206,
+        3.09261,    -3.1075,     1.31824,     -1.83119,    -1.95765,
+        0.0562704,  0.00600911,  1.9557,      -0.638266,   -0.683332,
+        -1.21737,   1.91638,     0.598524,    0.645881,    2.0076,
+        -2.03129,   -3.12078,    3.10563,     -3.14202,    -2.48917,
+        1.11684,    -1.14069,    2.54853,     3.10222,     -0.04581,
+        -3.08914,   2.46185,     -1.13041,    1.26207,     3.12046,
+        -2.46494,   -0.0249528,  -3.12882,    -3.11901,    0.0270607,
+        3.11603,    -3.13808,    -0.00442377, -0.0320436,  -3.1364,
+        -3.11046,   0.0134492,   -3.13311,    3.11241,     -0.0337284,
+        0.0288444,  -0.00699303, 0.0393071,   -0.00540334, 0.00393414,
+        0.00201568, -0.0175075,  0.0673447,   -0.00320022, 0.00578351,
+        0.0390592,
+    };
+
+    // Get cartesian coordinates
+    vec x_c{to_cartesian<vec3, vec>(molecule)};
+
+    // Compute internal redundant coordinates
+    vec q_irc{irc.cartesian_to_irc(x_c)};
+
+    // Define no displacement in IRC
+    vec dq{q_irc_next - q_irc};
+
+    // Compute cartesian coordinate from IRC
+    auto result = irc.irc_to_cartesian(q_irc_next, dq, x_c);
+
+    vec x_c_from_irc{result.x_c};
+
+    CHECK(result.converged);
   }
 }

@@ -165,32 +165,42 @@ IrcToCartesianResult<Vector> irc_to_cartesian(
     const double tolerance = 1e-6,
     const std::size_t max_bisects = 6) {
 
-  const auto result = irc_to_cartesian_single<Vector3, Vector, Matrix>(
-      q_irc_old, dq_irc, x_c_old,
-      bonds, angles, dihedrals,
-      linear_angles, out_of_plane_bends,
-      max_iters, tolerance);
+  const auto result =
+      irc_to_cartesian_single<Vector3, Vector, Matrix>(q_irc_old,
+                                                       dq_irc,
+                                                       x_c_old,
+                                                       bonds,
+                                                       angles,
+                                                       dihedrals,
+                                                       linear_angles,
+                                                       out_of_plane_bends,
+                                                       max_iters,
+                                                       tolerance);
 
-  if(result.converged) {
+  if (result.converged) {
     return result;
   }
 
   // Try bisecting step
   constexpr std::size_t n_divs = 2;
-  if(max_bisects > 0) {
+  if (max_bisects > 0) {
     Vector x_c_start = x_c_old;
     const Vector dq_irc_part = dq_irc / n_divs;
 
     IrcToCartesianResult<Vector> partial_step;
     for (std::size_t j = 0; j < n_divs; ++j) {
       partial_step =
-          irc_to_cartesian<Vector3, Vector, Matrix>(
-              q_irc_old + j * dq_irc_part,
-              dq_irc_part,
-              x_c_start,
-              bonds, angles, dihedrals,
-              linear_angles, out_of_plane_bends,
-              max_iters, tolerance, max_bisects-1);
+          irc_to_cartesian<Vector3, Vector, Matrix>(q_irc_old + j * dq_irc_part,
+                                                    dq_irc_part,
+                                                    x_c_start,
+                                                    bonds,
+                                                    angles,
+                                                    dihedrals,
+                                                    linear_angles,
+                                                    out_of_plane_bends,
+                                                    max_iters,
+                                                    tolerance,
+                                                    max_bisects - 1);
 
       // Update starting cartesian for next iteration
       x_c_start = partial_step.x_c;
