@@ -555,9 +555,7 @@ TEST_CASE("Transformation") {
       REQUIRE(angle(LA[1], x_c) == target);
     }
   }
-}
 
-TEST_CASE("Issue #41") {
   SECTION("Big change in water") {
     using namespace molecule;
     using namespace connectivity;
