@@ -4,9 +4,9 @@
 #ifdef HAVE_ARMA
 #include <armadillo>
 #elif HAVE_EIGEN3
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
-#include <Eigen/LU>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Geometry>
+#include <eigen3/Eigen/LU>
 #else
 #error
 #endif
