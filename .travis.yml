@@ -35,6 +35,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - cmake
             - liblapack-dev
             - libblas-dev
             - libboost-dev
@@ -54,6 +55,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - cmake
             - liblapack-dev
             - libblas-dev
             - libboost-dev
