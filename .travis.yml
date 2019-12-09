@@ -3,7 +3,7 @@ language: cpp
 matrix:
   include:
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - LIBLA=arma
       addons:
@@ -16,7 +16,7 @@ matrix:
           update: true
 
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       env:
         - LIBLA=eigen
       addons:
@@ -29,12 +29,13 @@ matrix:
           update: true
 
     - os: linux
-      dist: xenial
+      dist: bionic
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - cmake
             - liblapack-dev
             - libblas-dev
             - libboost-dev
@@ -47,24 +48,25 @@ matrix:
         - CXX=g++-7
         - LIBLA=arma
 
-#    - os: linux
-#      dist: xenial
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - liblapack-dev
-#            - libblas-dev
-#            - libboost-dev
-#            - libeigen3-dev
-#            - g++-7
-#            - lcov
-#          update: true
-#      env:
-#        - CC=gcc-7
-#        - CXX=g++-7
-#        - LIBLA=eigen
+    - os: linux
+      dist: bionic
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - cmake
+            - liblapack-dev
+            - libblas-dev
+            - libboost-dev
+            - libeigen3-dev
+            - g++-7
+            - lcov
+          update: true
+      env:
+        - CC=gcc-7
+        - CXX=g++-7
+        - LIBLA=eigen
 
 script:
   - bash .travis/build.sh
