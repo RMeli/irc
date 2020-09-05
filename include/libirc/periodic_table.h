@@ -17,7 +17,7 @@ constexpr std::size_t pt_size{96};
 // TODO: Get rid of C-style string
 /// Atomic symbols
 constexpr std::array<char[3], pt_size> symbols = {
-    {"",   "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne", "Na",
+    {"\0", "H",  "He", "Li", "Be", "B",  "C",  "N",  "O",  "F",  "Ne", "Na",
      "Mg", "Al", "Si", "P",  "S",  "Cl", "Ar", "K",  "Ca", "Sc", "Ti", "V",
      "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br",
      "Kr", "Rb", "Sr", "Y",  "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag",
@@ -350,20 +350,13 @@ inline constexpr bool valid_atomic_number(std::size_t an) noexcept {
 /// \param symbol Atomic symbol
 /// \return Atomic number
 inline std::size_t atomic_number(const std::string& symbol) {
-  std::size_t an{0};
-
-  for (std::size_t i = 0; i < pt_size; i++) {
+  for (std::size_t i = 1; i < pt_size; i++) {
     if (symbol == symbols[i]) {
-      an = i;
-      break;
+      return i;
     }
   }
 
-  if (an == 0) {
-    throw std::logic_error("Invalid atomic symbol.");
-  }
-
-  return an;
+  throw std::logic_error("Invalid atomic symbol: ");
 }
 
 } // namespace periodic_table
