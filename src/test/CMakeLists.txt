@@ -2,69 +2,33 @@
 # | CONFIGURATION |
 # + ------------- +
 
-configure_file( ${CMAKE_SOURCE_DIR}/src/config.h.in
-                ${CMAKE_BINARY_DIR}/src/config.h)
-
-# + ------------- +
-# | CATCH LIBRARY |
-# + ------------- +
-add_library(catch INTERFACE)
-target_include_directories(catch INTERFACE ${CMAKE_SOURCE_DIR}/external/catch/)
-
-add_library(catch_defined test.cpp)
-target_link_libraries(catch_defined catch)
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
 
 # + ------- +
 # | TESTING |
 # + ------- +
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
-# math
-add_executable( test_mathtools mathtools_test.cpp)
-target_link_libraries( test_mathtools irc catch_defined)
-add_test( UNITTEST_mathtools ${CMAKE_BINARY_DIR}/bin/test_mathtools )
+set(TEST_EXECUTABLE_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/mathtools_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/linalg_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/periodic_table_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/atom_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/molecule_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/io_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/connectivity_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/wilson_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/transformation_test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/irc_test.cpp
+)
 
-# linalg
-add_executable( test_linalg linalg_test.cpp)
-target_link_libraries( test_linalg irc catch_defined)
-add_test( UNITTEST_linalg ${CMAKE_BINARY_DIR}/bin/test_linalg )
-
-# periodic_table
-add_executable( test_periodic_table periodic_table_test.cpp)
-target_link_libraries( test_periodic_table irc catch_defined)
-add_test( UNITTEST_periodic_table ${CMAKE_BINARY_DIR}/bin/test_periodic_table)
-
-# atom
-add_executable( test_atom atom_test.cpp)
-target_link_libraries( test_atom irc catch_defined)
-add_test( UNITTEST_atom ${CMAKE_BINARY_DIR}/bin/test_atom )
-
-# molecule
-add_executable( test_molecule molecule_test.cpp)
-target_link_libraries( test_molecule irc catch_defined)
-add_test( UNITTEST_molecule ${CMAKE_BINARY_DIR}/bin/test_molecule )
-
-# io
-add_executable( test_io io_test.cpp)
-target_link_libraries( test_io irc catch_defined)
-add_test( UNITTEST_io ${CMAKE_BINARY_DIR}/bin/test_io )
-
-# connectivity
-add_executable( test_connectivity connectivity_test.cpp)
-target_link_libraries( test_connectivity irc catch_defined)
-add_test( UNITTEST_connectivity ${CMAKE_BINARY_DIR}/bin/test_connectivity )
-
-# wilson
-add_executable( test_wilson wilson_test.cpp)
-target_link_libraries( test_wilson irc catch_defined)
-add_test( UNITTEST_wilson ${CMAKE_BINARY_DIR}/bin/test_wilson )
-
-# transformation
-add_executable( test_transformation transformation_test.cpp)
-target_link_libraries( test_transformation irc catch_defined)
-add_test( UNITTEST_transformation ${CMAKE_BINARY_DIR}/bin/test_transformation )
-
-# irc
-add_executable( test_irc irc_test.cpp)
-target_link_libraries( test_irc irc catch_defined)
-add_test( UNITTEST_irc ${CMAKE_BINARY_DIR}/bin/test_irc )
+foreach(TEST_SOURCE ${TEST_EXECUTABLE_SOURCES})
+  get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
+  add_executable(${TEST_NAME} ${TEST_SOURCE})
+  target_link_libraries(${TEST_NAME} irc catch_defined)
+  target_include_directories(${TEST_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+  add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+endforeach()

@@ -1,7 +1,7 @@
 #ifndef IRC_CONVERSION_H
 #define IRC_CONVERSION_H
 
-#include "constants.h"
+#include "libirc/constants.h"
 
 namespace irc {
 

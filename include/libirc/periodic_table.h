@@ -1,7 +1,7 @@
 #ifndef IRC_PERIODIC_TABLE_H
 #define IRC_PERIODIC_TABLE_H
 
-#include "conversion.h"
+#include "libirc/conversion.h"
 
 #include <array>
 #include <iostream>

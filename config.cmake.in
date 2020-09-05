@@ -1,0 +1,14 @@
+# Dependencies
+include(CMakeFindDependencyMacro)
+
+find_dependency(Boost 1.58.0 REQUIRED)
+
+if(@WITH_ARMA@)
+  find_package(Armadillo 6.500.0 REQUIRED)
+endif()
+
+if(@WITH_EIGEN@)
+  find_dependency(Eigen3 3.0 REQUIRED)
+endif()
+
+include(${CMAKE_CURRENT_LIST_DIR}/irc-targets.cmake)
