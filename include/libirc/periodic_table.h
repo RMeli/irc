@@ -356,7 +356,7 @@ inline std::size_t atomic_number(const std::string& symbol) {
     }
   }
 
-  throw std::logic_error("Invalid atomic symbol: ");
+  throw std::logic_error(std::string{"Invalid atomic symbol: "} + symbol);
 }
 
 } // namespace periodic_table
