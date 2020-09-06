@@ -1,9 +1,9 @@
 #ifndef IRC_IO_H
 #define IRC_IO_H
 
-#include "connectivity.h"
-#include "conversion.h"
-#include "molecule.h"
+#include "libirc/connectivity.h"
+#include "libirc/conversion.h"
+#include "libirc/molecule.h"
 
 #include <fstream>
 #include <iomanip>

@@ -1,11 +1,11 @@
 #ifndef IRC_IRC_H
 #define IRC_IRC_H
 
-#include "connectivity.h"
-#include "linalg.h"
-#include "molecule.h"
-#include "transformation.h"
-#include "wilson.h"
+#include "libirc/connectivity.h"
+#include "libirc/linalg.h"
+#include "libirc/molecule.h"
+#include "libirc/transformation.h"
+#include "libirc/wilson.h"
 
 #include <algorithm>
 #include <utility>

@@ -38,7 +38,7 @@ For standalone installation and testing, IRC also requires [CMake](https://cmake
 
 ```cmake
   mkdir build && cd build
-  cmake -DWITH_ARMA:BOOLEAN=TRUE ..
+  cmake -DWITH_ARMA=TRUE ..
   make -j
 ```
 
@@ -46,7 +46,7 @@ For standalone installation and testing, IRC also requires [CMake](https://cmake
 
 ```cmake
   mkdir build && cd build
-  cmake -DWITH_EIGEN:BOOLEAN=TRUE ..
+  cmake -DWITH_EIGEN=TRUE ..
   make -j
 ```
 
@@ -61,6 +61,11 @@ For standalone installation and testing, IRC also requires [CMake](https://cmake
 IRC is an header-only library and its inclusion is quite straightforward.
 
 ### With CMake
+
+Libirc installs CMake configuration files that enable use of the library with
+`find_package`. The irc CMake target is named `irc`. Armadillo and Eigen
+dependencies are resolved at configuration time of this library and the
+relevant compile definitions and includes are set in the configuration files.
 
 ### Without CMake
 

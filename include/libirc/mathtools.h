@@ -1,9 +1,9 @@
 #ifndef IRC_MATH_H
 #define IRC_MATH_H
 
-#include "constants.h"
-#include "conversion.h"
-#include "linalg.h"
+#include "libirc/constants.h"
+#include "libirc/conversion.h"
+#include "libirc/linalg.h"
 
 namespace irc {
 

@@ -1,7 +1,7 @@
 #ifndef IRC_ATOM_H
 #define IRC_ATOM_H
 
-#include "periodic_table.h"
+#include "libirc/periodic_table.h"
 
 #include <iomanip>
 #include <ostream>
