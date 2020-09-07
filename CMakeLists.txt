@@ -108,9 +108,12 @@ endif()
 # | TESTING |
 # + ------- +
 
-enable_testing()
-add_subdirectory(external)
-add_subdirectory(src/test)
+option(BUILD_TESTS "Build tests for the library" ON)
+if(BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(external)
+  add_subdirectory(src/test)
+endif()
 
 # + ------------ +
 # | INSTALLATION |
@@ -118,7 +121,7 @@ add_subdirectory(src/test)
 
 # Copy headers folder
 install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/libirc
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
   DESTINATION include
 )
 # Create an export set
