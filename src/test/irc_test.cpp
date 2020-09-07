@@ -17,7 +17,7 @@ using mat = arma::mat;
 template<typename T>
 using Mat = arma::Mat<T>;
 #elif HAVE_EIGEN3
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 using vec3 = Eigen::Vector3d;
 using vec = Eigen::VectorXd;
 using mat = Eigen::MatrixXd;

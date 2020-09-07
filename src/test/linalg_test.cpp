@@ -8,7 +8,7 @@ using vec3 = arma::vec3;
 using vec = arma::vec;
 using mat = arma::mat;
 #elif HAVE_EIGEN3
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 using vec3 = Eigen::Vector3d;
 using vec = Eigen::VectorXd;
 using mat = Eigen::MatrixXd;
