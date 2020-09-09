@@ -121,7 +121,7 @@ endif()
 
 # Copy headers folder
 install(
-  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
   DESTINATION include
 )
 # Create an export set
