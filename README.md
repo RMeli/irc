@@ -124,14 +124,6 @@ To run the test use:
 ```bash
   ctest
 ```
-  
-### GitHub Actions
-
-Continuous integration (CI) is implemented using [GitHub Actions](https://github.com/features/actions). The test suite is run for every commit on all the branches and at least once a day for the `master` branch.
-
-### Code Coverage
-
-Code coverage is obtained using `Apple LLVM`. The coverage reports are then processed and uploaded to [CodeCov](https://codecov.io) by Travis-CI.
 
 ### Code Formatting
 
