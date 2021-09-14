@@ -1,6 +1,6 @@
 # Internal Redundant Coordinates
 
-[![Build Status](https://travis-ci.org/RMeli/irc.svg?branch=master)](https://travis-ci.org/RMeli/irc)
+[![Build Status](https://github.com/RMeli/irc/actions/workflows/cmake.yml/badge.svg)](https://github.com/RMeli/irc/actions)
 [![codecov](https://codecov.io/gh/RMeli/irc/branch/master/graph/badge.svg)](https://codecov.io/gh/RMeli/irc)
 [![GitHub license](https://img.shields.io/github/license/RMeli/irc.svg)](https://github.com/RMeli/irc/blob/master/LICENSE)
 [![GitHub top language](https://img.shields.io/github/languages/top/RMeli/irc.svg)](https://isocpp.org/)
@@ -125,9 +125,9 @@ To run the test use:
   ctest
 ```
   
-### Travis-CI
+### GitHub Actions
 
-Continuous integration (CI) is implemented using [Travis-CI](https://travis-ci.org/). The test suite is run for every commit on all the branches and at least once a day for the `master` branch.
+Continuous integration (CI) is implemented using [GitHub Actions](https://github.com/features/actions). The test suite is run for every commit on all the branches and at least once a day for the `master` branch.
 
 ### Code Coverage
 
