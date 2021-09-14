@@ -47,6 +47,7 @@ jobs:
     - name: Coverage
       working-directory: ${{github.workspace}}/build
       run: |
+        sudo apt install lcov
         lcov --directory . --capture --output-file coverage.info
         lcov --remove coverage.info '/usr/*' 'tests/catch.hpp' --output-file coverage.info
         lcov --list coverage.info
