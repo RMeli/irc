@@ -27,10 +27,10 @@ jobs:
       run: sudo apt install libarmadillo-dev
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.btype}} -DWITH_ARMA=TRUE
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.btype}} -DWITH_ARMA=TRUE
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.btype}}
+      run: cmake --build ${{github.workspace}}/build
 
     - name: Test
       working-directory: ${{github.workspace}}/build
