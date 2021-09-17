@@ -14,25 +14,30 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macOS]
         btype: [Release, Debug]
         la: [armadillo, eigen]
         include:
           - la: armadillo
-            lalibname: libarmadillo-dev
+            laubuntu: libarmadillo-dev
+            lamacos: armadillo
             lacmake: "-DWITH_ARMA=TRUE"
           - la: eigen
-            lalibname: libeigen3-dev
+            laubuntu: libeigen3-dev
+            lamacos: eigen
             lacmake: "-DWITH_EIGEN=TRUE"
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Install Dependencies (macOS)
+      if: startsWith(matrix.os, 'macOS')
+      run: brew install boost ${{matrix.lamacos}}
 
-    - name: Install Boost
-      run: sudo apt install libboost-all-dev
 
-    - name: Install Linear Algebra Library
-      run: sudo apt install ${{matrix.lalibname}}
+    - name: Install Dependencies (Ubuntu)
+      if: startsWith(matrix.os, 'ubuntu')
+      run: sudo apt install libboost-all-dev ${{matrix.laubuntu}}
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.btype}} ${{matrix.lacmake}} -DCOVERAGE=TRUE
