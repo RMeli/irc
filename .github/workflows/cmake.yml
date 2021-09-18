@@ -21,10 +21,12 @@ jobs:
           - la: armadillo
             laubuntu: libarmadillo-dev
             lamacos: armadillo
+            vmacos: 10.6.2
             lacmake: "-DWITH_ARMA=TRUE"
           - la: eigen
             laubuntu: libeigen3-dev
-            lamacos: https://raw.githubusercontent.com/Homebrew/homebrew-core/b88b9c6bea9cf3d06028229135b8eeefd362ddcf/Formula/eigen.rb
+            lamacos: eigen
+            vmacos: 3.3.9
             lacmake: "-DWITH_EIGEN=TRUE"
 
     steps:
@@ -32,7 +34,10 @@ jobs:
     
     - name: Install Dependencies (macOS)
       if: startsWith(matrix.os, 'macOS')
-      run: brew install boost ${{matrix.lamacos}}
+      run: |
+        brew install boost 
+        brew extract --version ${{matrix.vmacos}} ${{matrix.lamacos}}
+        brew install ${{matrix.lamacos}}@${{matrix.vmacos}}
 
     - name: Install Dependencies (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
