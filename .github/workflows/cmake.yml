@@ -36,8 +36,8 @@ jobs:
       if: startsWith(matrix.os, 'macOS')
       run: |
         brew install boost 
-        brew extract --version ${{matrix.vmacos}} ${{matrix.lamacos}} mytap
-        brew install mytap/${{matrix.lamacos}}@${{matrix.vmacos}}
+        brew extract --version ${{matrix.vmacos}} ${{matrix.lamacos}} homebrew/core/
+        brew install homebrew/core/${{matrix.lamacos}}@${{matrix.vmacos}}
 
     - name: Install Dependencies (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
