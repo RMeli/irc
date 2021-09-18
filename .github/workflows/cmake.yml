@@ -35,14 +35,14 @@ jobs:
     - name: Install Dependencies (macOS)
       if: startsWith(matrix.os, 'macOS')
       run: |
-        brew install boost 
+        brew install boost lcov
         brew tap-new $USER/local-${{matrix.lamacos}}
         brew extract --version ${{matrix.vmacos}} ${{matrix.lamacos}} $USER/local-${{matrix.lamacos}}
         brew install $USER/local-${{matrix.lamacos}}/${{matrix.lamacos}}@${{matrix.vmacos}}
 
     - name: Install Dependencies (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
-      run: sudo apt install libboost-all-dev ${{matrix.laubuntu}}
+      run: sudo apt install libboost-all-dev ${{matrix.laubuntu}} lcov
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.btype}} ${{matrix.lacmake}} -DCOVERAGE=TRUE
@@ -57,7 +57,6 @@ jobs:
     - name: Coverage
       working-directory: ${{github.workspace}}/build
       run: |
-        sudo apt install lcov
         lcov --directory . --capture --output-file coverage.info
         lcov --remove coverage.info '/usr/*' 'tests/catch.hpp' --output-file coverage.info
         lcov --list coverage.info
