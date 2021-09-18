@@ -24,7 +24,7 @@ jobs:
             lacmake: "-DWITH_ARMA=TRUE"
           - la: eigen
             laubuntu: libeigen3-dev
-            lamacos: eigen
+            lamacos: eigen@3.3
             lacmake: "-DWITH_EIGEN=TRUE"
 
     steps:
@@ -33,7 +33,6 @@ jobs:
     - name: Install Dependencies (macOS)
       if: startsWith(matrix.os, 'macOS')
       run: brew install boost ${{matrix.lamacos}}
-
 
     - name: Install Dependencies (Ubuntu)
       if: startsWith(matrix.os, 'ubuntu')
