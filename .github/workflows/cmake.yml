@@ -24,7 +24,7 @@ jobs:
             lacmake: "-DWITH_ARMA=TRUE"
           - la: eigen
             laubuntu: libeigen3-dev
-            lamacos: eigen@3.3
+            lamacos: https://raw.githubusercontent.com/Homebrew/homebrew-core/b88b9c6bea9cf3d06028229135b8eeefd362ddcf/Formula/eigen.rb
             lacmake: "-DWITH_EIGEN=TRUE"
 
     steps:
