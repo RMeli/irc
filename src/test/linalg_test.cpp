@@ -26,7 +26,7 @@ TEST_CASE("Size", "[size]") {
   }
 
   SECTION("Matrix") {
-    mat m = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    mat m{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
 
     CHECK(linalg::size(m) == 9);
   }
@@ -40,7 +40,7 @@ TEST_CASE("Number of rows", "[nrows]") {
   }
 
   SECTION("Matrix") {
-    mat m = {{1, 2, 3}, {4, 5, 6}};
+    mat m{{1, 2, 3}, {4, 5, 6}};
 
     CHECK(linalg::n_rows(m) == 2);
   }
@@ -54,7 +54,7 @@ TEST_CASE("Number of columns", "[ncols]") {
   }
 
   SECTION("Matrix") {
-    mat m = {{1, 2, 3}, {4, 5, 6}};
+    mat m{{1, 2, 3}, {4, 5, 6}};
 
     CHECK(linalg::n_cols(m) == 3);
   }
@@ -73,7 +73,7 @@ TEST_CASE("Norm and normalization", "[norm]") {
   }
 
   SECTION("Matrix") {
-    mat m = {{1, 2, 3}, {4, 5, 6}};
+    mat m{{1, 2, 3}, {4, 5, 6}};
 
     Approx t(std::sqrt(91));
     CHECK(linalg::norm(m) == t);
@@ -185,7 +185,7 @@ TEST_CASE("Identity", "[identity]") {
 TEST_CASE("Transpose", "[transpose]") {
   SECTION("Matrix") {
 
-    mat m = {{1, 2, 3}, {4, 5, 6}};
+    mat m{{1, 2, 3}, {4, 5, 6}};
 
     mat mt = linalg::transpose(m);
 
@@ -233,9 +233,9 @@ TEST_CASE("Inverse", "[inv]") {
     double a{1}, b{2}, c{3}, d{4};
     double det{a * d - b * c};
 
-    mat m = {{1, 2}, {3, 4}};
+    mat m{{1, 2}, {3, 4}};
 
-    mat mi = {{d, -b}, {-c, a}};
+    mat mi{{d, -b}, {-c, a}};
     mi *= 1. / det;
 
     mat inv = linalg::inv(m);
@@ -250,13 +250,13 @@ TEST_CASE("Inverse", "[inv]") {
 }
 
 TEST_CASE("Pseudo Inverse", "[pinv]") {
-  mat m = {{1, 2, 3}, {4, 5, 6}};
+  mat m{{1, 2, 3}, {4, 5, 6}};
 
   std::size_t n_r{linalg::n_rows(m)};
   std::size_t n_c{linalg::n_cols(m)};
 
   // WolframAlpha
-  mat p = {{-17, 8}, {-2, 2}, {13, -4}};
+  mat p{{-17, 8}, {-2, 2}, {13, -4}};
   p /= 18.;
 
   mat pinv = linalg::pseudo_inverse(m);

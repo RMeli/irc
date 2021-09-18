@@ -41,7 +41,7 @@ EIGEN_STRONG_INLINE Matrix(std::initializer_list<_Scalar> initlist) : Base()
   
   // Resize array, if empty
   if (base().size() == 0) {
-    // TODO: Assumes column vector
+    // FIXME: Assumes column vector
     this->resize(size, 1);
   }
   else{
@@ -53,36 +53,6 @@ EIGEN_STRONG_INLINE Matrix(std::initializer_list<_Scalar> initlist) : Base()
   std::size_t i{0};
   for(const auto& x : initlist){
     this->operator[](i) = x;
-    i++;
-  }
-}
-
-EIGEN_STRONG_INLINE Matrix(std::initializer_list<std::initializer_list<_Scalar>> initlist) : Base()
-{
-  // Check template parameters
-  Base::_check_template_params();
-  
-  std::size_t rows{initlist.size()};
-  std::size_t cols{initlist.begin()->size()};
-  
-  // Resize array, if empty
-  if (base().size() == 0) {
-    this->resize(rows, cols);
-  }
-  else{
-    // Check size compatibility between matrix and INITLIST
-    eigen_assert(rows == _Rows);
-    eigen_assert(cols == _Cols);
-  }
-  
-  // Fill array from INITLIST
-  std::size_t i{0};
-  for(const auto& x : initlist){
-    std::size_t j{0};
-    for(const auto& y : x){
-      this->operator()(i,j) = y;
-      j++;
-    }
     i++;
   }
 }

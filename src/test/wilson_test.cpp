@@ -88,20 +88,33 @@ TEST_CASE("Wilson B matrix for single fragments", "[wilson]") {
     double angle(0.5);
     double angle_rad(angle / 180. * constants::pi);
 
+    /*
     const std::vector<mat> R{
         {// Rotation for H1
-         {cos(angle_rad), -sin(angle_rad), 0},
-         {sin(angle_rad), cos(angle_rad), 0},
-         {0, 0, 1}},
+         {cos(angle_rad), -sin(angle_rad), 0.0},
+         {sin(angle_rad), cos(angle_rad), 0.0},
+         {0.0, 0.0, 1.0}},
         {// Rotation for O
-         {1, 0, 0},
-         {0, 1, 0},
-         {0, 0, 1}},
+         {1.0, 0.0, 0.0},
+         {0.0, 1.0, 0.0},
+         {0.0, 0.0, 1.0}},
         {// Rotation for H2
-         {cos(-angle_rad), -sin(-angle_rad), 0},
-         {sin(-angle_rad), cos(-angle_rad), 0},
-         {0, 0, 1}},
+         {cos(-angle_rad), -sin(-angle_rad), 0.0},
+         {sin(-angle_rad), cos(-angle_rad), 0.0},
+         {0.0, 0.0, 1.0}},
     };
+    */
+    std::vector<mat> R;
+    R.emplace_back(mat{{cos(angle_rad), -sin(angle_rad), 0.0},
+                    {sin(angle_rad), cos(angle_rad), 0.0},
+                    {0.0, 0.0, 1.0}}); // Rotation for H1
+    R.emplace_back(mat{
+                    {1.0, 0.0, 0.0},
+                    {0.0, 1.0, 0.0},
+                    {0.0, 0.0, 1.0}}); // Rotation for O
+    R.emplace_back(mat{{cos(-angle_rad), -sin(-angle_rad), 0.0},
+                       {sin(-angle_rad), cos(-angle_rad), 0.0},
+                       {0.0, 0.0, 1.0}}); // Rotation for H2
 
     const Molecule<vec3> mol{
         {"H", {1.43, -1.10, 0.00}}, // H1
