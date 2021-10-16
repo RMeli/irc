@@ -56,7 +56,7 @@ TEST_CASE("Transformation") {
     // Load molecule from file
     const auto molecule = load_xyz<vec3>(config::molecules_dir + "ethanol.xyz");
 
-    // Compute interatomic distance for formaldehyde molecule
+    // Compute interatomic distances
     mat dd{distances<vec3, mat>(molecule)};
 
     // Build graph based on the adjacency matrix
@@ -72,6 +72,8 @@ TEST_CASE("Transformation") {
     if (verbose) {
       print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule), B);
     }
+
+    CHECK(B.size() == 8);
 
     // Compute angles
     std::vector<Angle> A{angles(dist, molecule)};
@@ -91,6 +93,7 @@ TEST_CASE("Transformation") {
 
     // Compute linear angles
     std::vector<LinearAngle<vec3>> LA{linear_angles(dist, molecule)};
+    CHECK(LA.size() == 0);
 
     // Print linear angles
     if (verbose) {
@@ -99,6 +102,7 @@ TEST_CASE("Transformation") {
 
     // Compute linear angles
     std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, molecule)};
+    CHECK(OOPB.size() == 0);
 
     // Print linear angles
     if (verbose) {
@@ -129,6 +133,120 @@ TEST_CASE("Transformation") {
       cout << "Internal redundant coordinates (a.u.):\n"
            << cartesian_to_irc<vec3, vec>(x_c, B, A, D, LA, OOPB) << endl;
     }
+  }
+
+  SECTION("Cartesian to internal for ethane") {
+    using namespace molecule;
+    using namespace connectivity;
+    using namespace transformation;
+    using namespace tools::conversion;
+    using namespace io;
+    using namespace std;
+
+    // Load molecule from file
+    const auto molecule =
+        load_xyz<vec3>(config::molecules_dir + "ethane.xyz");
+    REQUIRE(molecule.size() == 8);
+
+    // Compute interatomic distances
+    mat dd{distances<vec3, mat>(molecule)};
+
+    // Build graph based on the adjacency matrix
+    UGraph adj{adjacency_matrix(dd, molecule)};
+
+    // Compute distance matrix and predecessor matrix
+    mat dist{distance_matrix<mat>(adj)};
+
+    // Compute bonds
+    std::vector<Bond> B{bonds(dist, molecule)};
+    CHECK(B.size() == 7);
+
+    // Print bonds
+    if (verbose) {
+      print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule), B);
+    }
+
+    // Compute angles
+    std::vector<Angle> A{angles(dist, molecule)};
+
+    // Print angles
+    if (verbose) {
+      print_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), A);
+    }
+
+    // Compute dihedral angles
+    std::vector<Dihedral> D{dihedrals(dist, molecule)};
+
+    // Print dihedral angles
+    if (verbose) {
+      print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule), D);
+    }
+
+    // Compute linear angles
+    std::vector<LinearAngle<vec3>> LA{linear_angles(dist, molecule)};
+    CHECK(LA.size() == 0);
+
+    // Print linear angles
+    if (verbose) {
+      print_linear_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule), LA);
+    }
+
+    // Compute linear angles
+    std::vector<OutOfPlaneBend> OOPB{out_of_plane_bends(dist, molecule)};
+    CHECK(OOPB.size() == 0);
+
+    // Print linear angles
+    if (verbose) {
+      print_out_of_plane_bends<vec3, vec>(to_cartesian<vec3, vec>(molecule),
+                                          OOPB);
+    }
+
+    // Compute number of cartesian coordinates
+    std::size_t n_c{3 * molecule.size()};
+
+    // Allocate vector for cartesian positions
+    vec x_c{linalg::zeros<vec>(n_c)};
+
+    // Fill vector with cartesian positions
+    for (std::size_t i{0}; i < molecule.size(); i++) {
+      x_c(3 * i + 0) = molecule[i].position(0);
+      x_c(3 * i + 1) = molecule[i].position(1);
+      x_c(3 * i + 2) = molecule[i].position(2);
+    }
+
+    if (verbose) {
+      // Print cartesian coordinates
+      cout << "\nCartesian coordinates (a.u.):\n " << x_c << endl;
+    }
+
+    if (verbose) {
+      // Compute and print internal redundant coordinates
+      cout << "Internal redundant coordinates (a.u.):\n"
+           << cartesian_to_irc<vec3, vec>(x_c, B, A, D, LA, OOPB) << endl;
+    }
+
+    const vec irc_0 = cartesian_to_irc<vec3, vec>(x_c, B, A, D, LA, OOPB);
+    vec irc = irc_0;
+
+    size_t n_irc = irc.size();
+
+    // Small test on reproducibility, related to issue #52
+    for(std::size_t n{0}; n < 100; n++){
+      auto result = irc_to_cartesian<vec3, vec, mat>(
+          irc, linalg::zeros<vec>(n_irc), x_c, B, A, D, LA, OOPB);
+
+      REQUIRE(result.converged);
+
+      const vec x_c_new = result.x_c;
+      irc = cartesian_to_irc<vec3, vec>(x_c_new, B, A, D, LA, OOPB);
+
+      // Check IRC are the same as the first one
+      REQUIRE(irc.size() == irc_0.size());
+      for(size_t i{0}; i < n_irc; i++){
+        CHECK(irc(i) == Approx(irc_0(i)));
+      }
+    }
+
   }
 
   SECTION("Internal to cartesian for H2") {
