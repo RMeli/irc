@@ -351,4 +351,143 @@ TEST_CASE("Issues") {
 
     CHECK(result.converged);
   }
+  
+  SECTION("ethane dihedrals") {
+    using namespace molecule;
+    using namespace connectivity;
+    using namespace transformation;
+    using namespace tools::conversion;
+    using namespace io;
+    using namespace std;
+	  // ethane structure 1
+    // Load molecule from file
+    const auto molecule1 = load_xyz<vec3>(config::molecules_dir + "ethane1.xyz");
+
+    mat dd1{distances<vec3, mat>(molecule1)};
+    
+    // Build graph based on the adjacency matrix
+    UGraph adj1{adjacency_matrix(dd1, molecule1)};
+
+    // Compute distance matrix and predecessor matrix
+    mat dist1{distance_matrix<mat>(adj1)};
+
+    // Compute bonds
+    std::vector<Bond> B1{bonds(dist1, molecule1)};
+
+    // Print bonds
+	  print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule1), B1);
+
+    // Compute angles
+    std::vector<Angle> A1{angles(dist1, molecule1)};
+
+    // Print angles
+    print_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule1), A1);
+
+    // Compute dihedral angles
+    std::vector<Dihedral> D1{dihedrals(dist1, molecule1)};
+
+    // Print dihedral angles
+    print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule1), D1);
+
+    // Compute linear angles
+    std::vector<LinearAngle<vec3>> LA1{linear_angles(dist1, molecule1)};
+
+    // Print linear angles
+    print_linear_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule1), LA1);
+
+    // Compute linear angles
+    std::vector<OutOfPlaneBend> OOPB1{out_of_plane_bends(dist1, molecule1)};
+
+    // Print linear angles
+    print_out_of_plane_bends<vec3, vec>(to_cartesian<vec3, vec>(molecule1),
+                                          OOPB1);
+     
+    // ethane structure 2
+    // Load molecule from file
+    const auto molecule2 = load_xyz<vec3>(config::molecules_dir + "ethane2.xyz");
+
+    mat dd2{distances<vec3, mat>(molecule2)};
+    
+    // Build graph based on the adjacency matrix
+    UGraph adj2{adjacency_matrix(dd2, molecule2)};
+
+    // Compute distance matrix and predecessor matrix
+    mat dist2{distance_matrix<mat>(adj2)};
+
+    // Compute bonds
+    std::vector<Bond> B2{bonds(dist2, molecule2)};
+
+    // Print bonds
+    print_bonds<vec3, vec>(to_cartesian<vec3, vec>(molecule2), B2);
+
+    // Compute angles
+    std::vector<Angle> A2{angles(dist2, molecule2)};
+
+    // Print angles
+    print_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule2), A2);
+
+    // Compute dihedral angles
+    std::vector<Dihedral> D2{dihedrals(dist2, molecule2)};
+
+    // Print dihedral angles
+    print_dihedrals<vec3, vec>(to_cartesian<vec3, vec>(molecule2), D2);
+
+    // Compute linear angles
+    std::vector<LinearAngle<vec3>> LA2{linear_angles(dist2, molecule2)};
+
+    // Print linear angles
+    print_linear_angles<vec3, vec>(to_cartesian<vec3, vec>(molecule2), LA2);
+
+    // Compute linear angles
+    std::vector<OutOfPlaneBend> OOPB2{out_of_plane_bends(dist2, molecule2)};
+
+    // Print linear angles
+    print_out_of_plane_bends<vec3, vec>(to_cartesian<vec3, vec>(molecule1),
+                                          OOPB2);
+    
+    std::size_t n_c{3 * molecule1.size()};
+
+    // Allocate vector for cartesian positions
+    vec x_c1{linalg::zeros<vec>(n_c)};
+    vec x_c2{linalg::zeros<vec>(n_c)};
+    // Fill vector with cartesian positions
+    for (std::size_t i{0}; i < molecule1.size(); i++) {
+      x_c1(3 * i + 0) = molecule1[i].position(0);
+      x_c1(3 * i + 1) = molecule1[i].position(1);
+      x_c1(3 * i + 2) = molecule1[i].position(2);
+
+      x_c2(3 * i + 0) = molecule2[i].position(0);
+      x_c2(3 * i + 1) = molecule2[i].position(1);
+      x_c2(3 * i + 2) = molecule2[i].position(2);
+    }
+
+    std::vector<double> ethane1_dih;
+    std::vector<double> ethane2_dih;
+
+    for (std::size_t i{0}; i < D1.size(); i++) {
+      const std::size_t idx1_i{D1[i].i}, idx1_j{D1[i].j}, idx1_k{D1[i].k}, idx1_l{D1[i].l};
+      const std::size_t idx2_i{D2[i].i}, idx2_j{D2[i].j}, idx2_k{D2[i].k}, idx2_l{D2[i].l};
+      // ethane1
+      vec3 p11{x_c1(3 * idx1_i), x_c1(3 * idx1_i + 1), x_c1(3 * idx1_i + 2)};
+      vec3 p12{x_c1(3 * idx1_j), x_c1(3 * idx1_j + 1), x_c1(3 * idx1_j + 2)};
+      vec3 p13{x_c1(3 * idx1_k), x_c1(3 * idx1_k + 1), x_c1(3 * idx1_k + 2)};
+      vec3 p14{x_c1(3 * idx1_l), x_c1(3 * idx1_l + 1), x_c1(3 * idx1_l + 2)};
+      // ethane2
+      vec3 p21{x_c2(3 * idx2_i), x_c2(3 * idx2_i + 1), x_c2(3 * idx2_i + 2)};
+      vec3 p22{x_c2(3 * idx2_j), x_c2(3 * idx2_j + 1), x_c2(3 * idx2_j + 2)};
+      vec3 p23{x_c2(3 * idx2_k), x_c2(3 * idx2_k + 1), x_c2(3 * idx2_k + 2)};
+      vec3 p24{x_c2(3 * idx2_l), x_c2(3 * idx2_l + 1), x_c2(3 * idx2_l + 2)};
+
+      const double dih1 = connectivity::dihedral(p11, p12, p13, p14) *
+                          tools::conversion::rad_to_deg;
+      const double dih2 = connectivity::dihedral(p21, p22, p23, p24) *
+                          tools::conversion::rad_to_deg;
+      ethane1_dih.push_back(dih1); 
+      ethane2_dih.push_back(dih2); 
+      //REQUIRE(dih1 == Approx(dih2).margin(1e-2));
+    }
+
+    REQUIRE_THAT(ethane1_dih, Catch::Approx(ethane2_dih).margin(1e-2));
+
+  }
 }
