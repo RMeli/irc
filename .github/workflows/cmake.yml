@@ -21,7 +21,6 @@ jobs:
           - la: armadillo
             laubuntu: libarmadillo-dev
             lamacos: armadillo
-            vmacos: 11.1.1
             lacmake: "-DWITH_ARMA=TRUE"
           - la: eigen
             laubuntu: libeigen3-dev
